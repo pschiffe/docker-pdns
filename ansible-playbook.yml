@@ -1,0 +1,129 @@
+---
+- hosts: localhost
+  vars:
+    pdns_master_ip: 172.5.0.20
+    pdns_slave_ip: 172.5.0.21
+
+# for now, you need to manually create the docker network:
+# docker network create --subnet 172.5.0.0/16 --gateway 172.5.0.1 pdns-net
+
+  tasks:
+  - name: db
+    docker_container:
+      name: pdns-mariadb
+      image: mariadb:10.1
+      pull: true
+      state: "{{ c_state | default('started') }}"
+      volumes:
+        - pdns-mariadb-volume:/var/lib/mysql:z
+      env:
+        MYSQL_ROOT_PASSWORD: my-secret-pw
+      networks:
+        - name: pdns-net
+    tags:
+      - db
+
+  - name: phpmyadmin
+    docker_container:
+      name: pdns-phpmyadmin
+      image: phpmyadmin/phpmyadmin
+      pull: true
+      state: "{{ c_state | default('started') }}"
+      published_ports:
+        - '8888:80'
+      networks:
+        - name: pdns-net
+    tags:
+      - db
+
+  - name: build pdns
+    docker_image:
+      name: my-pdns
+      state: "{{ i_state | default('present') }}"
+      force: true
+      path: ./pdns
+    tags:
+      - pdns
+
+  - name: pdns master
+    docker_container:
+      name: pdns
+      image: my-pdns
+      state: "{{ c_state | default('started') }}"
+      hostname: ns1.example.com
+      networks:
+        - name: pdns-net
+          ipv4_address: '{{ pdns_master_ip }}'
+      etc_hosts:
+        ns1.example.com: '{{ pdns_master_ip }}'
+        ns2.example.com: '{{ pdns_slave_ip }}'
+      links:
+        - pdns-mariadb:mysql
+      env:
+        PDNS_master: yes
+        PDNS_api: yes
+        PDNS_api_key: secret
+        PDNS_webserver: yes
+        PDNS_webserver_address: 0.0.0.0
+        PDNS_version_string: anonymous
+        PDNS_default_ttl: 1500
+        PDNS_soa_minimum_ttl: 1200
+        PDNS_default_soa_name: ns1.example.com
+        PDNS_default_soa_mail: hostmaster.example.com
+        PDNS_allow_axfr_ips: '{{ pdns_slave_ip }}'
+        PDNS_only_notify: '{{ pdns_slave_ip }}'
+    tags:
+      - pdns
+
+  - name: pdns slave
+    docker_container:
+      name: pdns-slave
+      image: my-pdns
+      state: "{{ c_state | default('started') }}"
+      hostname: ns2.example.com
+      networks:
+        - name: pdns-net
+          ipv4_address: '{{ pdns_slave_ip }}'
+      etc_hosts:
+        ns1.example.com: '{{ pdns_master_ip }}'
+        ns2.example.com: '{{ pdns_slave_ip }}'
+      links:
+        - pdns-mariadb:mysql
+      env:
+        PDNS_gmysql_dbname: powerdnsslave
+        PDNS_slave: yes
+        PDNS_webserver: yes
+        PDNS_webserver_address: 0.0.0.0
+        PDNS_version_string: anonymous
+        PDNS_disable_axfr: yes
+        PDNS_allow_notify_from: '{{ pdns_master_ip }}'
+        SUPERMASTER_IPS: '{{ pdns_master_ip }}'
+    tags:
+      - pdns
+
+  - name: build pdns-admin
+    docker_image:
+      name: my-pdns-admin
+      state: "{{ i_state | default('present') }}"
+      force: true
+      path: ./pdns-admin
+    tags:
+      - pdns-admin
+
+  - name: pdns-admin
+    docker_container:
+      name: pdns-admin
+      image: my-pdns-admin
+      state: "{{ c_state | default('started') }}"
+      tty: true
+      published_ports:
+        - '8889:80'
+      networks:
+        - name: pdns-net
+      links:
+        - pdns-mariadb:mysql
+        - pdns
+      volumes:
+        - pdns-admin-upload:/opt/powerdns-admin/upload
+    tags:
+      - pdns-admin
