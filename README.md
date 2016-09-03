@@ -4,6 +4,8 @@ This repository contains two Docker images - pdns-mysql and pdns-admin. Image **
 
 ## pdns-mysql
 
+[![](https://images.microbadger.com/badges/image/pschiffe/pdns-mysql.svg)](http://microbadger.com/images/pschiffe/pdns-mysql "Get your own image badge on microbadger.com")
+
 Docker image with [PowerDNS 4.x server](https://www.powerdns.com/) and mysql backend (without mysql server). For running, it needs external mysql server. Env vars for mysql configuration:
 ```
 (name=default value)
@@ -56,6 +58,8 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-slave \
 ```
 
 ## pdns-admin
+
+[![](https://images.microbadger.com/badges/image/pschiffe/pdns-admin.svg)](http://microbadger.com/images/pschiffe/pdns-admin "Get your own image badge on microbadger.com")
 
 Docker image with [PowerDNS Admin](https://github.com/ngoduykhanh/PowerDNS-Admin) web app, written in Flask, for managing PowerDNS servers. The app is running under uWSGI with nginx. Processes in the container are managed by systemd. For running, it needs external mysql server. Env vars for mysql configuration:
 ```
@@ -118,3 +122,7 @@ docker run -dt -p 8080:80 --name pdns-admin \
   -e PDNS_ADMIN_LDAP_FILTER="'(objectClass=inetorgperson)'" \
   pschiffe/pdns-admin
 ```
+
+## ansible-playbook.yml
+
+Included ansible playbook can be used to build and run the containers from this repo. To use it, you will need to be running recent Fedora with `oci-systemd-hook` rpm package installed and ansible 2.2+ (which is not released yet, see this [copr repo](https://copr.fedorainfracloud.org/coprs/abutcher/ansible/)).
