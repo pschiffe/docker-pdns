@@ -15,7 +15,6 @@ RUN mkdir -p /opt/powerdns-admin \
     | tar -xzC /opt/powerdns-admin --strip 1 \
   && sed -i '/MySQL-python/d' /opt/powerdns-admin/requirements.txt \
   && sed -i '/python-ldap/d' /opt/powerdns-admin/requirements.txt \
-  && rm -rf /opt/powerdns-admin/app/static \
   && chown -R root: /opt/powerdns-admin \
   && chown -R uwsgi: /opt/powerdns-admin/upload
 
