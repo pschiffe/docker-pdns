@@ -1,6 +1,6 @@
 # PowerDNS Docker Images
 
-This repository contains four Docker images - pdns-mysql, pdns-admin-static, pdns-admin-uwsgi and deprecated pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Images **pdns-admin-static** and **pdns-admin-uwsgi** contains fronted (nginx) and backend (uWSGI) for [PowerDNS Admin](https://git.omicroninteractive.com/0x97/powerdns-admin) web app, written in Flask, for managing PowerDNS servers. Pdns-admin is also completely configurable. Deprecated **pdns-admin** contains PowerDNS Admin in a single image where both nginx and uWSGI processes are managed by systemd. This image won't be updated anymore.
+This repository contains four Docker images - pdns-mysql, pdns-admin-static, pdns-admin-uwsgi and deprecated pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Images **pdns-admin-static** and **pdns-admin-uwsgi** contains fronted (nginx) and backend (uWSGI) for [PowerDNS Admin](https://git.0x97.io/0x97/powerdns-admin) web app, written in Flask, for managing PowerDNS servers. Pdns-admin is also completely configurable. Deprecated **pdns-admin** contains PowerDNS Admin in a single image where both nginx and uWSGI processes are managed by systemd. This image won't be updated anymore.
 
 All images are available on Docker Hub:
 
