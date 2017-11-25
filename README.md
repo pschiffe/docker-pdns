@@ -75,7 +75,7 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-slave \
 
 https://hub.docker.com/r/pschiffe/pdns-admin-uwsgi/
 
-Docker image with backend of [PowerDNS Admin](https://git.omicroninteractive.com/0x97/powerdns-admin) web app, written in Flask, for managing PowerDNS servers. This image contains the python part of the app running under uWSGI. It needs external mysql server. Env vars for mysql configuration:
+Docker image with backend of [PowerDNS Admin](https://git.0x97.io/0x97/powerdns-admin) web app, written in Flask, for managing PowerDNS servers. This image contains the python part of the app running under uWSGI. It needs external mysql server. Env vars for mysql configuration:
 ```
 (name=default value)
 
@@ -136,7 +136,7 @@ docker run -d --name pdns-admin-uwsgi \
 
 https://hub.docker.com/r/pschiffe/pdns-admin-static/
 
-Fronted image with nginx and static files for [PowerDNS Admin](https://git.omicroninteractive.com/0x97/powerdns-admin). Exposes port 80 for connections, expects uWSGI backend image under `pdns-admin-uwsgi` alias.
+Fronted image with nginx and static files for [PowerDNS Admin](https://git.0x97.io/0x97/powerdns-admin). Exposes port 80 for connections, expects uWSGI backend image under `pdns-admin-uwsgi` alias.
 
 ### Example
 

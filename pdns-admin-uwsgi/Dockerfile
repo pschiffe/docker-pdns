@@ -1,7 +1,7 @@
-FROM fedora:26
+FROM fedora:27
 MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
 
-RUN dnf -y --setopt=tsflags=nodocs install \
+RUN dnf -y --setopt=install_weak_deps=False install \
     python-pip \
     python2-mysql \
     python-ldap \
@@ -11,7 +11,7 @@ RUN dnf -y --setopt=tsflags=nodocs install \
   && dnf clean all
 
 RUN mkdir -p /opt/powerdns-admin \
-  && curl -sSLk https://git.omicroninteractive.com/0x97/powerdns-admin/repository/archive.tar.gz?ref=master \
+  && curl -sSL https://git.0x97.io/0x97/powerdns-admin/repository/master/archive.tar.gz \
     | tar -xzC /opt/powerdns-admin --strip 1 \
   && sed -i '/MySQL-python/d' /opt/powerdns-admin/requirements.txt \
   && sed -i '/python-ldap/d' /opt/powerdns-admin/requirements.txt \
