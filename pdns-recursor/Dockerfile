@@ -9,7 +9,7 @@ RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf \
 RUN pip3 install envtpl \
   && rm -rf ~/.cache/*
 
-ENV VERSION=4.0.7 \
+ENV VERSION=4.0.6 \
   PDNS_setuid=recursor \
   PDNS_setgid=recursor \
   PDNS_daemon=no
