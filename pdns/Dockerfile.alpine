@@ -1,0 +1,23 @@
+FROM alpine:3.7
+MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
+
+RUN set -xe \
+	&& apk update --no-cache && apk upgrade --no-cache \
+	&& apk add --update --no-cache pdns pdns-backend-mysql python3 mariadb-client \
+	&& rm -rf /var/cache/apk/*
+	
+RUN pip3 install envtpl \
+  && rm -rf ~/.cache/*
+
+ENV VERSION=4.0.4 \
+  PDNS_guardian=yes \
+  PDNS_setuid=pdns \
+  PDNS_setgid=pdns \
+  PDNS_launch=gmysql
+
+EXPOSE 53 53/udp
+
+COPY pdns.conf.tpl /
+COPY docker-cmd.sh /
+
+CMD [ "/docker-cmd.sh" ]
