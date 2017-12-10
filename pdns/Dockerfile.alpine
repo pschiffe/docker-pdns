@@ -3,7 +3,7 @@ MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
 
 RUN set -xe \
 	&& apk update --no-cache && apk upgrade --no-cache \
-	&& apk add --update --no-cache pdns pdns-backend-mysql python3 mariadb-client \
+	&& apk add --update --no-cache pdns pdns-backend-mysql pdns-doc python3 mariadb-client \
 	&& rm -rf /var/cache/apk/*
 	
 RUN pip3 install envtpl \
