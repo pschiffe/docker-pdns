@@ -8,7 +8,7 @@ RUN dnf -y --setopt=install_weak_deps=False install \
 RUN pip3 install envtpl \
   && rm -rf ~/.cache/*
 
-ENV VERSION=4.0.6 \
+ENV VERSION=4.0 \
   PDNS_setuid=recursor \
   PDNS_setgid=recursor \
   PDNS_daemon=no

@@ -1,19 +1,16 @@
 FROM alpine:3.7
 MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
 
-RUN set -xe \
-	&& apk update --no-cache && apk upgrade --no-cache \
-	&& apk add --update --no-cache \
-		curl \
-		py-pip \
-		uwsgi-python \
-		py-mysqldb \
-		py-pyldap \
-		py-cffi \
-		py-bcrypt \
-		mariadb-client \
-	&& rm -rf /var/cache/apk/*
-	
+RUN apk add --no-cache \
+    curl \
+    py-pip \
+    uwsgi-python \
+    py-mysqldb \
+    py-pyldap \
+    py-cffi \
+    py-bcrypt \
+    mariadb-client
+
 RUN mkdir -p /opt/powerdns-admin \
   && curl -sSL https://git.0x97.io/0x97/powerdns-admin/repository/master/archive.tar.gz \
     | tar -xzC /opt/powerdns-admin --strip 1 \
@@ -41,8 +38,8 @@ EXPOSE 9494
 VOLUME [ "/opt/powerdns-admin/upload" ]
 
 COPY pdns-admin.ini /etc/uwsgi/conf.d/
-RUN chown uwsgi: /etc/uwsgi/conf.d/pdns-admin.ini && \
-			 ln -s /etc/uwsgi/uwsgi.ini /etc/uwsgi.ini 
+RUN chown uwsgi: /etc/uwsgi/conf.d/pdns-admin.ini \
+  && ln -s /etc/uwsgi/uwsgi.ini /etc/uwsgi.ini
 
 COPY config.py.tpl /
 COPY docker-cmd.sh /

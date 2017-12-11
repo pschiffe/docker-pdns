@@ -11,7 +11,7 @@ RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf \
 RUN pip3 install envtpl \
   && rm -rf ~/.cache/*
 
-ENV VERSION=4.0.4 \
+ENV VERSION=4.0 \
   PDNS_guardian=yes \
   PDNS_setuid=pdns \
   PDNS_setgid=pdns \

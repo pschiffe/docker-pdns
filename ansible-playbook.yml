@@ -153,7 +153,7 @@
           - pdns-admin-upload:/opt/powerdns-admin/upload
         env:
           PDNS_ADMIN_SQLA_DB_PASSWORD: "'my-secret-pw'"
-          PDNS_ADMIN_PDNS_VERSION: "'4.0.4'"
+          PDNS_ADMIN_PDNS_VERSION: "'4.0'"
           PDNS_ADMIN_PDNS_API_KEY: "'secret'"
       tags:
         - pdns-admin
