@@ -1,8 +1,7 @@
 FROM fedora:27
 MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
 
-RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf \
-  && dnf -y --setopt=install_weak_deps=False install \
+RUN dnf -y --setopt=install_weak_deps=False install \
     pdns-recursor \
   && dnf clean all
 
