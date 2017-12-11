@@ -1,6 +1,6 @@
 # PowerDNS Docker Images
 
-This repository contains four Docker images - pdns-mysql, pdns-admin-static, pdns-admin-uwsgi and deprecated pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Images **pdns-admin-static** and **pdns-admin-uwsgi** contains fronted (nginx) and backend (uWSGI) for [PowerDNS Admin](https://git.0x97.io/0x97/powerdns-admin) web app, written in Flask, for managing PowerDNS servers. Pdns-admin is also completely configurable. Deprecated **pdns-admin** contains PowerDNS Admin in a single image where both nginx and uWSGI processes are managed by systemd. This image won't be updated anymore.
+This repository contains five Docker images - pdns-mysql, pdns-admin-static, pdns-admin-uwsgi, pdns-recursor and deprecated pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Image **pdns-recursor** contains completely configurable [PowerDNS 4.x recursor](https://www.powerdns.com/). Images **pdns-admin-static** and **pdns-admin-uwsgi** contains fronted (nginx) and backend (uWSGI) for [PowerDNS Admin](https://git.0x97.io/0x97/powerdns-admin) web app, written in Flask, for managing PowerDNS servers. Pdns-admin is also completely configurable. Deprecated **pdns-admin** contains PowerDNS Admin in a single image where both nginx and uWSGI processes are managed by systemd. This image won't be updated anymore.
 
 All images are available on Docker Hub:
 
@@ -144,6 +144,31 @@ Fronted image with nginx and static files for [PowerDNS Admin](https://git.0x97.
 docker run -d -p 8080:80 --name pdns-admin-static \
   --link pdns-admin-uwsgi:pdns-admin-uwsgi \
   pschiffe/pdns-admin-static
+```
+
+## pdns-recursor
+
+[![](https://images.microbadger.com/badges/image/pschiffe/pdns-recursor.svg)](http://microbadger.com/images/pschiffe/pdns-recursor "Get your own image badge on microbadger.com")
+
+https://hub.docker.com/r/pschiffe/pdns-recursor/
+
+Docker image with [PowerDNS 4.x recursor](https://www.powerdns.com/). 
+
+PowerDNS recursor is configurable via env vars. Every variable starting with `PDNS_` will be inserted into `/etc/pdns/recursor.conf` conf file in the following way: prefix `PDNS_` will be stripped and every `_` will be replaced with `-`. For example, from above mysql config, `PDNS_gmysql_host=mysql` will became `gmysql-host=mysql` in `/etc/pdns/recursor.conf` file. This way, you can configure PowerDNS recursor any way you need within a `docker run` command.
+
+You can find [here](https://doc.powerdns.com/md/recursor/settings/) all available settings.
+
+### Examples
+
+Recursor server with API enabled:
+```
+docker run -d -p 53:53 -p 53:53/udp --name pdns-recursor \
+  -e PDNS_api=yes \
+  -e PDNS_api_key=secret \
+  -e PDNS_webserver=yes \
+  -e PDNS_webserver_address=0.0.0.0 \
+  -e PDNS_webserver_password=secret2 \
+  pschiffe/pdns-recursor
 ```
 
 ## pdns-admin - DEPRECATED
