@@ -108,6 +108,8 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-recursor \
 
 [![](https://images.microbadger.com/badges/version/pschiffe/pdns-admin-uwsgi.svg)](https://microbadger.com/images/pschiffe/pdns-admin-uwsgi "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-admin-uwsgi.svg)](https://microbadger.com/images/pschiffe/pdns-admin-uwsgi "Get your own image badge on microbadger.com")
 
+[![](https://images.microbadger.com/badges/version/pschiffe/pdns-admin-uwsgi:alpine.svg)](https://microbadger.com/images/pschiffe/pdns-admin-uwsgi:alpine "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-admin-uwsgi:alpine.svg)](https://microbadger.com/images/pschiffe/pdns-admin-uwsgi:alpine "Get your own image badge on microbadger.com")
+
 https://hub.docker.com/r/pschiffe/pdns-admin-uwsgi/
 
 Docker image with backend of [PowerDNS Admin](https://git.0x97.io/0x97/powerdns-admin) web app, written in Flask, for managing PowerDNS servers. This image contains the python part of the app running under uWSGI. It needs external mysql server. Env vars for mysql configuration:
