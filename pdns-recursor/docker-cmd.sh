@@ -11,4 +11,13 @@ export PDNS_local_port PDNS_local_address
 # Create config file from template
 envtpl < /recursor.conf.tpl > /etc/pdns/recursor.conf
 
+# fix config right
+if [ getent passwd | grep -c '^pdns-recursor:' ]; then
+    # Fedora user
+    chown pdns-recursor:pdns-recursor /etc/pdns/recursor.conf
+else
+    # Alpine user
+    chown recursor:recursor /etc/pdns/recursor.conf
+fi
+
 exec /usr/sbin/pdns_recursor
