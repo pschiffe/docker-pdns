@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:3.8
 MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
 
 RUN apk add --no-cache \
@@ -11,7 +11,7 @@ RUN pip3 install envtpl \
 RUN mkdir -p /etc/pdns/api.d \
   && chown -R recursor:recursor /etc/pdns/api.d
 
-ENV VERSION=4.0 \
+ENV VERSION=4.1 \
   PDNS_setuid=recursor \
   PDNS_setgid=recursor \
   PDNS_daemon=no

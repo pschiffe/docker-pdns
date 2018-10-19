@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:3.8
 MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
 
 RUN apk add --no-cache \
@@ -11,7 +11,7 @@ RUN apk add --no-cache \
 RUN pip3 install envtpl \
   && rm -rf ~/.cache/*
 
-ENV VERSION=4.0 \
+ENV VERSION=4.1 \
   PDNS_guardian=yes \
   PDNS_setuid=pdns \
   PDNS_setgid=pdns \
