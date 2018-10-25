@@ -12,7 +12,7 @@ export PDNS_local_port PDNS_local_address
 envtpl < /recursor.conf.tpl > /etc/pdns/recursor.conf
 
 # fix config right
-if [ getent passwd | grep -c '^pdns-recursor:' ]; then
+if getent passwd | grep -q '^pdns-recursor:'; then
     # Fedora user
     chown pdns-recursor:pdns-recursor /etc/pdns/recursor.conf
 else
