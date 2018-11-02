@@ -18,7 +18,7 @@
     - name: db
       docker_container:
         name: pdns-mariadb
-        image: mariadb:10.2
+        image: mariadb:10.3
         pull: true
         state: '{{ c_state }}'
         purge_networks: true
