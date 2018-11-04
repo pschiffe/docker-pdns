@@ -301,5 +301,5 @@ make build-pdns-recursor
 ### Dockerfiles
 
 `Dockerfile` - old legacy fedora builds
-`Dockerfile.tpl` - template for arm/amd build matrix based on alpine (new)
-`Dockerfile_ngoduykhanh.tpl` - template for arm/amd build matrix for pdns-admin, but using the `ngoduykhanh` variant 
+`Dockerfile.tpl` - template for arm/amd build matrix based of 0x97 variant on alpine (new)
+`Dockerfile_ngoduykhanh.tpl` - template for arm/amd build matrix for pdns-admin, but using the `ngoduykhanh` variant. Work in progress, yet not working 
