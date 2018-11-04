@@ -1,11 +1,10 @@
-FROM alpine:3.8
+FROM {{.Env.DK_FROM_IMAGE}}
 MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
 
 RUN apk add --no-cache \
     pdns \
     pdns-backend-mysql \
     pdns-doc \
-    python3 \
     mariadb-client
 
 RUN pip3 install envtpl \

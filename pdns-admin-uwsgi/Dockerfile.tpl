@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM {{.Env.DK_FROM_IMAGE}}
 MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
 
 RUN apk add --no-cache \

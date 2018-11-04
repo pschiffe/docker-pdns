@@ -1,9 +1,8 @@
-FROM alpine:3.8
+FROM {{.Env.DK_FROM_IMAGE}}
 MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
 
 RUN apk add --no-cache \
-    pdns-recursor \
-    python3
+    pdns-recursor
 
 RUN pip3 install envtpl \
   && rm -rf ~/.cache/*

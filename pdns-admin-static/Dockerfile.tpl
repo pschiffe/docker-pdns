@@ -1,4 +1,4 @@
-FROM nginx:1.12-alpine
+FROM {{.Env.DK_FROM_IMAGE}}
 MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
 
 RUN apk add --no-cache curl

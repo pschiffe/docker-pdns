@@ -1,0 +1,6 @@
+.idea/
+pdns-admin-static/Dockerfile_*
+pdns-admin-uwsgi/Dockerfile_*
+pdns/Dockerfile_*
+pdns-recursor/Dockerfile_*
+
