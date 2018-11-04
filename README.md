@@ -276,7 +276,7 @@ ansible-playbook ansible-playbook.yml
 
 ## Build
 
-### Docker contianers
+### Docker containers
 
 ```bash
 make init
