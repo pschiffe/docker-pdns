@@ -3,4 +3,5 @@ pdns-admin-static/Dockerfile_*
 pdns-admin-uwsgi/Dockerfile_*
 pdns/Dockerfile_*
 pdns-recursor/Dockerfile_*
-
+!pdns-admin-static/Dockerfile_*.tpl
+!pdns-admin-uwsgi/Dockerfile_*.tpl

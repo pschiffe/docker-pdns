@@ -1,20 +1,27 @@
 FROM {{.Env.DK_FROM_IMAGE}}
 MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
 
-RUN apk add --no-cache \
+RUN apk --update add --no-cache --virtual .build-deps \
     curl \
     py-pip \
-    uwsgi \
     uwsgi-python \
-    py-werkzeug \
     py-mysqldb \
     py-pyldap \
     py-cffi \
     py-bcrypt \
-    mariadb-client
+    mariadb-client \
+    gcc \
+    musl-dev \
+    python3-dev \
+    mariadb-dev \
+    libffi-dev \
+    libxslt-dev \
+    xmlsec-dev \
+    openldap-dev
+    && rm -rf /var/cache/apk/*
 
 RUN mkdir -p /opt/powerdns-admin \
-  && curl -sSL https://git.0x97.io/0x97/powerdns-admin/repository/master/archive.tar.gz \
+  && curl -sSL https://github.com/ngoduykhanh/PowerDNS-Admin/archive/v0.1.tar.gz \
     | tar -xzC /opt/powerdns-admin --strip 1 \
   && sed -i '/MySQL-python/d' /opt/powerdns-admin/requirements.txt \
   && sed -i '/python-ldap/d' /opt/powerdns-admin/requirements.txt \
@@ -39,9 +46,10 @@ EXPOSE 9494
 
 VOLUME [ "/opt/powerdns-admin/upload" ]
 
-COPY pdns-admin.ini /etc/uwsgi/conf.d/pdns-admin.ini
+COPY pdns-admin.ini /etc/uwsgi/conf.d/
 RUN chown uwsgi: /etc/uwsgi/conf.d/pdns-admin.ini \
- && ln -s /etc/uwsgi/uwsgi.ini /etc/uwsgi.ini
+  && ln -s /etc/uwsgi/uwsgi.ini /etc/uwsgi.ini
+
 COPY config.py.tpl /
 COPY docker-cmd.sh /
 

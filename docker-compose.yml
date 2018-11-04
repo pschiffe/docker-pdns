@@ -34,7 +34,7 @@ services:
       MYSQL_ENV_MYSQL_USER: "powerdns"
       MYSQL_ENV_MYSQL_PASSWORD: "powerdns-password"
   pdns-admin-frontend:
-    image: eugenmayer/pdns-admin-static:${ARCH}
+    image: eugenmayer/pdns-admin-static:${ADMIN_VARIANT}${ARCH}
     restart: on-failure
     environment:
       PDNS_SERVER_API_KEY: ${PDNS_SERVER_API_KEY}
@@ -44,7 +44,7 @@ services:
     links:
       - pdns-admin-backend:pdns-admin-uwsgi
   pdns-admin-backend:
-    image: eugenmayer/pdns-admin-uwsgi:${ARCH}
+    image: eugenmayer/pdns-admin-uwsgi:${ADMIN_VARIANT}${ARCH}
     restart: on-failure
     depends_on:
       - db

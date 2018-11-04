@@ -4,10 +4,21 @@ generate-dockerfiles:
 	env DK_FROM_IMAGE='arm32v6/nginx:1.14-alpine' gomplate -f pdns-admin-static/Dockerfile.tpl -o pdns-admin-static/Dockerfile_arm32v6
 	env DK_FROM_IMAGE='arm64v8/nginx:1.14-alpine' gomplate -f pdns-admin-static/Dockerfile.tpl -o pdns-admin-static/Dockerfile_arm64v8
 
+	# pdns-admin-static-ngoduykhanh
+	env DK_FROM_IMAGE='nginx:1.14-alpine' gomplate -f pdns-admin-static/Dockerfile_ngoduykhanh.tpl -o pdns-admin-static/Dockerfile_ngoduykhanh_amd64
+	env DK_FROM_IMAGE='arm32v6/nginx:1.14-alpine' gomplate -f pdns-admin-static/Dockerfile_ngoduykhanh.tpl -o pdns-admin-static/Dockerfile_ngoduykhanh_arm32v6
+	env DK_FROM_IMAGE='arm64v8/nginx:1.14-alpine' gomplate -f pdns-admin-static/Dockerfile_ngoduykhanh.tpl -o pdns-admin-static/Dockerfile_ngoduykhanh_arm64v8
+
 	# pdns-admin-uwsgi
-	env DK_FROM_IMAGE='python:3-alpine3.8' gomplate -f pdns-admin-uwsgi/Dockerfile.tpl -o pdns-admin-uwsgi/Dockerfile_amd64
-	env DK_FROM_IMAGE='arm32v6/python:3-alpine3.8' gomplate -f pdns-admin-uwsgi/Dockerfile.tpl -o pdns-admin-uwsgi/Dockerfile_arm32v6
-	env DK_FROM_IMAGE='arm64v8/python:3-alpine3.8' gomplate -f pdns-admin-uwsgi/Dockerfile.tpl -o pdns-admin-uwsgi/Dockerfile_arm64v8
+	env DK_FROM_IMAGE='python:2-alpine3.8' gomplate -f pdns-admin-uwsgi/Dockerfile.tpl -o pdns-admin-uwsgi/Dockerfile_amd64
+	env DK_FROM_IMAGE='arm32v6/python:2-alpine3.8' gomplate -f pdns-admin-uwsgi/Dockerfile.tpl -o pdns-admin-uwsgi/Dockerfile_arm32v6
+	env DK_FROM_IMAGE='arm64v8/python:2-alpine3.8' gomplate -f pdns-admin-uwsgi/Dockerfile.tpl -o pdns-admin-uwsgi/Dockerfile_arm64v8
+
+	# pdns-admin-uwsgi-ngoduykhanh
+	env DK_FROM_IMAGE='python:3-alpine3.8' gomplate -f pdns-admin-uwsgi/Dockerfile_ngoduykhanh.tpl -o pdns-admin-uwsgi/Dockerfile_ngoduykhanh_amd64
+	env DK_FROM_IMAGE='arm32v6/python:3-alpine3.8' gomplate -f pdns-admin-uwsgi/Dockerfile_ngoduykhanh.tpl -o pdns-admin-uwsgi/Dockerfile_ngoduykhanh_arm32v6
+	env DK_FROM_IMAGE='arm64v8/python:3-alpine3.8' gomplate -f pdns-admin-uwsgi/Dockerfile_ngoduykhanh.tpl -o pdns-admin-uwsgi/Dockerfile_ngoduykhanh_arm64v8
+
 
 	# pdns-recursor
 	env DK_FROM_IMAGE='python:3-alpine3.8' gomplate -f pdns-recursor/Dockerfile.tpl -o pdns-recursor/Dockerfile_amd64
@@ -24,10 +35,20 @@ build-pdns-admin-static:
 	docker build -t eugenmayer/pdns-admin-static:arm32v6 pdns-admin-static -f pdns-admin-static/Dockerfile_arm32v6
 	docker build -t eugenmayer/pdns-admin-static:arm64v8 pdns-admin-static -f pdns-admin-static/Dockerfile_arm64v8
 
+build-pdns-admin-static-ngoduykhanh:
+	docker build -t eugenmayer/pdns-admin-static:ngoduykhanh-amd64 pdns-admin-static -f pdns-admin-static/Dockerfile_ngoduykhanh_amd64
+#	docker build -t eugenmayer/pdns-admin-static:ngoduykhanh-arm32v6 pdns-admin-static -f pdns-admin-static/Dockerfile_ngoduykhanh_arm32v6
+#	docker build -t eugenmayer/pdns-admin-static:ngoduykhanh-arm64v8 pdns-admin-static -f pdns-admin-static/Dockerfile_ngoduykhanh_arm64v8
+
 build-pdns-admin-uwsgi:
 	docker build -t eugenmayer/pdns-admin-uwsgi:amd64 pdns-admin-uwsgi -f pdns-admin-uwsgi/Dockerfile_amd64
-	docker build -t eugenmayer/pdns-admin-uwsgi:arm32v6 pdns-admin-uwsgi -f pdns-admin-uwsgi/Dockerfile_arm32v6
-	docker build -t eugenmayer/pdns-admin-uwsgi:arm64v8 pdns-admin-uwsgi -f pdns-admin-uwsgi/Dockerfile_arm64v8
+#	docker build -t eugenmayer/pdns-admin-uwsgi:arm32v6 pdns-admin-uwsgi -f pdns-admin-uwsgi/Dockerfile_arm32v6
+#	docker build -t eugenmayer/pdns-admin-uwsgi:arm64v8 pdns-admin-uwsgi -f pdns-admin-uwsgi/Dockerfile_arm64v8
+
+build-pdns-admin-uwsgi-ngoduykhanh:
+	docker build -t eugenmayer/pdns-admin-uwsgi:ngoduykhanh-amd64 pdns-admin-uwsgi -f pdns-admin-uwsgi/Dockerfile_ngoduykhanh_amd64
+#	docker build -t eugenmayer/pdns-admin-uwsgi:ngoduykhanh-arm32v6 pdns-admin-uwsgi -f pdns-admin-uwsgi/Dockerfile_ngoduykhanh_arm32v6
+#	docker build -t eugenmayer/pdns-admin-uwsgi:ngoduykhanh-arm64v8 pdns-admin-uwsgi -f pdns-admin-uwsgi/Dockerfile_ngoduykhanh_arm64v8
 
 build-pdns:
 	docker build -t eugenmayer/pdns:amd64 pdns -f pdns/Dockerfile_amd64
@@ -41,6 +62,11 @@ build-pdns-recursor:
 
 build: generate-dockerfiles build-pdns-admin-static build-pdns-admin-uwsgi build-pdns build-pdns-recursor
 
+clean:
+	rm pdns-admin-uwsgi/Dockerfile*_arm* pdns-admin-uwsgi/Dockerfile*_amd64
+	rm pdns-admin-static/Dockerfile*_arm* pdns-admin-static/Dockerfile*_amd64
+	rm pdns/Dockerfile*_arm* pdns/Dockerfile*_amd64
+	rm pdns-recursor/Dockerfile*_arm* pdns-recursor/Dockerfile*_amd64
 init:
 	# we could use alternative ways of installing it https://gomplate.hairyhenderson.ca/installing/
 	go get github.com/hairyhenderson/gomplate/cmd/gomplate

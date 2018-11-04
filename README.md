@@ -297,3 +297,9 @@ make build-pdns-admin-uwsgi
 make build-pdns
 make build-pdns-recursor
 ```
+
+### Dockerfiles
+
+`Dockerfile` - old legacy fedora builds
+`Dockerfile.tpl` - template for arm/amd build matrix based on alpine (new)
+`Dockerfile_ngoduykhanh.tpl` - template for arm/amd build matrix for pdns-admin, but using the `ngoduykhanh` variant 
