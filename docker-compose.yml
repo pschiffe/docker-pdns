@@ -31,8 +31,8 @@ services:
       MYSQL_ENV_MYSQL_HOST: "db"
       MYSQL_ENV_MYSQL_PORT: "3306"
       MYSQL_ENV_MYSQL_DATABASE: "powerdns"
-      MYSQL_ENV_MYSQL_USER: "powerdns"
-      MYSQL_ENV_MYSQL_PASSWORD: "powerdns-password"
+      MYSQL_ENV_MYSQL_USER: "root"
+      MYSQL_ENV_MYSQL_ROOT_PASSWORD: "powerdns-password"
   pdns-admin-frontend:
     image: eugenmayer/pdns-admin-static:${ADMIN_VARIANT}${ARCH}
     restart: on-failure
@@ -51,9 +51,9 @@ services:
     environment:
       MYSQL_ENV_MYSQL_HOST: "db"
       MYSQL_ENV_MYSQL_PORT: "3306"
-      MYSQL_ENV_MYSQL_DATABASE: "powerdns"
-      MYSQL_ENV_MYSQL_USER: "powerdns"
-      MYSQL_ENV_MYSQL_PASSWORD: "powerdns-password"
+      MYSQL_ENV_MYSQL_DATABASE: "poweradmin"
+      MYSQL_ENV_MYSQL_USER: "root"
+      MYSQL_ENV_MYSQL_ROOT_PASSWORD: "powerdns-password"
       PDNS_ENV_PDNS_api_key: ${PDNS_SERVER_API_KEY}
       PDNS_ENV_PDNS_webserver_host: 'pdns'
       PDNS_ENV_PDNS_webserver_port: "8081"
@@ -63,10 +63,9 @@ services:
     volumes:
       - db-data:/var/lib/mysql
     environment:
+      # we create the db for pdns-master, the db for pdns-admin-backend will created during its startup
       MYSQL_DATABASE: "powerdns"
-      MYSQL_USER: "powerdns"
-      MYSQL_PASSWORD: "powerdns-password"
-      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+      MYSQL_ROOT_PASSWORD: "powerdns-password"
 
 volumes:
   db-data:

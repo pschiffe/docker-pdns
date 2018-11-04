@@ -50,7 +50,7 @@ RUN chown uwsgi: /etc/uwsgi/conf.d/pdns-admin.ini \
   && ln -s /etc/uwsgi/uwsgi.ini /etc/uwsgi.ini
 
 COPY config.py.tpl /
-COPY docker-entrypoint.sh.sh /
+COPY docker-entrypoint.sh /
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 CMD [ "/usr/sbin/uwsgi", "--ini", "/etc/uwsgi/uwsgi.ini" ]
