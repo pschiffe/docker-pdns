@@ -20,6 +20,7 @@ ENV VERSION=4.0 \
 EXPOSE 53 53/udp
 
 COPY pdns.conf.tpl /
-COPY docker-cmd.sh /
+COPY docker-entrypoint.sh /
 
-CMD [ "/docker-cmd.sh" ]
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
+CMD [ "/usr/sbin/pdns_server" ]

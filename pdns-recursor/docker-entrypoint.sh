@@ -20,4 +20,4 @@ else
     chown recursor:recursor /etc/pdns/recursor.conf
 fi
 
-exec /usr/sbin/pdns_recursor
+exec "$@"

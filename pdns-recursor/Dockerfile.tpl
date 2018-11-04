@@ -18,6 +18,7 @@ ENV VERSION=4.1 \
 EXPOSE 53 53/udp
 
 COPY recursor.conf.tpl /
-COPY docker-cmd.sh /
+COPY docker-entrypoint.sh /
 
-CMD [ "/docker-cmd.sh" ]
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
+CMD [ "/usr/sbin/pdns_recursor" ]

@@ -32,8 +32,7 @@ RUN mkdir -p /opt/powerdns-admin \
 WORKDIR /opt/powerdns-admin
 
 RUN pip install envtpl \
-  && pip install -r requirements.txt \
-  && rm -rf ~/.cache/*
+  && pip install --no-cache-dir -r requirements.txt
 
 ENV PDNS_ADMIN_LOGIN_TITLE="'PDNS'" \
   PDNS_ADMIN_TIMEOUT=10 \
@@ -51,6 +50,7 @@ RUN chown uwsgi: /etc/uwsgi/conf.d/pdns-admin.ini \
   && ln -s /etc/uwsgi/uwsgi.ini /etc/uwsgi.ini
 
 COPY config.py.tpl /
-COPY docker-cmd.sh /
+COPY docker-entrypoint.sh.sh /
 
-CMD [ "/docker-cmd.sh" ]
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
+CMD [ "/usr/sbin/uwsgi", "--ini", "/etc/uwsgi/uwsgi.ini" ]

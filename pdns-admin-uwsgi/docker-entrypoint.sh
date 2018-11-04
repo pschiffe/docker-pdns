@@ -50,4 +50,4 @@ fi
 mkdir -p /run/uwsgi
 chown uwsgi: /run/uwsgi
 
-exec /usr/sbin/uwsgi --ini /etc/uwsgi.ini
+exec "$@"

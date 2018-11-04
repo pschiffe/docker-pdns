@@ -43,4 +43,4 @@ if [ "${SUPERMASTER_IPS:-}" ]; then
     $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" -e "$MYSQL_INSERT_SUPERMASTERS"
 fi
 
-exec /usr/sbin/pdns_server
+exec "$@"
