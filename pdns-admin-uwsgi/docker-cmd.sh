@@ -3,8 +3,8 @@
 set -euo pipefail
 
 # Configure mysql env vars
-: "${PDNS_ADMIN_SQLA_DB_HOST:='mysql'}"
-: "${PDNS_ADMIN_SQLA_DB_PORT:='3306'}"
+: "${PDNS_ADMIN_SQLA_DB_HOST:='${MYSQL_ENV_MYSQL_HOST:-mysql}'}"
+: "${PDNS_ADMIN_SQLA_DB_PORT:='${MYSQL_ENV_MYSQL_PORT:-3306}'}"
 : "${PDNS_ADMIN_SQLA_DB_USER:='${MYSQL_ENV_MYSQL_USER:-root}'}"
 if [ "${PDNS_ADMIN_SQLA_DB_USER}" = "'root'" ]; then
     : "${PDNS_ADMIN_SQLA_DB_PASSWORD:='$MYSQL_ENV_MYSQL_ROOT_PASSWORD'}"
@@ -15,7 +15,7 @@ fi
 export PDNS_ADMIN_SQLA_DB_HOST PDNS_ADMIN_SQLA_DB_PORT PDNS_ADMIN_SQLA_DB_USER PDNS_ADMIN_SQLA_DB_PASSWORD PDNS_ADMIN_SQLA_DB_NAME
 
 # Configure pdns server env vars
-: "${PDNS_ADMIN_PDNS_STATS_URL:='http://pdns:${PDNS_ENV_PDNS_webserver_port:-8081}/'}"
+: "${PDNS_ADMIN_PDNS_STATS_URL:='http://${PDNS_ENV_PDNS_webserver_host:-pdns}:${PDNS_ENV_PDNS_webserver_port:-8081}/'}"
 : "${PDNS_ADMIN_PDNS_API_KEY:='${PDNS_ENV_PDNS_api_key:-}'}"
 : "${PDNS_ADMIN_PDNS_VERSION:='${PDNS_ENV_VERSION:-}'}"
 

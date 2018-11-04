@@ -1,0 +1,73 @@
+version: "2"
+
+services:
+  pdns-recursor:
+    image: eugenmayer/pdns-recursor:${ARCH}
+    restart: on-failure
+    ports:
+      - 55:53
+      - 55:53/udp
+    environment:
+      # those are basically always needed in a docker-based environment with bridged network
+      PDNS_allow_from: '0.0.0.0/0,::1/128'
+      PDNS_local_address: '0.0.0.0,[::]'
+      PDNS_forward_zones_recurse: ".=127.0.0.1:5353;[::1]:5353;8.8.8.8;8.8.4.4"
+  pdns:
+    image: eugenmayer/pdns:${ARCH}
+    restart: on-failure
+    depends_on:
+      - db
+    ports:
+      - 8081:8081
+    environment:
+      PDNS_api_key: ${PDNS_SERVER_API_KEY}
+      PDNS_master: "yes"
+      PDNS_api: "yes"
+      PDNS_webserver: "yes"
+      PDNS_webserver_address: "0.0.0.0"
+      PDNS_webserver_password: "secret2"
+      PDNS_webserver_allow_from: "0.0.0.0/0"
+      PDNS_version_string: "anonymous"
+      MYSQL_ENV_MYSQL_HOST: "db"
+      MYSQL_ENV_MYSQL_PORT: "3306"
+      MYSQL_ENV_MYSQL_DATABASE: "powerdns"
+      MYSQL_ENV_MYSQL_USER: "powerdns"
+      MYSQL_ENV_MYSQL_PASSWORD: "powerdns-password"
+  pdns-admin-frontend:
+    image: eugenmayer/pdns-admin-static:${ARCH}
+    restart: on-failure
+    environment:
+      PDNS_SERVER_API_KEY: ${PDNS_SERVER_API_KEY}
+      PDNS_ADMIN_SECRET: ${PDNS_ADMIN_SECRET}
+    ports:
+      - "8080:80"
+    links:
+      - pdns-admin-backend:pdns-admin-uwsgi
+  pdns-admin-backend:
+    image: eugenmayer/pdns-admin-uwsgi:${ARCH}
+    restart: on-failure
+    depends_on:
+      - db
+    environment:
+      MYSQL_ENV_MYSQL_HOST: "db"
+      MYSQL_ENV_MYSQL_PORT: "3306"
+      MYSQL_ENV_MYSQL_DATABASE: "powerdns"
+      MYSQL_ENV_MYSQL_USER: "powerdns"
+      MYSQL_ENV_MYSQL_PASSWORD: "powerdns-password"
+      PDNS_ENV_PDNS_api_key: ${PDNS_SERVER_API_KEY}
+      PDNS_ENV_PDNS_webserver_host: 'pdns'
+      PDNS_ENV_PDNS_webserver_port: "8081"
+      #PDNS_ENV_VERSION: "4"
+  db:
+    image: percona:5.7
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: "powerdns"
+      MYSQL_USER: "powerdns"
+      MYSQL_PASSWORD: "powerdns-password"
+      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+
+volumes:
+  db-data:
+    driver: local

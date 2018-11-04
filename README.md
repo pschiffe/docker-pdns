@@ -16,6 +16,22 @@ https://hub.docker.com/r/pschiffe/pdns-admin-static/
 
 https://hub.docker.com/r/pschiffe/pdns-admin/
 
+## Simple start
+
+```bash
+docker-compose up
+```
+
+Wait about 30 seconds for the bootstrap to continue and then connect to
+
+`http://localhost:8080`
+
+Your recursor runs under `localhost:55`, test it using
+
+```bash
+dig -p55 @localhost google.de
+```
+
 ## pdns-mysql
 
 [![](https://images.microbadger.com/badges/version/pschiffe/pdns-mysql.svg)](https://microbadger.com/images/pschiffe/pdns-mysql "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-mysql.svg)](http://microbadger.com/images/pschiffe/pdns-mysql "Get your own image badge on microbadger.com")
@@ -256,4 +272,28 @@ docker run -dt -p 8080:80 --name pdns-admin \
 Included ansible playbook can be used to build and run the containers from this repo. Run it simply with:
 ```
 ansible-playbook ansible-playbook.yml
+```
+
+## Build
+
+### Docker contianers
+
+```bash
+make init
+make build
+```
+
+Or a complete custom way
+
+
+```bash
+# prepare
+make init
+make generate-dockerfiles
+
+# pick one or all
+make build-pdns-admin-static
+make build-pdns-admin-uwsgi
+make build-pdns
+make build-pdns-recursor
 ```
