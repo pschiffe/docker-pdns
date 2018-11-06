@@ -1,5 +1,5 @@
-FROM fedora:27
-MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
+FROM fedora:29
+MAINTAINER "Peter Schiffer" <peter@rfv.sk>
 
 RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf \
   && dnf -y --setopt=install_weak_deps=False install \
@@ -8,10 +8,9 @@ RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf \
     mariadb \
   && dnf clean all
 
-RUN pip3 install envtpl \
-  && rm -rf ~/.cache/*
+RUN pip3 install --no-cache-dir envtpl
 
-ENV VERSION=4.0 \
+ENV VERSION=4.1 \
   PDNS_guardian=yes \
   PDNS_setuid=pdns \
   PDNS_setgid=pdns \

@@ -38,7 +38,7 @@ if [ "${SUPERMASTER_IPS:-}" ]; then
     $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" -e "TRUNCATE supermasters;"
     MYSQL_INSERT_SUPERMASTERS=''
     for i in $SUPERMASTER_IPS; do
-        MYSQL_INSERT_SUPERMASTERS="${MYSQL_INSERT_SUPERMASTERS} INSERT INTO supermasters VALUES('${i}', '${HOSTNAME}', 'admin');"
+        MYSQL_INSERT_SUPERMASTERS="${MYSQL_INSERT_SUPERMASTERS} INSERT INTO supermasters VALUES('${i}', '$(uname -n)', 'admin');"
     done
     $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" -e "$MYSQL_INSERT_SUPERMASTERS"
 fi

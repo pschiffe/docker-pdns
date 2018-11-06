@@ -1,5 +1,5 @@
 FROM alpine:3.8
-MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
+MAINTAINER "Peter Schiffer" <peter@rfv.sk>
 
 RUN apk add --no-cache \
     pdns \
@@ -8,8 +8,7 @@ RUN apk add --no-cache \
     python3 \
     mariadb-client
 
-RUN pip3 install envtpl \
-  && rm -rf ~/.cache/*
+RUN pip3 install --no-cache-dir envtpl
 
 ENV VERSION=4.1 \
   PDNS_guardian=yes \
