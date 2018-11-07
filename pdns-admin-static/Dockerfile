@@ -1,5 +1,5 @@
-FROM nginx:1.12-alpine
-MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
+FROM nginx:1.14-alpine
+MAINTAINER "Peter Schiffer" <peter@rfv.sk>
 
 RUN apk add --no-cache curl
 

@@ -1,5 +1,5 @@
-FROM fedora:27
-MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
+FROM fedora:29
+MAINTAINER "Peter Schiffer" <peter@rfv.sk>
 
 RUN dnf -y --setopt=install_weak_deps=False install \
     python-pip \
@@ -7,7 +7,7 @@ RUN dnf -y --setopt=install_weak_deps=False install \
     python-ldap \
     mariadb \
     uwsgi \
-    uwsgi-plugin-python \
+    uwsgi-plugin-python2 \
   && dnf clean all
 
 RUN mkdir -p /opt/powerdns-admin \
@@ -20,9 +20,8 @@ RUN mkdir -p /opt/powerdns-admin \
 
 WORKDIR /opt/powerdns-admin
 
-RUN pip3 install envtpl \
-  && pip install -r requirements.txt \
-  && rm -rf ~/.cache/*
+RUN pip3 install --no-cache-dir envtpl \
+  && pip install -r requirements.txt --no-cache-dir
 
 ENV PDNS_ADMIN_LOGIN_TITLE="'PDNS'" \
   PDNS_ADMIN_TIMEOUT=10 \
