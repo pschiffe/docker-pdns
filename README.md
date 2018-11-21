@@ -1,8 +1,10 @@
 # PowerDNS Docker Images
 
-This repository contains four Docker images - pdns-mysql, pdns-recursor, pdns-admin-static and pdns-admin-uwsgi. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Image **pdns-recursor** contains completely configurable [PowerDNS 4.x recursor](https://www.powerdns.com/). Images **pdns-admin-static** and **pdns-admin-uwsgi** contains fronted (nginx) and backend (uWSGI) for [PowerDNS Admin](https://git.0x97.io/0x97/powerdns-admin) web app, written in Flask, for managing PowerDNS servers. Pdns-admin is also completely configurable.
+This repository contains four Docker images - pdns-mysql, pdns-recursor, pdns-admin-static and pdns-admin-uwsgi. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Image **pdns-recursor** contains completely configurable [PowerDNS 4.x recursor](https://www.powerdns.com/). Images **pdns-admin-static** and **pdns-admin-uwsgi** contains fronted (nginx) and backend (uWSGI) for [PowerDNS Admin](https://github.com/ngoduykhanh/PowerDNS-Admin) web app, written in Flask, for managing PowerDNS servers.
 
-Most of the images (except *pdns-admin-static* based on `nginx` image) have now also the `alpine` tag thanks to the @PoppyPop .
+There are two versions of PowerDNS Admin - the old and deprecated `pschiffe/pdns-admin-uwsgi:latest` and `pschiffe/pdns-admin-static:latest` based on https://git.0x97.io/0x97/powerdns-admin . The new and updated version with more features is available as `pschiffe/pdns-admin-uwsgi:ngoduykhanh` and `pschiffe/pdns-admin-static:ngoduykhanh` and is based on https://github.com/ngoduykhanh/PowerDNS-Admin . The `latest` tag points to the older version of PowerDNS Admin for backwards compatibility.
+
+The pdns-mysql and pdns-recursor images have also the `alpine` tag thanks to the @PoppyPop .
 
 All images are available on Docker Hub:
 
@@ -104,13 +106,11 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-recursor \
 
 ## pdns-admin-uwsgi
 
-[![](https://images.microbadger.com/badges/version/pschiffe/pdns-admin-uwsgi.svg)](https://microbadger.com/images/pschiffe/pdns-admin-uwsgi "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-admin-uwsgi.svg)](https://microbadger.com/images/pschiffe/pdns-admin-uwsgi "Get your own image badge on microbadger.com")
-
-[![](https://images.microbadger.com/badges/version/pschiffe/pdns-admin-uwsgi:alpine.svg)](https://microbadger.com/images/pschiffe/pdns-admin-uwsgi:alpine "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-admin-uwsgi:alpine.svg)](https://microbadger.com/images/pschiffe/pdns-admin-uwsgi:alpine "Get your own image badge on microbadger.com")
+[![](https://images.microbadger.com/badges/version/pschiffe/pdns-admin-uwsgi:ngoduykhanh.svg)](https://microbadger.com/images/pschiffe/pdns-admin-uwsgi:ngoduykhanh "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-admin-uwsgi:ngoduykhanh.svg)](https://microbadger.com/images/pschiffe/pdns-admin-ngoduykhanh:alpine "Get your own image badge on microbadger.com")
 
 https://hub.docker.com/r/pschiffe/pdns-admin-uwsgi/
 
-Docker image with backend of [PowerDNS Admin](https://git.0x97.io/0x97/powerdns-admin) web app, written in Flask, for managing PowerDNS servers. This image contains the python part of the app running under uWSGI. It needs external mysql server. Env vars for mysql configuration:
+Docker image with backend of [PowerDNS Admin](https://github.com/ngoduykhanh/PowerDNS-Admin) web app, written in Flask, for managing PowerDNS servers. This image contains the python part of the app running under uWSGI. It needs external mysql server. Env vars for mysql configuration:
 ```
 (name=default value)
 
@@ -131,16 +131,19 @@ For the pdns-admin to make sense, it needs a PowerDNS server to manage. The Powe
 api=yes
 api-key=secret
 webserver=yes
+webserver-address=0.0.0.0
+webserver-allow-from=172.5.0.0/16
 ```
 
 And again, PowerDNS connection is configured via env vars (it needs url of the PowerDNS server, api key and a version of PowerDNS server, for example 4.0.1):
 ```
 (name=default value)
 
-PDNS_ADMIN_PDNS_STATS_URL="'http://pdns:8081/'"
-PDNS_ADMIN_PDNS_API_KEY="''"
-PDNS_ADMIN_PDNS_VERSION="''"
+PDNS_API_URL="http://pdns:8081/"
+PDNS_API_KEY=""
+PDNS_VERSION=""
 ```
+*These values are stored in the DB and thus cannot contain double-quoting as configuration described above.*
 
 If this container is linked with pdns-mysql from this repo with alias `pdns`, it will be configured automatically and none of the env vars from above are needed to be specified.
 
@@ -155,35 +158,28 @@ When linked with pdns-mysql from this repo and with LDAP auth:
 docker run -d --name pdns-admin-uwsgi \
   --link mariadb:mysql --link pdns-master:pdns \
   -v pdns-admin-upload:/opt/powerdns-admin/upload \
-  -e PDNS_ADMIN_LDAP_TYPE="'ldap'" \
-  -e PDNS_ADMIN_LDAP_URI="'ldaps://your-ldap-server:636'" \
-  -e PDNS_ADMIN_LDAP_USERNAME="'cn=dnsuser,ou=users,ou=services,dc=example,dc=com'" \
-  -e PDNS_ADMIN_LDAP_PASSWORD="'dnsuser'" \
-  -e PDNS_ADMIN_LDAP_SEARCH_BASE="'ou=System Admins,ou=People,dc=example,dc=com'" \
-  -e PDNS_ADMIN_LDAP_USERNAMEFIELD="'uid'" \
-  -e PDNS_ADMIN_LDAP_FILTER="'(objectClass=inetorgperson)'" \
-  pschiffe/pdns-admin-uwsgi
+  pschiffe/pdns-admin-uwsgi:ngoduykhanh
 ```
 
 ## pdns-admin-static
 
-[![](https://images.microbadger.com/badges/version/pschiffe/pdns-admin-static.svg)](https://microbadger.com/images/pschiffe/pdns-admin-static "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-admin-static.svg)](https://microbadger.com/images/pschiffe/pdns-admin-static "Get your own image badge on microbadger.com")
+[![](https://images.microbadger.com/badges/version/pschiffe/pdns-admin-static:ngoduykhanh.svg)](https://microbadger.com/images/pschiffe/pdns-admin-static:ngoduykhanh "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-admin-static:ngoduykhanh.svg)](https://microbadger.com/images/pschiffe/pdns-admin-static:ngoduykhanh "Get your own image badge on microbadger.com")
 
 https://hub.docker.com/r/pschiffe/pdns-admin-static/
 
-Fronted image with nginx and static files for [PowerDNS Admin](https://git.0x97.io/0x97/powerdns-admin). Exposes port 80 for connections, expects uWSGI backend image under `pdns-admin-uwsgi` alias.
+Fronted image with nginx and static files for [PowerDNS Admin](https://github.com/ngoduykhanh/PowerDNS-Admin). Exposes port 80 for connections, expects uWSGI backend image under `pdns-admin-uwsgi` alias.
 
 ### Example
 
 ```
 docker run -d -p 8080:80 --name pdns-admin-static \
   --link pdns-admin-uwsgi:pdns-admin-uwsgi \
-  pschiffe/pdns-admin-static
+  pschiffe/pdns-admin-static:ngoduykhanh
 ```
 
 ## ansible-playbook.yml
 
-Included ansible playbook can be used to build and run the containers from this repo. Run it simply with:
+Included ansible playbook can be used to build and run the containers from this repo. Run it with:
 ```
 ansible-playbook ansible-playbook.yml
 ```
