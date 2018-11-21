@@ -134,12 +134,22 @@
       tags:
         - pdns
 
+    - name: build pdns-admin base
+      docker_image:
+        name: pschiffe/pdns-admin-base
+        tag: ngoduykhanh
+        state: '{{ i_state }}'
+        force: true
+        path: ./pdns-admin-base-ngoduykhanh
+      tags:
+        - pdns-admin
+
     - name: build pdns-admin backend
       docker_image:
         name: my-pdns-admin-uwsgi
         state: '{{ i_state }}'
         force: true
-        path: ./pdns-admin-uwsgi
+        path: ./pdns-admin-uwsgi-ngoduykhanh
       tags:
         - pdns-admin
 
@@ -148,7 +158,7 @@
         name: my-pdns-admin-static
         state: '{{ i_state }}'
         force: true
-        path: ./pdns-admin-static
+        path: ./pdns-admin-static-ngoduykhanh
       tags:
         - pdns-admin
 
@@ -167,8 +177,8 @@
           - pdns-admin-upload:/opt/powerdns-admin/upload
         env:
           PDNS_ADMIN_SQLA_DB_PASSWORD: "'my-secret-pw'"
-          PDNS_ADMIN_PDNS_VERSION: "'4.0'"
-          PDNS_ADMIN_PDNS_API_KEY: "'secret'"
+          PDNS_VERSION: "4.1"
+          PDNS_API_KEY: "secret"
       tags:
         - pdns-admin
 
