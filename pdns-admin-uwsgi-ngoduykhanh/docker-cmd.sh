@@ -3,8 +3,8 @@
 set -euo pipefail
 
 # Configure mysql env vars
-: "${PDNS_ADMIN_SQLA_DB_HOST:='mysql'}"
-: "${PDNS_ADMIN_SQLA_DB_PORT:='3306'}"
+: "${PDNS_ADMIN_SQLA_DB_HOST:='${MYSQL_ENV_MYSQL_HOST:-mysql}'}"
+: "${PDNS_ADMIN_SQLA_DB_PORT:='${MYSQL_ENV_MYSQL_PORT:-3306}'}"
 : "${PDNS_ADMIN_SQLA_DB_USER:='${MYSQL_ENV_MYSQL_USER:-root}'}"
 if [ "${PDNS_ADMIN_SQLA_DB_USER}" = "'root'" ]; then
     : "${PDNS_ADMIN_SQLA_DB_PASSWORD:='$MYSQL_ENV_MYSQL_ROOT_PASSWORD'}"
