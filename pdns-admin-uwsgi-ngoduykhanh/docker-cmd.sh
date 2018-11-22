@@ -15,7 +15,7 @@ fi
 export PDNS_ADMIN_SQLA_DB_HOST PDNS_ADMIN_SQLA_DB_PORT PDNS_ADMIN_SQLA_DB_USER PDNS_ADMIN_SQLA_DB_PASSWORD PDNS_ADMIN_SQLA_DB_NAME
 
 # Configure pdns server env vars
-: "${PDNS_API_URL:=http://pdns:${PDNS_ENV_PDNS_webserver_port:-8081}/}"
+: "${PDNS_API_URL:=http://${PDNS_ENV_PDNS_webserver_host:-pdns}:${PDNS_ENV_PDNS_webserver_port:-8081}/}"
 : "${PDNS_API_KEY:=${PDNS_ENV_PDNS_api_key:-}}"
 : "${PDNS_VERSION:=${PDNS_ENV_VERSION:-}}"
 
