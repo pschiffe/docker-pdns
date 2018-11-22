@@ -52,4 +52,4 @@ $MYSQL_COMMAND ${PDNS_ADMIN_SQLA_DB_NAME//\'/} -e "UPDATE setting SET value='${P
 mkdir -p /run/uwsgi
 chown uwsgi: /run/uwsgi
 
-exec /usr/sbin/uwsgi --ini /etc/uwsgi.ini
+exec "$@"

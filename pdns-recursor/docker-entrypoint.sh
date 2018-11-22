@@ -23,4 +23,4 @@ envtpl < /recursor.conf.tpl > $config_file
 # Fix config file ownership
 chown ${pdns_user}: $config_file
 
-exec /usr/sbin/pdns_recursor
+exec "$@"
