@@ -1,4 +1,4 @@
-FROM fedora:29
+FROM fedora:30
 MAINTAINER "Peter Schiffer" <peter@rfv.sk>
 
 RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf \

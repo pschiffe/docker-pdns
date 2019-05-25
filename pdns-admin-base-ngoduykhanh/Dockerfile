@@ -1,4 +1,4 @@
-FROM fedora:29
+FROM fedora:30
 MAINTAINER "Peter Schiffer" <peter@rfv.sk>
 
 RUN curl -sSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo
@@ -15,6 +15,7 @@ RUN mkdir -p /opt/powerdns-admin \
   && curl -sSL https://github.com/ngoduykhanh/PowerDNS-Admin/archive/master.tar.gz \
     | tar -xzC /opt/powerdns-admin --strip 1 \
   && sed -i '/python-ldap/d' /opt/powerdns-admin/requirements.txt \
+  && sed -i '/mysqlclient/d' /opt/powerdns-admin/requirements.txt \
   && chown -R root: /opt/powerdns-admin \
   && chown -R uwsgi: /opt/powerdns-admin/upload
 
