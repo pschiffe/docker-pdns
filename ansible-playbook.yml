@@ -19,7 +19,7 @@
     - name: db
       docker_container:
         name: pdns-mariadb
-        image: mariadb:10.3
+        image: mariadb:10.4
         pull: true
         state: '{{ c_state }}'
         purge_networks: true
@@ -39,7 +39,7 @@
     - name: phpmyadmin
       docker_container:
         name: pdns-phpmyadmin
-        image: phpmyadmin/phpmyadmin:4.8
+        image: phpmyadmin/phpmyadmin:4.9
         pull: true
         state: '{{ c_state }}'
         purge_networks: true
