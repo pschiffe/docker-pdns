@@ -6,6 +6,7 @@ RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf \
     pdns \
     pdns-backend-mysql \
     mariadb \
+    hostname \
   && dnf clean all
 
 RUN pip3 install --no-cache-dir envtpl
