@@ -39,7 +39,7 @@
     - name: phpmyadmin
       docker_container:
         name: pdns-phpmyadmin
-        image: phpmyadmin/phpmyadmin:4.9
+        image: phpmyadmin/phpmyadmin:5
         pull: true
         state: '{{ c_state }}'
         purge_networks: true
