@@ -1,5 +1,4 @@
 FROM fedora:29
-MAINTAINER "Peter Schiffer" <peter@rfv.sk>
 
 RUN dnf -y --setopt=install_weak_deps=False install \
     python-pip \

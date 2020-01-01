@@ -1,5 +1,4 @@
 FROM fedora:30
-MAINTAINER "Peter Schiffer" <peter@rfv.sk>
 
 RUN curl -sSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo
 

@@ -1,5 +1,4 @@
 FROM pschiffe/pdns-admin-base:ngoduykhanh
-MAINTAINER "Peter Schiffer" <peter@rfv.sk>
 
 RUN dnf -y --setopt=install_weak_deps=False install \
     mariadb \
