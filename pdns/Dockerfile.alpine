@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM alpine:3.11
 
 RUN apk add --no-cache \
     pdns \
@@ -9,7 +9,7 @@ RUN apk add --no-cache \
 
 RUN pip3 install --no-cache-dir envtpl
 
-ENV VERSION=4.1 \
+ENV VERSION=4.2 \
   PDNS_guardian=yes \
   PDNS_setuid=pdns \
   PDNS_setgid=pdns \
