@@ -1,7 +1,8 @@
-FROM fedora:30
+FROM fedora:31
 
 RUN dnf -y --setopt=install_weak_deps=False install \
     pdns-recursor \
+    python3-pip \
   && dnf clean all
 
 RUN pip3 install --no-cache-dir envtpl
@@ -9,7 +10,7 @@ RUN pip3 install --no-cache-dir envtpl
 RUN mkdir -p /etc/pdns-recursor/api.d \
   && chown -R pdns-recursor: /etc/pdns-recursor/api.d
 
-ENV VERSION=4.1 \
+ENV VERSION=4.2 \
   PDNS_setuid=pdns-recursor \
   PDNS_setgid=pdns-recursor \
   PDNS_daemon=no
