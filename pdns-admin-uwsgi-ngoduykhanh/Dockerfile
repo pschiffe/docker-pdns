@@ -10,8 +10,10 @@ EXPOSE 9494
 VOLUME [ "/opt/powerdns-admin/upload" ]
 
 COPY docker-entrypoint.sh /
-COPY pdns-admin.ini /etc/uwsgi.d/
-RUN chown uwsgi: /etc/uwsgi.d/pdns-admin.ini
+COPY pdns-admin.ini /etc/uwsgi.ini
+RUN chown uwsgi: /etc/uwsgi.ini
+
+ENV FLASK_APP=/opt/powerdns-admin/app/__init__.py
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 
