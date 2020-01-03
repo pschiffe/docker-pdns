@@ -12,9 +12,52 @@
       docker_network:
         name: pdns-net
         state: present
-        ipam_options:
-          subnet: '172.5.0.0/16'
-          gateway: '172.5.0.1'
+        ipam_config:
+          - subnet: '172.5.0.0/16'
+            gateway: '172.5.0.1'
+      tags:
+        - pdns
+        - pdns-admin
+        - pdns-recursor
+
+    - name: build pdns recursor
+      docker_image:
+        name: my-pdns-recursor
+        state: '{{ i_state }}'
+        source: build
+        force_source: true
+        build:
+          pull: true
+          path: ./pdns-recursor
+      tags:
+        - pdns-recursor
+
+    - name: build pdns recursor alpine version
+      docker_image:
+        name: my-pdns-recursor
+        tag: alpine
+        state: '{{ i_state }}'
+        source: build
+        force_source: true
+        build:
+          pull: true
+          path: ./pdns-recursor
+          dockerfile: Dockerfile.alpine
+      tags:
+        - pdns-recursor
+
+    - name: pdns recursor
+      docker_container:
+        name: pdns-recursor
+        image: my-pdns-recursor:{{ "alpine" if alpine | bool else "latest" }}
+        state: '{{ c_state }}'
+        networks_cli_compatible: true
+        networks:
+          - name: pdns-net
+        volumes:
+          - /etc/localtime:/etc/localtime:ro
+      tags:
+        - pdns-recursor
 
     - name: db
       docker_container:
@@ -22,7 +65,7 @@
         image: mariadb:10.4
         pull: true
         state: '{{ c_state }}'
-        purge_networks: true
+        networks_cli_compatible: true
         networks:
           - name: pdns-net
             aliases:
@@ -32,7 +75,7 @@
           - /etc/localtime:/etc/localtime:ro
           - pdns-mariadb-volume:/var/lib/mysql:z
         env:
-          MYSQL_ROOT_PASSWORD: my-secret-pw
+          MYSQL_ROOT_PASSWORD: 'my-secret-pw'
       tags:
         - db
 
@@ -42,7 +85,7 @@
         image: phpmyadmin/phpmyadmin:5
         pull: true
         state: '{{ c_state }}'
-        purge_networks: true
+        networks_cli_compatible: true
         networks:
           - name: pdns-net
         published_ports:
@@ -56,8 +99,11 @@
       docker_image:
         name: my-pdns
         state: '{{ i_state }}'
-        force: true
-        path: ./pdns
+        source: build
+        force_source: true
+        build:
+          pull: true
+          path: ./pdns
       tags:
         - pdns
 
@@ -66,9 +112,12 @@
         name: my-pdns
         tag: alpine
         state: '{{ i_state }}'
-        force: true
-        path: ./pdns
-        dockerfile: Dockerfile.alpine
+        source: build
+        force_source: true
+        build:
+          pull: true
+          path: ./pdns
+          dockerfile: Dockerfile.alpine
       tags:
         - pdns
 
@@ -78,7 +127,7 @@
         image: my-pdns:{{ "alpine" if alpine | bool else "latest" }}
         state: '{{ c_state }}'
         hostname: ns1.example.com
-        purge_networks: true
+        networks_cli_compatible: true
         networks:
           - name: pdns-net
             ipv4_address: '{{ pdns_master_ip }}'
@@ -88,18 +137,18 @@
         volumes:
           - /etc/localtime:/etc/localtime:ro
         env:
-          PDNS_gmysql_password: my-secret-pw
-          PDNS_master: yes
-          PDNS_api: yes
-          PDNS_api_key: secret
-          PDNS_webserver: yes
-          PDNS_webserver_address: 0.0.0.0
-          PDNS_webserver_allow_from: 172.5.0.0/16
-          PDNS_version_string: anonymous
-          PDNS_default_ttl: 1500
-          PDNS_soa_minimum_ttl: 1200
-          PDNS_default_soa_name: ns1.example.com
-          PDNS_default_soa_mail: hostmaster.example.com
+          PDNS_gmysql_password: 'my-secret-pw'
+          PDNS_master: 'yes'
+          PDNS_api: 'yes'
+          PDNS_api_key: 'secret'
+          PDNS_webserver: 'yes'
+          PDNS_webserver_address: '0.0.0.0'
+          PDNS_webserver_allow_from: '172.5.0.0/16'
+          PDNS_version_string: 'anonymous'
+          PDNS_default_ttl: '1500'
+          PDNS_soa_minimum_ttl: '1200'
+          PDNS_default_soa_name: 'ns1.example.com'
+          PDNS_default_soa_mail: 'hostmaster.example.com'
           PDNS_allow_axfr_ips: '{{ pdns_slave_ip }}'
           PDNS_only_notify: '{{ pdns_slave_ip }}'
       tags:
@@ -111,7 +160,7 @@
         image: my-pdns:{{ "alpine" if alpine | bool else "latest" }}
         state: '{{ c_state }}'
         hostname: ns2.example.com
-        purge_networks: true
+        networks_cli_compatible: true
         networks:
           - name: pdns-net
             ipv4_address: '{{ pdns_slave_ip }}'
@@ -121,14 +170,15 @@
         volumes:
           - /etc/localtime:/etc/localtime:ro
         env:
-          PDNS_gmysql_dbname: powerdnsslave
-          PDNS_gmysql_password: my-secret-pw
-          PDNS_slave: yes
-          PDNS_webserver: yes
-          PDNS_webserver_address: 0.0.0.0
-          PDNS_webserver_allow_from: 172.5.0.0/16
-          PDNS_version_string: anonymous
-          PDNS_disable_axfr: yes
+          PDNS_gmysql_dbname: 'powerdnsslave'
+          PDNS_gmysql_password: 'my-secret-pw'
+          PDNS_slave: 'yes'
+          PDNS_superslave: 'yes'
+          PDNS_webserver: 'yes'
+          PDNS_webserver_address: '0.0.0.0'
+          PDNS_webserver_allow_from: '172.5.0.0/16'
+          PDNS_version_string: 'anonymous'
+          PDNS_disable_axfr: 'yes'
           PDNS_allow_notify_from: '{{ pdns_master_ip }}'
           SUPERMASTER_IPS: '{{ pdns_master_ip }}'
       tags:
@@ -139,8 +189,11 @@
         name: pschiffe/pdns-admin-base
         tag: ngoduykhanh
         state: '{{ i_state }}'
-        force: true
-        path: ./pdns-admin-base-ngoduykhanh
+        source: build
+        force_source: true
+        build:
+          pull: true
+          path: ./pdns-admin-base-ngoduykhanh
       tags:
         - pdns-admin
 
@@ -148,8 +201,11 @@
       docker_image:
         name: my-pdns-admin-uwsgi
         state: '{{ i_state }}'
-        force: true
-        path: ./pdns-admin-uwsgi-ngoduykhanh
+        source: build
+        force_source: true
+        build:
+          pull: true
+          path: ./pdns-admin-uwsgi-ngoduykhanh
       tags:
         - pdns-admin
 
@@ -157,8 +213,11 @@
       docker_image:
         name: my-pdns-admin-static
         state: '{{ i_state }}'
-        force: true
-        path: ./pdns-admin-static-ngoduykhanh
+        source: build
+        force_source: true
+        build:
+          pull: true
+          path: ./pdns-admin-static-ngoduykhanh
       tags:
         - pdns-admin
 
@@ -167,7 +226,7 @@
         name: pdns-admin-uwsgi
         image: my-pdns-admin-uwsgi
         state: '{{ c_state }}'
-        purge_networks: true
+        networks_cli_compatible: true
         networks:
           - name: pdns-net
             aliases:
@@ -177,7 +236,7 @@
           - pdns-admin-upload:/opt/powerdns-admin/upload
         env:
           PDNS_ADMIN_SQLA_DB_PASSWORD: "'my-secret-pw'"
-          PDNS_VERSION: "4.1"
+          PDNS_VERSION: "4.2"
           PDNS_API_KEY: "secret"
       tags:
         - pdns-admin
@@ -187,7 +246,7 @@
         name: pdns-admin-static
         image: my-pdns-admin-static
         state: '{{ c_state }}'
-        purge_networks: true
+        networks_cli_compatible: true
         networks:
           - name: pdns-net
         published_ports:
