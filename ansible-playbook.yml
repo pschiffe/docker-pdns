@@ -22,7 +22,7 @@
 
     - name: build pdns recursor
       docker_image:
-        name: my-pdns-recursor
+        name: pschiffe/pdns-recursor
         state: '{{ i_state }}'
         source: build
         force_source: true
@@ -34,7 +34,7 @@
 
     - name: build pdns recursor alpine version
       docker_image:
-        name: my-pdns-recursor
+        name: pschiffe/pdns-recursor
         tag: alpine
         state: '{{ i_state }}'
         source: build
@@ -49,7 +49,7 @@
     - name: pdns recursor
       docker_container:
         name: pdns-recursor
-        image: my-pdns-recursor:{{ "alpine" if alpine | bool else "latest" }}
+        image: pschiffe/pdns-recursor:{{ "alpine" if alpine | bool else "latest" }}
         state: '{{ c_state }}'
         networks_cli_compatible: true
         networks:
@@ -97,7 +97,7 @@
 
     - name: build pdns
       docker_image:
-        name: my-pdns
+        name: pschiffe/pdns-mysql
         state: '{{ i_state }}'
         source: build
         force_source: true
@@ -109,7 +109,7 @@
 
     - name: build pdns alpine version
       docker_image:
-        name: my-pdns
+        name: pschiffe/pdns-mysql
         tag: alpine
         state: '{{ i_state }}'
         source: build
@@ -124,7 +124,7 @@
     - name: pdns master
       docker_container:
         name: pdns
-        image: my-pdns:{{ "alpine" if alpine | bool else "latest" }}
+        image: pschiffe/pdns-mysql:{{ "alpine" if alpine | bool else "latest" }}
         state: '{{ c_state }}'
         hostname: ns1.example.com
         networks_cli_compatible: true
@@ -157,7 +157,7 @@
     - name: pdns slave
       docker_container:
         name: pdns-slave
-        image: my-pdns:{{ "alpine" if alpine | bool else "latest" }}
+        image: pschiffe/pdns-mysql:{{ "alpine" if alpine | bool else "latest" }}
         state: '{{ c_state }}'
         hostname: ns2.example.com
         networks_cli_compatible: true
@@ -199,24 +199,26 @@
 
     - name: build pdns-admin backend
       docker_image:
-        name: my-pdns-admin-uwsgi
+        name: pschiffe/pdns-admin-uwsgi
+        tag: ngoduykhanh
         state: '{{ i_state }}'
         source: build
         force_source: true
         build:
-          pull: true
+          pull: false
           path: ./pdns-admin-uwsgi-ngoduykhanh
       tags:
         - pdns-admin
 
     - name: build pdns-admin frontent
       docker_image:
-        name: my-pdns-admin-static
+        name: pschiffe/pdns-admin-static
+        tag: ngoduykhanh
         state: '{{ i_state }}'
         source: build
         force_source: true
         build:
-          pull: true
+          pull: false
           path: ./pdns-admin-static-ngoduykhanh
       tags:
         - pdns-admin
@@ -224,7 +226,7 @@
     - name: pdns-admin backend
       docker_container:
         name: pdns-admin-uwsgi
-        image: my-pdns-admin-uwsgi
+        image: pschiffe/pdns-admin-uwsgi:ngoduykhanh
         state: '{{ c_state }}'
         networks_cli_compatible: true
         networks:
@@ -233,7 +235,6 @@
               - pdns-admin-uwsgi
         volumes:
           - /etc/localtime:/etc/localtime:ro
-          - pdns-admin-upload:/opt/powerdns-admin/upload
         env:
           PDNS_ADMIN_SQLA_DB_PASSWORD: "'my-secret-pw'"
           PDNS_VERSION: "4.2"
@@ -244,7 +245,7 @@
     - name: pdns-admin frontend
       docker_container:
         name: pdns-admin-static
-        image: my-pdns-admin-static
+        image: pschiffe/pdns-admin-static:ngoduykhanh
         state: '{{ c_state }}'
         networks_cli_compatible: true
         networks:
