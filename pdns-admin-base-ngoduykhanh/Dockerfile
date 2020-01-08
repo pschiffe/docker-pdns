@@ -22,11 +22,10 @@ WORKDIR /opt/powerdns-admin
 RUN pip3 install --no-cache-dir envtpl python-dotenv \
   && pip3 install -r requirements.txt --no-cache-dir
 
-ENV FLASK_APP=/opt/powerdns-admin/powerdnsadmin/__init__.py \
-  PDNS_ADMIN_LOG_LEVEL="'INFO'" \
-  PDNS_ADMIN_SAML_ENABLED=False
+ENV FLASK_APP=/opt/powerdns-admin/powerdnsadmin/__init__.py
 
 COPY config.py.tpl /
+COPY run.py .
 
 RUN envtpl < /config.py.tpl > /opt/powerdns-admin/config.py \
   && sed -i '/SQLALCHEMY_DATABASE_URI/d' /opt/powerdns-admin/config.py

@@ -25,7 +25,7 @@ PDNS_ADMIN_SECRET_KEY="'$(cat /root/secret-key)'"
 
 export PDNS_ADMIN_SECRET_KEY
 
-envtpl < /config.py.tpl > /opt/powerdns-admin/config.py
+envtpl < /config.py.tpl > /opt/powerdns-admin/powerdnsadmin/default_config.py
 
 # Initialize DB if needed
 MYSQL_COMMAND="mysql -h ${PDNS_ADMIN_SQLA_DB_HOST//\'/} -P ${PDNS_ADMIN_SQLA_DB_PORT//\'/} -u ${PDNS_ADMIN_SQLA_DB_USER//\'/} -p${PDNS_ADMIN_SQLA_DB_PASSWORD//\'/}"

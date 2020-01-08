@@ -7,13 +7,9 @@ RUN dnf -y --setopt=install_weak_deps=False install \
 
 EXPOSE 9494
 
-VOLUME [ "/opt/powerdns-admin/upload" ]
-
 COPY docker-entrypoint.sh /
 COPY pdns-admin.ini /etc/uwsgi.ini
 RUN chown uwsgi: /etc/uwsgi.ini
-
-ENV FLASK_APP=/opt/powerdns-admin/app/__init__.py
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 
