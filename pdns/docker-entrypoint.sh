@@ -12,17 +12,20 @@ fi
 : "${PDNS_gmysql_password:=${MYSQL_ENV_MYSQL_PASSWORD:-powerdns}}"
 : "${PDNS_gmysql_dbname:=${MYSQL_ENV_MYSQL_DATABASE:-powerdns}}"
 
-export PDNS_gmysql_host PDNS_gmysql_port PDNS_gmysql_user PDNS_gmysql_password PDNS_gmysql_dbname
+# use first part of node name as database name suffix
+if [ "${NODE_NAME}" ]; then
+    NODE_NAME=$(echo ${NODE_NAME} | sed -e 's/\..*//' -e 's/-//')
+fi
+PDNS_gmysql_dbname="${PDNS_gmysql_dbname}${NODE_NAME}"
 
-# Create config file from template
-envtpl < /pdns.conf.tpl > /etc/pdns/pdns.conf
+export PDNS_gmysql_host PDNS_gmysql_port PDNS_gmysql_user PDNS_gmysql_password PDNS_gmysql_dbname
 
 # Initialize DB if needed
 MYSQL_COMMAND="mysql -h ${PDNS_gmysql_host} -P ${PDNS_gmysql_port} -u ${PDNS_gmysql_user} -p${PDNS_gmysql_password}"
 
 until $MYSQL_COMMAND -e ';' ; do
     >&2 echo 'MySQL is unavailable - sleeping'
-    sleep 1
+    sleep 3
 done
 
 $MYSQL_COMMAND -e "CREATE DATABASE IF NOT EXISTS ${PDNS_gmysql_dbname}"
@@ -33,14 +36,30 @@ if [ "$MYSQL_NUM_TABLE" -eq 0 ]; then
     $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" < /usr/share/doc/pdns/schema.mysql.sql
 fi
 
-# Configure supermasters if needed
-if [ "${SUPERMASTER_IPS:-}" ]; then
-    $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" -e "TRUNCATE supermasters;"
-    MYSQL_INSERT_SUPERMASTERS=''
-    for i in $SUPERMASTER_IPS; do
-        MYSQL_INSERT_SUPERMASTERS="${MYSQL_INSERT_SUPERMASTERS} INSERT INTO supermasters VALUES('${i}', '$(hostname -f)', 'admin');"
-    done
-    $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" -e "$MYSQL_INSERT_SUPERMASTERS"
+if [ "${PDNS_superslave:-no}" == "yes" ]; then
+    # Configure supermasters if needed
+    if [ "${SUPERMASTER_IPS:-}" ]; then
+        $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" -e "TRUNCATE supermasters;"
+        MYSQL_INSERT_SUPERMASTERS=''
+        if [ "${SUPERMASTER_COUNT:-0}" == "0" ]; then
+            SUPERMASTER_COUNT=10
+        fi
+        i=1; while [ $i -le ${SUPERMASTER_COUNT} ]; do
+            SUPERMASTER_HOST=$(echo ${SUPERMASTER_HOSTS} | cut -d' ' -f${i})
+            SUPERMASTER_IP=$(echo ${SUPERMASTER_IPS} | cut -d' ' -f${i})
+            if [ -z "${SUPERMASTER_HOST:-}" ]; then
+                SUPERMASTER_HOST=$(hostname -f)
+            fi
+            if [ "${SUPERMASTER_IP:-}" ]; then
+                MYSQL_INSERT_SUPERMASTERS="${MYSQL_INSERT_SUPERMASTERS} INSERT INTO supermasters VALUES('${SUPERMASTER_IP}', '${SUPERMASTER_HOST}', 'admin');"
+            fi
+            i=$(( i + 1 ))
+        done
+        $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" -e "$MYSQL_INSERT_SUPERMASTERS"
+    fi
 fi
+
+# Create config file from template
+envtpl < /pdns.conf.tpl > /etc/pdns/pdns.conf
 
 exec "$@"
