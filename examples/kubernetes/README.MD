@@ -9,6 +9,7 @@
 ## Example setup
 
 This example deploys a supermaster and two slaves on the host network, so pdns can be reached from external networks. Access to the admin-dashboard has to be configured separately with ingress. The admin-dashboard uses a kubernetes clusterip service to use the supermaster-api. Supermaster, slaves and dashboard use the same MariaDB example deployment with different databases (not recommended for production environments).
+For signed AXFR you have to manually deploy TSIG Keys to you supermaster and slaves (https://doc.powerdns.com/authoritative/tsig.html).
 
 ## Requirements
 
