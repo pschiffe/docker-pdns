@@ -15,8 +15,9 @@ fi
 # use first part of node name as database name suffix
 if [ "${NODE_NAME:-}" ]; then
     NODE_NAME=$(echo ${NODE_NAME} | sed -e 's/\..*//' -e 's/-//')
+    PDNS_gmysql_dbname="${PDNS_gmysql_dbname}${NODE_NAME}"
 fi
-PDNS_gmysql_dbname="${PDNS_gmysql_dbname}${NODE_NAME}"
+
 
 export PDNS_gmysql_host PDNS_gmysql_port PDNS_gmysql_user PDNS_gmysql_password PDNS_gmysql_dbname
 
@@ -45,7 +46,7 @@ if [ "${PDNS_superslave:-no}" == "yes" ]; then
             SUPERMASTER_COUNT=10
         fi
         i=1; while [ $i -le ${SUPERMASTER_COUNT} ]; do
-            SUPERMASTER_HOST=$(echo ${SUPERMASTER_HOSTS} | cut -d' ' -f${i})
+            SUPERMASTER_HOST=$(echo ${SUPERMASTER_HOSTS:-} | cut -d' ' -f${i})
             SUPERMASTER_IP=$(echo ${SUPERMASTER_IPS} | cut -d' ' -f${i})
             if [ -z "${SUPERMASTER_HOST:-}" ]; then
                 SUPERMASTER_HOST=$(hostname -f)
