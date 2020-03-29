@@ -1,0 +1,6 @@
+namespace: default
+resources:
+- mariadb.yaml
+- master-daemonset.yaml
+- slave-daemonset.yaml
+- admin-dashboard.yaml

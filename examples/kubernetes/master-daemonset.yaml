@@ -1,0 +1,144 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app.kubernetes.io/name: pdns-master
+    app.kubernetes.io/part-of: pdns
+    app.kubernetes.io/component: master
+  name: pdns-master
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pdns-master
+      app.kubernetes.io/part-of: pdns
+      app.kubernetes.io/component: master
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/name: pdns-master
+        app.kubernetes.io/part-of: pdns
+        app.kubernetes.io/component: master
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/pdns-master: "true"
+      containers:
+      - image: pschiffe/pdns-mysql:alpine
+        imagePullPolicy: IfNotPresent
+        name: pdns-master
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: PDNS_gmysql_host
+          value: "mariadb-pdns"
+        - name: PDNS_gmysql_port
+          value: "3306"
+        - name: PDNS_gmysql_user
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-pdns-secret
+              key: username
+        - name: PDNS_gmysql_password
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-pdns-secret
+              key: password
+        - name: PDNS_gmysql_dbname
+          value: "master_"
+        - name: PDNS_version_string
+          value: "anonymous"
+        - name: PDNS_master
+          value: "yes"
+        - name: PDNS_api
+          value: "yes"
+        - name: PDNS_api_key
+          valueFrom:
+            secretKeyRef:
+              name: master-pdns-secret
+              key: apikey
+        - name: PDNS_webserver
+          value: "yes"
+        - name: PDNS_webserver_address
+          value: "0.0.0.0"
+        - name: PDNS_webserver_allow_from
+          value: "127.0.0.1/32 10.244.0.0/16"
+        - name: PDNS_webserver_password
+          valueFrom:
+            secretKeyRef:
+              name: master-pdns-secret
+              key: webserver
+        - name: PDNS_default_ttl
+          value: "1500"
+        - name: PDNS_soa_minimum_ttl
+          value: "1200"
+        - name: PDNS_default_soa_name
+          value: "ns1.example.com"
+        - name: PDNS_default_soa_mail
+          value: "dnsmaster.example.com"
+        - name: PDNS_allow_axfr_ips
+          value: "10.0.0.2 10.0.0.3"
+        - name: PDNS_only_notify
+          value: "10.0.0.2 10.0.0.3"
+        - name: PDNS_dnsupdate
+          value: "yes"
+        - name: PDNS_allow_dnsupdate_from
+          value: "10.0.0.1/32 127.0.0.1/32 10.244.0.0/16"
+        resources:
+          limits:
+            cpu: 300m
+            memory: 256Mi
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        ports:
+        - name: dns-udp
+          containerPort: 53
+          protocol: UDP
+          hostPort: 53
+        - name: dns-tcp
+          containerPort: 53
+          protocol: TCP
+          hostPort: 53
+        - containerPort: 8081
+          protocol: TCP
+      dnsPolicy: ClusterFirstWithHostNet
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/name: master-pdns-secret
+    app.kubernetes.io/part-of: pdns
+    app.kubernetes.io/component: master
+  name: master-pdns-secret
+data:
+  apikey: MTIzNDU2Nzg5MA==
+  webserver: MDk4NzY1NDMyMQ==
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: master-api-pdns
+    app.kubernetes.io/part-of: pdns
+    app.kubernetes.io/component: master
+  name: master-api-pdns
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8081
+    targetPort: 8081
+  selector:
+    app.kubernetes.io/name: pdns-master

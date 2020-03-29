@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: pdns-admin
+    app.kubernetes.io/part-of: pdns
+    app.kubernetes.io/component: admin
+  name: pdns-admin
+spec:
+  replicas: 1
+  selector:
+   matchLabels:
+    app.kubernetes.io/name: pdns-admin
+    app.kubernetes.io/part-of: pdns
+    app.kubernetes.io/component: admin
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pdns-admin
+        app.kubernetes.io/part-of: pdns
+        app.kubernetes.io/component: admin
+    spec:
+      hostAliases:
+      - ip: "127.0.0.1"
+        hostnames:
+        - "pdns-admin-uwsgi"
+      containers:
+      - name: pdns-admin-static
+        image: pschiffe/pdns-admin-static:ngoduykhanh
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 300m
+            memory: 128Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+      - name: pdns-admin-uwsgi
+        image: pschiffe/pdns-admin-uwsgi:ngoduykhanh
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PDNS_ADMIN_SQLA_DB_HOST
+          value: "'mariadb-pdns'"
+        - name: PDNS_ADMIN_SQLA_DB_PORT
+          value: "'3306'"
+        - name: PDNS_ADMIN_SQLA_DB_USER
+          value: "'root'"
+        - name: PDNS_ADMIN_SQLA_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pdns-admin-secret
+              key: quoted_mysql_password
+        - name: PDNS_ADMIN_SQLA_DB_NAME
+          value: "'pdnsadmin'"
+        - name: PDNS_API_URL
+          value: "http://master-api-pdns:8081/"
+        - name: PDNS_VERSION
+          value: "4.2.1"
+        - name: PDNS_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: master-pdns-secret
+              key: apikey
+        volumeMounts:
+          - name: uploads
+            mountPath: /opt/powerdns-admin/upload/
+        resources:
+          limits:
+            cpu: 300m
+            memory: 128Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: pdns-admin-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app.kubernetes.io/name: pdns-admin-pvc
+    app.kubernetes.io/part-of: pdns
+    app.kubernetes.io/component: admin
+  name: pdns-admin-pvc
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: pdns-admin-svc
+    app.kubernetes.io/part-of: pdns
+    app.kubernetes.io/component: admin
+  name: admin-dashboard-pdns
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app.kubernetes.io/name: pdns-admin
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/name: pdns-admin-secret
+    app.kubernetes.io/part-of: pdns
+    app.kubernetes.io/component: admin
+  name: pdns-admin-secret
+data:
+  quoted_mysql_password: J3Jvb3Qn
