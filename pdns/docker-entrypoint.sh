@@ -46,8 +46,8 @@ if [ "${PDNS_superslave:-no}" == "yes" ]; then
             SUPERMASTER_COUNT=10
         fi
         i=1; while [ $i -le ${SUPERMASTER_COUNT} ]; do
-            SUPERMASTER_HOST=$(echo ${SUPERMASTER_HOSTS:-} | cut -d' ' -f${i})
-            SUPERMASTER_IP=$(echo ${SUPERMASTER_IPS} | cut -d' ' -f${i})
+            SUPERMASTER_HOST=$(echo ${SUPERMASTER_HOSTS:-} | awk -v col="$i" '{ print $col }')
+            SUPERMASTER_IP=$(echo ${SUPERMASTER_IPS} | awk -v col="$i" '{ print $col }')
             if [ -z "${SUPERMASTER_HOST:-}" ]; then
                 SUPERMASTER_HOST=$(hostname -f)
             fi
