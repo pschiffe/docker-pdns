@@ -1,0 +1,96 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app.kubernetes.io/name: pdns-slave
+    app.kubernetes.io/part-of: pdns
+    app.kubernetes.io/component: slave
+  name: pdns-slave 
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pdns-slave
+      app.kubernetes.io/part-of: pdns
+      app.kubernetes.io/component: slave
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/name: pdns-slave
+        app.kubernetes.io/part-of: pdns
+        app.kubernetes.io/component: slave
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/pdns-slave: "true"
+      containers:
+      - image: pschiffe/pdns-mysql:alpine
+        imagePullPolicy: IfNotPresent
+        name: pdns-slave
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: PDNS_gmysql_host
+          value: "mariadb-pdns"
+        - name: PDNS_gmysql_port
+          value: "3306"
+        - name: PDNS_gmysql_user
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-pdns-secret
+              key: username
+        - name: PDNS_gmysql_password
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-pdns-secret
+              key: password
+        - name: PDNS_gmysql_dbname
+          value: "slave_"
+        - name: PDNS_version_string
+          value: "anonymous"
+        - name: PDNS_disable_axfr
+          value: "yes"
+        - name: PDNS_slave
+          value: "yes"
+        - name: PDNS_superslave
+          value: "yes"
+        - name: PDNS_allow_unsigned_supermaster
+          value: "no"
+        - name: PDNS_allow_notify_from
+          value: "10.0.0.1"
+        - name: SUPERMASTER_HOSTS
+          value: "ns1.example.com"
+        - name: SUPERMASTER_IPS
+          value: "10.0.0.1"
+        ports:
+        - name: dns-udp
+          containerPort: 53
+          protocol: UDP
+          hostPort: 53
+        - name: dns-tcp
+          containerPort: 53
+          protocol: TCP
+          hostPort: 53
+        resources:
+          limits:
+            cpu: 300m
+            memory: 256Mi
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        securityContext:
+          privileged: false
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirstWithHostNet
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
