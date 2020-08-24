@@ -62,7 +62,7 @@
     - name: db
       docker_container:
         name: pdns-mariadb
-        image: mariadb:10.4
+        image: mariadb:10.5
         pull: true
         state: '{{ c_state }}'
         networks_cli_compatible: true
@@ -258,7 +258,7 @@
         - pdns-admin
 
     - name: remove docker volumes
-      command: docker volume rm pdns-mariadb-volume pdns-admin-upload
+      command: docker volume rm pdns-mariadb-volume
       ignore_errors: true
       when: wipe | bool
 

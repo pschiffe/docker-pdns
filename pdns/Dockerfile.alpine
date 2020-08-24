@@ -1,11 +1,12 @@
-FROM alpine:3.11
+FROM alpine:3.12
 
 RUN apk add --no-cache \
+    mariadb-client \
     pdns \
     pdns-backend-mysql \
     pdns-doc \
-    python3 \
-    mariadb-client
+    py3-pip \
+    python3
 
 RUN pip3 install --no-cache-dir envtpl
 

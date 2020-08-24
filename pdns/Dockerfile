@@ -1,4 +1,4 @@
-FROM fedora:31
+FROM fedora:32
 
 RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf \
   && dnf -y --setopt=install_weak_deps=False install \
@@ -11,7 +11,7 @@ RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf \
 
 RUN pip3 install --no-cache-dir envtpl
 
-ENV VERSION=4.2 \
+ENV VERSION=4.3 \
   PDNS_guardian=yes \
   PDNS_setuid=pdns \
   PDNS_setgid=pdns \
