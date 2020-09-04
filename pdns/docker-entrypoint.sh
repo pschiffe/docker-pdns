@@ -29,7 +29,7 @@ until $MYSQL_COMMAND -e ';' ; do
     sleep 3
 done
 
-if [ "${SKIP_DB_CREATE}" != 'true' ]; then
+if [ "${SKIP_DB_CREATE:-false}" != 'true' ]; then
     $MYSQL_COMMAND -e "CREATE DATABASE IF NOT EXISTS ${PDNS_gmysql_dbname}"
 fi
 
