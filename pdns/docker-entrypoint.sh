@@ -22,7 +22,7 @@ fi
 export PDNS_gmysql_host PDNS_gmysql_port PDNS_gmysql_user PDNS_gmysql_password PDNS_gmysql_dbname
 
 # Initialize DB if needed
-if [ -z ${PDNS_gmysql_socket+x} ];
+if [ -z ${PDNS_gmysql_socket+x} ]; then
     PDNS_gmysql_host="localhost"
     export PDNS_gmysql_host
     MYSQL_COMMAND="mysql --socket=${PDNS_gmysql_socket} -h ${PDNS_gmysql_host} -P ${PDNS_gmysql_port} -u ${PDNS_gmysql_user} -p${PDNS_gmysql_password}"
