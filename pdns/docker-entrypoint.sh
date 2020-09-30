@@ -29,7 +29,7 @@ if [ "${PDNS_gmysql_password}" != "" ]; then
 fi
 
 # Allow socket connections
-if [ "${PDNS_gmysql_socket}" != "" ]; then
+if [ "${PDNS_gmysql_socket:-}" != "" ]; then
     export PDNS_gmysql_host="localhost"
     EXTRA="${EXTRA} --socket=${PDNS_gmysql_socket}"
 fi
