@@ -7,7 +7,7 @@ set -euo pipefail
 : "${PDNS_gmysql_port:=${MYSQL_ENV_MYSQL_PORT:-3306}}"
 : "${PDNS_gmysql_user:=${MYSQL_ENV_MYSQL_USER:-root}}"
 if [ "${PDNS_gmysql_user}" = 'root' ]; then
-    : "${PDNS_gmysql_password:=$MYSQL_ENV_MYSQL_ROOT_PASSWORD}"
+    : "${PDNS_gmysql_password:=${MYSQL_ENV_MYSQL_ROOT_PASSWORD:-}}"
 fi
 : "${PDNS_gmysql_password:=${MYSQL_ENV_MYSQL_PASSWORD:-powerdns}}"
 : "${PDNS_gmysql_dbname:=${MYSQL_ENV_MYSQL_DATABASE:-powerdns}}"
@@ -21,14 +21,28 @@ fi
 
 export PDNS_gmysql_host PDNS_gmysql_port PDNS_gmysql_user PDNS_gmysql_password PDNS_gmysql_dbname
 
-# Initialize DB if needed
-MYSQL_COMMAND="mysql -h ${PDNS_gmysql_host} -P ${PDNS_gmysql_port} -u ${PDNS_gmysql_user} -p${PDNS_gmysql_password}"
+EXTRA=""
 
+# Password Auth
+if [ "${PDNS_gmysql_password}" != "" ]; then
+    EXTRA="${EXTRA} -p${PDNS_gmysql_password}"
+fi
+
+# Allow socket connections
+if [ "${PDNS_gmysql_socket}" != "" ]; then
+    export PDNS_gmysql_host="localhost"
+    EXTRA="${EXTRA} --socket=${PDNS_gmysql_socket}"
+fi
+
+MYSQL_COMMAND="mysql -h ${PDNS_gmysql_host} -P ${PDNS_gmysql_port} -u ${PDNS_gmysql_user}${EXTRA}"
+
+# Wait for MySQL to respond
 until $MYSQL_COMMAND -e ';' ; do
     >&2 echo 'MySQL is unavailable - sleeping'
     sleep 3
 done
 
+# Initialize DB if needed
 if [ "${SKIP_DB_CREATE:-false}" != 'true' ]; then
     $MYSQL_COMMAND -e "CREATE DATABASE IF NOT EXISTS ${PDNS_gmysql_dbname}"
 fi
