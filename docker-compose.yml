@@ -1,0 +1,128 @@
+version: '2.4'
+
+services:
+
+  pdns-recursor:
+    image: pschiffe/pdns-recursor:${RECURSOR_TAG:-latest}
+    networks:
+      - pdns
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  mariadb:
+    image: mariadb:10.5
+    networks:
+      pdns:
+        aliases:
+          - db
+          - mysql
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mariadb:/var/lib/mysql:z
+    environment:
+      - MYSQL_ROOT_PASSWORD=my-secret-pw
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      timeout: 10s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5
+    networks:
+      - pdns
+    ports:
+      - '8988:80'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  pdns-master:
+    image: pschiffe/pdns-mysql:${PDNS_MYSQL_TAG:-latest}
+    hostname: ns1.example.com
+    networks:
+      pdns:
+        ipv4_address: 172.6.0.20
+        aliases:
+          - pdns
+    extra_hosts:
+      - 'ns1.example.com:172.6.0.20'
+      - 'ns2.example.com:172.6.0.21'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - PDNS_gmysql_password=my-secret-pw
+      - PDNS_master=yes
+      - PDNS_api=yes
+      - PDNS_api_key=secret
+      - PDNS_webserver=yes
+      - PDNS_webserver_address=0.0.0.0
+      - PDNS_webserver_allow_from=172.6.0.0/16
+      - PDNS_version_string=anonymous
+      - PDNS_default_ttl=1500
+      - PDNS_allow_axfr_ips=172.6.0.21
+      - PDNS_only_notify=172.6.0.21
+    depends_on:
+      - mariadb
+
+  pdns-slave:
+    image: pschiffe/pdns-mysql:${PDNS_MYSQL_TAG:-latest}
+    hostname: ns2.example.com
+    networks:
+      pdns:
+        ipv4_address: 172.6.0.21
+    extra_hosts:
+      - 'ns1.example.com:172.6.0.20'
+      - 'ns2.example.com:172.6.0.21'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - PDNS_gmysql_dbname=powerdnsslave
+      - PDNS_gmysql_password=my-secret-pw
+      - PDNS_slave=yes
+      - PDNS_superslave=yes
+      - PDNS_webserver=yes
+      - PDNS_webserver_address=0.0.0.0
+      - PDNS_webserver_allow_from=172.6.0.0/16
+      - PDNS_version_string=anonymous
+      - PDNS_disable_axfr=yes
+      - PDNS_allow_notify_from=172.6.0.20
+      - SUPERMASTER_IPS=172.6.0.20
+    depends_on:
+      - mariadb
+      - pdns-master
+
+  pdns-admin-uwsgi:
+    image: pschiffe/pdns-admin-uwsgi:ngoduykhanh
+    networks:
+      pdns:
+        aliases:
+          - pdns-admin-uwsgi
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - PDNS_ADMIN_SQLA_DB_PASSWORD='my-secret-pw'
+      - PDNS_VERSION=4.3
+      - PDNS_API_KEY=secret
+    depends_on:
+      - mariadb
+      - pdns-master
+
+  pdns-admin-static:
+    image: pschiffe/pdns-admin-static:ngoduykhanh
+    networks:
+      - pdns
+    ports:
+      - '8989:80'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - pdns-admin-uwsgi
+
+networks:
+  pdns:
+    ipam:
+      config:
+        - subnet: 172.6.0.0/16
+          gateway: 172.6.0.1
+
+volumes:
+  mariadb:

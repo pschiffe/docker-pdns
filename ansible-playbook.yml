@@ -76,6 +76,10 @@
           - pdns-mariadb-volume:/var/lib/mysql:z
         env:
           MYSQL_ROOT_PASSWORD: 'my-secret-pw'
+        healthcheck:
+          test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+          timeout: 10s
+          retries: 5
       tags:
         - db
 
@@ -234,7 +238,7 @@
           - /etc/localtime:/etc/localtime:ro
         env:
           PDNS_ADMIN_SQLA_DB_PASSWORD: "'my-secret-pw'"
-          PDNS_VERSION: "4.2"
+          PDNS_VERSION: "4.3"
           PDNS_API_KEY: "secret"
       tags:
         - pdns-admin
