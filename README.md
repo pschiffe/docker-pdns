@@ -56,9 +56,6 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-master \
   -e PDNS_webserver_password=secret2 \
   -e PDNS_version_string=anonymous \
   -e PDNS_default_ttl=1500 \
-  -e PDNS_soa_minimum_ttl=1200 \
-  -e PDNS_default_soa_name=ns1.example.com \
-  -e PDNS_default_soa_mail=hostmaster.example.com \
   -e PDNS_allow_axfr_ips=172.5.0.21 \
   -e PDNS_only_notify=172.5.0.21 \
   pschiffe/pdns-mysql
@@ -96,7 +93,6 @@ You can find [here](https://doc.powerdns.com/md/recursor/settings/) all availabl
 Recursor server with API enabled:
 ```
 docker run -d -p 53:53 -p 53:53/udp --name pdns-recursor \
-  -e PDNS_api=yes \
   -e PDNS_api_key=secret \
   -e PDNS_webserver=yes \
   -e PDNS_webserver_address=0.0.0.0 \
