@@ -146,9 +146,6 @@
           PDNS_webserver_allow_from: '172.5.0.0/16'
           PDNS_version_string: 'anonymous'
           PDNS_default_ttl: '1500'
-          PDNS_soa_minimum_ttl: '1200'
-          PDNS_default_soa_name: 'ns1.example.com'
-          PDNS_default_soa_mail: 'hostmaster.example.com'
           PDNS_allow_axfr_ips: '{{ pdns_slave_ip }}'
           PDNS_only_notify: '{{ pdns_slave_ip }}'
       tags:

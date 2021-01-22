@@ -1,10 +1,11 @@
-FROM fedora:32
+FROM fedora:33
 
 RUN curl -sSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo \
   && dnf -y --setopt=install_weak_deps=False install \
     python3-ldap \
     python3-mysql \
     python3-pip \
+    python3-setuptools \
     python3-xmlsec \
     uwsgi \
     yarn \

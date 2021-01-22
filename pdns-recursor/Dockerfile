@@ -1,8 +1,9 @@
-FROM fedora:32
+FROM fedora:33
 
 RUN dnf -y --setopt=install_weak_deps=False install \
     pdns-recursor \
     python3-pip \
+    python3-setuptools \
   && dnf clean all
 
 RUN pip3 install --no-cache-dir envtpl
