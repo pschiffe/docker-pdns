@@ -4,6 +4,7 @@ RUN apk add --no-cache \
     mariadb-client \
     pdns \
     pdns-backend-mysql \
+    pdns-backend-pipe \
     pdns-doc \
     py3-pip \
     python3
