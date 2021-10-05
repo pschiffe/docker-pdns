@@ -1,8 +1,8 @@
-name: Docker Image CI pdns-mysql 4.4 latest
+name: Docker Image CI pdns-recursor 4.4 alpine
 
 on:
   push:
-    tags: [ 'pdns-mysql-fedora-4.4' ]
+    tags: [ 'pdns-recursor-alpine-4.4' ]
 
 jobs:
 
@@ -25,15 +25,15 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build and push PDNS
-        id: docker_build_pdns
+      - name: Build and push PDNS Recursor
+        id: docker_build_recursor
         uses: docker/build-push-action@v2
         with:
-          context: ./pdns
-          file: ./pdns/Dockerfile
+          context: ./pdns-recursor
+          file: ./pdns-recursor/Dockerfile.alpine
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-mysql:4.4
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-recursor:4.4-alpine
 
       - name: Image digest
-        run: echo ${{ steps.docker_build_pdns.outputs.digest }}
+        run: echo ${{ steps.docker_build_recursor.outputs.digest }}
