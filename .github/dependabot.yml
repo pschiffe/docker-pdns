@@ -1,6 +1,14 @@
 version: 2
 updates:
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/pdns"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "docker"
+    directory: "/pdns-recursor"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "docker"
+    directory: "/pdns-admin-base-ngoduykhanh"
     schedule:
       interval: "monthly"
