@@ -62,7 +62,7 @@
     - name: db
       docker_container:
         name: pdns-mariadb
-        image: mariadb:10.5
+        image: mariadb:10.6
         pull: true
         state: '{{ c_state }}'
         networks_cli_compatible: true
@@ -188,7 +188,7 @@
     - name: build pdns-admin base
       docker_image:
         name: pschiffe/pdns-admin-base
-        tag: ngoduykhanh
+        tag: latest
         state: '{{ i_state }}'
         source: build
         force_source: true
@@ -201,7 +201,7 @@
     - name: build pdns-admin backend
       docker_image:
         name: pschiffe/pdns-admin-uwsgi
-        tag: ngoduykhanh
+        tag: latest
         state: '{{ i_state }}'
         source: build
         force_source: true
@@ -214,7 +214,7 @@
     - name: build pdns-admin frontent
       docker_image:
         name: pschiffe/pdns-admin-static
-        tag: ngoduykhanh
+        tag: latest
         state: '{{ i_state }}'
         source: build
         force_source: true
@@ -227,7 +227,7 @@
     - name: pdns-admin backend
       docker_container:
         name: pdns-admin-uwsgi
-        image: pschiffe/pdns-admin-uwsgi:ngoduykhanh
+        image: pschiffe/pdns-admin-uwsgi
         state: '{{ c_state }}'
         networks_cli_compatible: true
         networks:
@@ -238,7 +238,7 @@
           - /etc/localtime:/etc/localtime:ro
         env:
           PDNS_ADMIN_SQLA_DB_PASSWORD: "'my-secret-pw'"
-          PDNS_VERSION: "4.3"
+          PDNS_VERSION: "4.4"
           PDNS_API_KEY: "secret"
       tags:
         - pdns-admin
@@ -246,7 +246,7 @@
     - name: pdns-admin frontend
       docker_container:
         name: pdns-admin-static
-        image: pschiffe/pdns-admin-static:ngoduykhanh
+        image: pschiffe/pdns-admin-static
         state: '{{ c_state }}'
         networks_cli_compatible: true
         networks:
