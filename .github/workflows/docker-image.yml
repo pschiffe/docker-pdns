@@ -52,3 +52,44 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.docker_build_recursor_alpine.outputs.digest }}
+
+      - name: Build and push PDNS latest
+        id: docker_build_pdns_latest
+        uses: docker/build-push-action@v2
+        with:
+          context: ./pdns
+          file: ./pdns/Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns:latest
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build_pdns_latest.outputs.digest }}
+
+      - name: Build and push PDNS alpine
+        id: docker_build_pdns_alpine
+        uses: docker/build-push-action@v2
+        with:
+          context: ./pdns
+          file: ./pdns/Dockerfile.alpine
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns:alpine
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build_pdns_alpine.outputs.digest }}
+
+      - name: Build and push admin base
+        id: docker_build_admin_base
+        uses: docker/build-push-action@v2
+        with:
+          context: ./pdns-admin-base-ngoduykhanh
+          file: ./pdns-admin-base-ngoduykhanh/Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-admin-base:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-admin-base:ngoduykhanh
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build_admin_base.outputs.digest }}
