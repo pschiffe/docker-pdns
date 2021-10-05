@@ -2,8 +2,6 @@
 
 This repository contains four Docker images - pdns-mysql, pdns-recursor, pdns-admin-static and pdns-admin-uwsgi. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Image **pdns-recursor** contains completely configurable [PowerDNS 4.x recursor](https://www.powerdns.com/). Images **pdns-admin-static** and **pdns-admin-uwsgi** contains fronted (nginx) and backend (uWSGI) for [PowerDNS Admin](https://github.com/ngoduykhanh/PowerDNS-Admin) web app, written in Flask, for managing PowerDNS servers.
 
-There are two versions of PowerDNS Admin - the old and deprecated `pschiffe/pdns-admin-uwsgi:latest` and `pschiffe/pdns-admin-static:latest` based on https://git.0x97.io/0x97/powerdns-admin . The new and updated version with more features is available as `pschiffe/pdns-admin-uwsgi:ngoduykhanh` and `pschiffe/pdns-admin-static:ngoduykhanh` and is based on https://github.com/ngoduykhanh/PowerDNS-Admin . The `latest` tag points to the older version of PowerDNS Admin for backwards compatibility.
-
 The pdns-mysql and pdns-recursor images have also the `alpine` tag thanks to the @PoppyPop .
 
 All images are available on Docker Hub:
@@ -18,9 +16,7 @@ https://hub.docker.com/r/pschiffe/pdns-admin-static/
 
 ## pdns-mysql
 
-[![](https://images.microbadger.com/badges/version/pschiffe/pdns-mysql.svg)](https://microbadger.com/images/pschiffe/pdns-mysql "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-mysql.svg)](http://microbadger.com/images/pschiffe/pdns-mysql "Get your own image badge on microbadger.com")
-
-[![](https://images.microbadger.com/badges/version/pschiffe/pdns-mysql:alpine.svg)](https://microbadger.com/images/pschiffe/pdns-mysql:alpine "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-mysql:alpine.svg)](https://microbadger.com/images/pschiffe/pdns-mysql:alpine "Get your own image badge on microbadger.com")
+![Docker Image Size (tag)](https://img.shields.io/docker/image-size/pschiffe/pdns-mysql/latest?label=latest) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/pschiffe/pdns-mysql/alpine?label=alpine) ![Docker Pulls](https://img.shields.io/docker/pulls/pschiffe/pdns-mysql)
 
 https://hub.docker.com/r/pschiffe/pdns-mysql/
 
@@ -76,9 +72,7 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-slave \
 
 ## pdns-recursor
 
-[![](https://images.microbadger.com/badges/version/pschiffe/pdns-recursor.svg)](https://microbadger.com/images/pschiffe/pdns-recursor "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-recursor.svg)](https://microbadger.com/images/pschiffe/pdns-recursor "Get your own image badge on microbadger.com")
-
-[![](https://images.microbadger.com/badges/version/pschiffe/pdns-recursor:alpine.svg)](https://microbadger.com/images/pschiffe/pdns-recursor:alpine "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-recursor:alpine.svg)](https://microbadger.com/images/pschiffe/pdns-recursor:alpine "Get your own image badge on microbadger.com")
+![Docker Image Size (tag)](https://img.shields.io/docker/image-size/pschiffe/pdns-recursor/latest?label=latest) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/pschiffe/pdns-recursor/alpine?label=alpine) ![Docker Pulls](https://img.shields.io/docker/pulls/pschiffe/pdns-recursor)
 
 https://hub.docker.com/r/pschiffe/pdns-recursor/
 
@@ -102,7 +96,7 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-recursor \
 
 ## pdns-admin-uwsgi
 
-[![](https://images.microbadger.com/badges/version/pschiffe/pdns-admin-uwsgi:ngoduykhanh.svg)](https://microbadger.com/images/pschiffe/pdns-admin-uwsgi:ngoduykhanh "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-admin-uwsgi:ngoduykhanh.svg)](https://microbadger.com/images/pschiffe/pdns-admin-ngoduykhanh:alpine "Get your own image badge on microbadger.com")
+![Docker Image Size (tag)](https://img.shields.io/docker/image-size/pschiffe/pdns-admin-uwsgi/latest?label=latest) ![Docker Pulls](https://img.shields.io/docker/pulls/pschiffe/pdns-admin-uwsgi)
 
 https://hub.docker.com/r/pschiffe/pdns-admin-uwsgi/
 
@@ -154,12 +148,12 @@ When linked with pdns-mysql from this repo and with LDAP auth:
 docker run -d --name pdns-admin-uwsgi \
   --link mariadb:mysql --link pdns-master:pdns \
   -v pdns-admin-upload:/opt/powerdns-admin/upload \
-  pschiffe/pdns-admin-uwsgi:ngoduykhanh
+  pschiffe/pdns-admin-uwsgi
 ```
 
 ## pdns-admin-static
 
-[![](https://images.microbadger.com/badges/version/pschiffe/pdns-admin-static:ngoduykhanh.svg)](https://microbadger.com/images/pschiffe/pdns-admin-static:ngoduykhanh "Get your own version badge on microbadger.com") [![](https://images.microbadger.com/badges/image/pschiffe/pdns-admin-static:ngoduykhanh.svg)](https://microbadger.com/images/pschiffe/pdns-admin-static:ngoduykhanh "Get your own image badge on microbadger.com")
+![Docker Image Size (tag)](https://img.shields.io/docker/image-size/pschiffe/pdns-admin-static/latest?label=latest) ![Docker Pulls](https://img.shields.io/docker/pulls/pschiffe/pdns-admin-static)
 
 https://hub.docker.com/r/pschiffe/pdns-admin-static/
 
@@ -170,7 +164,7 @@ Fronted image with nginx and static files for [PowerDNS Admin](https://github.co
 ```
 docker run -d -p 8080:80 --name pdns-admin-static \
   --link pdns-admin-uwsgi:pdns-admin-uwsgi \
-  pschiffe/pdns-admin-static:ngoduykhanh
+  pschiffe/pdns-admin-static
 ```
 
 ## ansible-playbook.yml
