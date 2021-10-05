@@ -32,7 +32,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./pdns-recursor
-          file: ./Dockerfile
+          file: ./pdns-recursor/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-recursor:latest
@@ -45,7 +45,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./pdns-recursor
-          file: ./Dockerfile.alpine
+          file: ./pdns-recursor/Dockerfile.alpine
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-recursor:alpine
