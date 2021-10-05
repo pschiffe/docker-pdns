@@ -10,7 +10,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
   mariadb:
-    image: mariadb:10.5
+    image: mariadb:10.6
     networks:
       pdns:
         aliases:
@@ -91,7 +91,7 @@ services:
       - pdns-master
 
   pdns-admin-uwsgi:
-    image: pschiffe/pdns-admin-uwsgi:ngoduykhanh
+    image: pschiffe/pdns-admin-uwsgi
     networks:
       pdns:
         aliases:
@@ -100,14 +100,14 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       - PDNS_ADMIN_SQLA_DB_PASSWORD='my-secret-pw'
-      - PDNS_VERSION=4.3
+      - PDNS_VERSION=4.4
       - PDNS_API_KEY=secret
     depends_on:
       - mariadb
       - pdns-master
 
   pdns-admin-static:
-    image: pschiffe/pdns-admin-static:ngoduykhanh
+    image: pschiffe/pdns-admin-static
     networks:
       - pdns
     ports:

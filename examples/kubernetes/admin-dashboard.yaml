@@ -26,7 +26,7 @@ spec:
         - "pdns-admin-uwsgi"
       containers:
       - name: pdns-admin-static
-        image: pschiffe/pdns-admin-static:ngoduykhanh
+        image: pschiffe/pdns-admin-static
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -39,7 +39,7 @@ spec:
             cpu: 50m
             memory: 64Mi
       - name: pdns-admin-uwsgi
-        image: pschiffe/pdns-admin-uwsgi:ngoduykhanh
+        image: pschiffe/pdns-admin-uwsgi
         imagePullPolicy: IfNotPresent
         env:
         - name: PDNS_ADMIN_SQLA_DB_HOST
@@ -58,7 +58,7 @@ spec:
         - name: PDNS_API_URL
           value: "http://master-api-pdns:8081/"
         - name: PDNS_VERSION
-          value: "4.2.1"
+          value: "4.4"
         - name: PDNS_API_KEY
           valueFrom:
             secretKeyRef:

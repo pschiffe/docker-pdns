@@ -59,7 +59,7 @@ jobs:
           file: ./pdns/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-mysql:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build_pdns_latest.outputs.digest }}
@@ -72,7 +72,7 @@ jobs:
           file: ./pdns/Dockerfile.alpine
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns:alpine
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-mysql:alpine
 
       - name: Image digest
         run: echo ${{ steps.docker_build_pdns_alpine.outputs.digest }}

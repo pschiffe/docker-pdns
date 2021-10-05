@@ -1,4 +1,4 @@
-FROM pschiffe/pdns-admin-base:ngoduykhanh
+FROM pschiffe/pdns-admin-base
 
 RUN dnf -y --setopt=install_weak_deps=False install \
     mariadb \
