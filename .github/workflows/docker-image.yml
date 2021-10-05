@@ -93,3 +93,33 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.docker_build_admin_base.outputs.digest }}
+
+      - name: Build and push admin uwsgi
+        id: docker_build_admin_uwsgi
+        uses: docker/build-push-action@v2
+        with:
+          context: ./pdns-admin-uwsgi-ngoduykhanh
+          file: ./pdns-admin-uwsgi-ngoduykhanh/Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-admin-uwsgi:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-admin-uwsgi:ngoduykhanh
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build_admin_uwsgi.outputs.digest }}
+
+      - name: Build and push admin static
+        id: docker_build_admin_static
+        uses: docker/build-push-action@v2
+        with:
+          context: ./pdns-admin-static-ngoduykhanh
+          file: ./pdns-admin-static-ngoduykhanh/Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-admin-static:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-admin-static:ngoduykhanh
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build_admin_static.outputs.digest }}
