@@ -1,4 +1,4 @@
-FROM fedora:35
+FROM fedora:34
 
 RUN curl -sSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo \
   && dnf -y --setopt=install_weak_deps=False install \
