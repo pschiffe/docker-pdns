@@ -58,7 +58,7 @@ spec:
         - name: PDNS_API_URL
           value: "http://master-api-pdns:8081/"
         - name: PDNS_VERSION
-          value: "4.4"
+          value: "4.5"
         - name: PDNS_API_KEY
           valueFrom:
             secretKeyRef:

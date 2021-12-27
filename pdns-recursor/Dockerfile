@@ -13,7 +13,7 @@ RUN mkdir -p /etc/pdns-recursor/api.d \
   && mkdir -p /run/pdns-recursor \
   && chown -R pdns-recursor: /run/pdns-recursor
 
-ENV VERSION=4.4 \
+ENV VERSION=4.5 \
   PDNS_setuid=pdns-recursor \
   PDNS_setgid=pdns-recursor \
   PDNS_daemon=no
