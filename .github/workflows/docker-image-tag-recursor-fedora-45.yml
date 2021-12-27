@@ -2,7 +2,8 @@ name: Docker Image CI pdns-recursor 4.5 latest
 
 on:
   push:
-    tags: [ 'pdns-recursor-fedora-4.5' ]
+    tags:
+      - 'pdns-recursor-fedora-4.5'
 
 jobs:
 

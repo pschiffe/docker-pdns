@@ -2,7 +2,8 @@ name: Docker Image CI pdns-recursor 4.5 alpine
 
 on:
   push:
-    tags: [ 'pdns-recursor-alpine-4.5' ]
+    tags:
+      - 'pdns-recursor-alpine-4.5'
 
 jobs:
 

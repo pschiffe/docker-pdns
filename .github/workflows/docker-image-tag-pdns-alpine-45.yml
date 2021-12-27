@@ -2,7 +2,8 @@ name: Docker Image CI pdns-mysql 4.5 alpine
 
 on:
   push:
-    tags: [ 'pdns-mysql-alpine-4.5' ]
+    tags:
+      - 'pdns-mysql-alpine-4.5'
 
 jobs:
 
