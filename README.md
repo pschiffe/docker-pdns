@@ -114,6 +114,13 @@ If linked with official [mariadb](https://hub.docker.com/_/mariadb/) image with 
 
 Similar to the pdns-mysql, pdns-admin is also completely configurable via env vars. Prefix in this case is `PDNS_ADMIN_`, but there is one caveat: as the config file is a python source file, every string value must be quoted, as shown above. Double quotes are consumed by Bash, so the single quotes stay for Python. (Port number in this case is treated as string, because later on it's concatenated with hostname, user, etc in the db uri). Configuration from these env vars will be written to the `/opt/powerdns-admin/config.py` file.
 
+In order to be able to generate an API Key, you will need to specify the SALT.
+Update the docker-compose.yaml file to include a salt as follows in the pdns-admin-uwsgi service:
+```
+- PDNS_ADMIN_SALT='$$2b$$12$$yLUMTIfl21FKJQpTkRQXCu'
+```
+Note that the $ sign must be escaped with $$ in docker-compose
+
 ### Connecting to the PowerDNS server
 
 For the pdns-admin to make sense, it needs a PowerDNS server to manage. The PowerDNS server needs to have exposed API (example configuration for PowerDNS 4.x):
