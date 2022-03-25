@@ -1,6 +1,6 @@
 # PowerDNS Docker Images
 
-This repository contains four Docker images - pdns-mysql, pdns-recursor, pdns-admin-static and pdns-admin-uwsgi. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Image **pdns-recursor** contains completely configurable [PowerDNS 4.x recursor](https://www.powerdns.com/). Images **pdns-admin-static** and **pdns-admin-uwsgi** contains fronted (nginx) and backend (uWSGI) for [PowerDNS Admin](https://github.com/ngoduykhanh/PowerDNS-Admin) web app, written in Flask, for managing PowerDNS servers.
+This repository contains four Docker images - pdns-mysql, pdns-recursor, pdns-admin-static and pdns-admin-uwsgi. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Image **pdns-recursor** contains completely configurable [PowerDNS 4.x recursor](https://www.powerdns.com/). Images **pdns-admin-static** and **pdns-admin-uwsgi** contains fronted (nginx) and backend (uWSGI) for [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, written in Flask, for managing PowerDNS servers.
 
 The pdns-mysql and pdns-recursor images have also the `alpine` tag thanks to the @PoppyPop .
 
@@ -100,7 +100,7 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-recursor \
 
 https://hub.docker.com/r/pschiffe/pdns-admin-uwsgi/
 
-Docker image with backend of [PowerDNS Admin](https://github.com/ngoduykhanh/PowerDNS-Admin) web app, written in Flask, for managing PowerDNS servers. This image contains the python part of the app running under uWSGI. It needs external mysql server. Env vars for mysql configuration:
+Docker image with backend of [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, written in Flask, for managing PowerDNS servers. This image contains the python part of the app running under uWSGI. It needs external mysql server. Env vars for mysql configuration:
 ```
 (name=default value)
 
@@ -165,7 +165,7 @@ docker run -d --name pdns-admin-uwsgi \
 
 https://hub.docker.com/r/pschiffe/pdns-admin-static/
 
-Fronted image with nginx and static files for [PowerDNS Admin](https://github.com/ngoduykhanh/PowerDNS-Admin). Exposes port 80 for connections, expects uWSGI backend image under `pdns-admin-uwsgi` alias.
+Fronted image with nginx and static files for [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin). Exposes port 80 for connections, expects uWSGI backend image under `pdns-admin-uwsgi` alias.
 
 ### Example
 
