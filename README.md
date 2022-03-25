@@ -137,6 +137,14 @@ PDNS_VERSION=""
 
 If this container is linked with pdns-mysql from this repo with alias `pdns`, it will be configured automatically and none of the env vars from above are needed to be specified.
 
+### PowerDNS Admin API keys and SALT
+
+In order to be able to generate an API Key, you will need to specify the SALT via `PDNS_ADMIN_SALT` env var. This is a secret value, which can be generated via command:
+```
+python3 -c 'import bcrypt; print(bcrypt.gensalt().decode("utf-8"));'
+```
+Example value looks like `$2b$12$xxxxxxxxxxxxxxxxxxxxxx` - remember that when using docker-compose, literal `$` must be specified as `$$`.
+
 ### Persistent data
 
 There is a directory with user uploads which should be persistent: `/opt/powerdns-admin/upload`
