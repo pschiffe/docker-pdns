@@ -1,4 +1,4 @@
-FROM fedora:34
+FROM fedora:35
 
 RUN curl -sSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo \
   && dnf -y --setopt=install_weak_deps=False install \
@@ -20,7 +20,7 @@ RUN mkdir -p /opt/powerdns-admin \
 
 WORKDIR /opt/powerdns-admin
 
-RUN pip3 install --no-cache-dir envtpl python-dotenv \
+RUN pip3 install --no-cache-dir 'Jinja2<3.1' envtpl python-dotenv 'itsdangerous<2.1' \
   && pip3 install -r requirements.txt --no-cache-dir
 
 ENV FLASK_APP=/opt/powerdns-admin/powerdnsadmin/__init__.py
