@@ -1,8 +1,9 @@
-name: Docker Image CI pdns-recursor 4.4 latest
+name: Docker Image CI pdns-recursor alpine
 
 on:
   push:
-    tags: [ 'pdns-recursor-fedora-4.4' ]
+    tags:
+      - 'pdns-recursor-alpine-*'
 
 jobs:
 
@@ -11,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    
+
       - name: Check Out Repo
         uses: actions/checkout@v2
 
@@ -25,15 +26,19 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=version::${GITHUB_REF##*-}
+
       - name: Build and push PDNS Recursor
         id: docker_build_recursor
         uses: docker/build-push-action@v2
         with:
           context: ./pdns-recursor
-          file: ./pdns-recursor/Dockerfile
+          file: ./pdns-recursor/Dockerfile.alpine
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-recursor:4.4
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-recursor:${{ steps.vars.outputs.version }}-alpine
 
       - name: Image digest
         run: echo ${{ steps.docker_build_recursor.outputs.digest }}

@@ -1,8 +1,9 @@
-name: Docker Image CI pdns-mysql 4.4 alpine
+name: Docker Image CI pdns-mysql alpine
 
 on:
   push:
-    tags: [ 'pdns-mysql-alpine-4.4' ]
+    tags:
+      - 'pdns-mysql-alpine-*'
 
 jobs:
 
@@ -11,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    
+
       - name: Check Out Repo
         uses: actions/checkout@v2
 
@@ -25,6 +26,10 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=version::${GITHUB_REF##*-}
+
       - name: Build and push PDNS
         id: docker_build_pdns
         uses: docker/build-push-action@v2
@@ -33,7 +38,7 @@ jobs:
           file: ./pdns/Dockerfile.alpine
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-mysql:4.4-alpine
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-mysql:${{ steps.vars.outputs.version }}-alpine
 
       - name: Image digest
         run: echo ${{ steps.docker_build_pdns.outputs.digest }}
