@@ -5,7 +5,7 @@ RUN apk add --no-cache \
     py3-pip \
     python3
 
-RUN pip3 install --no-cache-dir envtpl
+RUN pip3 install --no-cache-dir 'Jinja2<3.1' envtpl
 
 RUN mkdir -p /etc/pdns/api.d \
   && chown -R recursor: /etc/pdns/api.d \
