@@ -11,23 +11,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    
+
       - name: Check Out Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build and push PDNS Recursor latest
         id: docker_build_recursor_latest
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ./pdns-recursor
           file: ./pdns-recursor/Dockerfile
@@ -40,7 +40,7 @@ jobs:
 
       - name: Build and push PDNS Recursor alpine
         id: docker_build_recursor_alpine
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ./pdns-recursor
           file: ./pdns-recursor/Dockerfile.alpine
@@ -53,7 +53,7 @@ jobs:
 
       - name: Build and push PDNS latest
         id: docker_build_pdns_latest
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ./pdns
           file: ./pdns/Dockerfile
@@ -66,7 +66,7 @@ jobs:
 
       - name: Build and push PDNS alpine
         id: docker_build_pdns_alpine
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ./pdns
           file: ./pdns/Dockerfile.alpine
@@ -79,7 +79,7 @@ jobs:
 
       - name: Build and push admin base
         id: docker_build_admin_base
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ./pdns-admin-base-ngoduykhanh
           file: ./pdns-admin-base-ngoduykhanh/Dockerfile
@@ -94,7 +94,7 @@ jobs:
 
       - name: Build and push admin uwsgi
         id: docker_build_admin_uwsgi
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ./pdns-admin-uwsgi-ngoduykhanh
           file: ./pdns-admin-uwsgi-ngoduykhanh/Dockerfile
@@ -109,7 +109,7 @@ jobs:
 
       - name: Build and push admin static
         id: docker_build_admin_static
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: ./pdns-admin-static-ngoduykhanh
           file: ./pdns-admin-static-ngoduykhanh/Dockerfile
