@@ -15,6 +15,9 @@ jobs:
       - name: Check Out Repo
         uses: actions/checkout@v3
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
@@ -31,6 +34,7 @@ jobs:
         with:
           context: ./pdns-recursor
           file: ./pdns-recursor/Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-recursor:latest
@@ -44,6 +48,7 @@ jobs:
         with:
           context: ./pdns-recursor
           file: ./pdns-recursor/Dockerfile.alpine
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-recursor:alpine
@@ -57,6 +62,7 @@ jobs:
         with:
           context: ./pdns
           file: ./pdns/Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-mysql:latest
@@ -70,6 +76,7 @@ jobs:
         with:
           context: ./pdns
           file: ./pdns/Dockerfile.alpine
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-mysql:alpine
@@ -83,6 +90,7 @@ jobs:
         with:
           context: ./pdns-admin-base-ngoduykhanh
           file: ./pdns-admin-base-ngoduykhanh/Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: |
@@ -98,6 +106,7 @@ jobs:
         with:
           context: ./pdns-admin-uwsgi-ngoduykhanh
           file: ./pdns-admin-uwsgi-ngoduykhanh/Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: |
@@ -113,6 +122,7 @@ jobs:
         with:
           context: ./pdns-admin-static-ngoduykhanh
           file: ./pdns-admin-static-ngoduykhanh/Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: |
