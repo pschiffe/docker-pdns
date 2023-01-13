@@ -1,4 +1,4 @@
-FROM fedora:35
+FROM fedora:37
 
 RUN dnf -y --setopt=install_weak_deps=False install \
     pdns-recursor \
