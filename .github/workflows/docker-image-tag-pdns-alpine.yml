@@ -39,7 +39,7 @@ jobs:
         with:
           context: ./pdns
           file: ./pdns/Dockerfile.alpine
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-mysql:${{ steps.vars.outputs.version }}-alpine
