@@ -62,7 +62,7 @@
     - name: db
       docker_container:
         name: pdns-mariadb
-        image: mariadb:10.6
+        image: mariadb:10.10
         pull: true
         state: '{{ c_state }}'
         networks_cli_compatible: true
@@ -86,7 +86,7 @@
     - name: phpmyadmin
       docker_container:
         name: pdns-phpmyadmin
-        image: phpmyadmin/phpmyadmin:5
+        image: phpmyadmin:5
         pull: true
         state: '{{ c_state }}'
         networks_cli_compatible: true
@@ -238,7 +238,7 @@
           - /etc/localtime:/etc/localtime:ro
         env:
           PDNS_ADMIN_SQLA_DB_PASSWORD: "'my-secret-pw'"
-          PDNS_VERSION: "4.5"
+          PDNS_VERSION: "4.7"
           PDNS_API_KEY: "secret"
       tags:
         - pdns-admin

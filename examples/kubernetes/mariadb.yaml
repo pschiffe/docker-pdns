@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: mariadb-pdns
-        image: mariadb:10.6
+        image: mariadb:10.10
         imagePullPolicy: Always
         env:
           - name: MYSQL_ROOT_PASSWORD

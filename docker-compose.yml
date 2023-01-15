@@ -10,7 +10,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
   mariadb:
-    image: mariadb:10.6
+    image: mariadb:10.10
     networks:
       pdns:
         aliases:
@@ -27,7 +27,7 @@ services:
       retries: 5
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:5
+    image: phpmyadmin:5
     networks:
       - pdns
     ports:
@@ -100,7 +100,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       - PDNS_ADMIN_SQLA_DB_PASSWORD='my-secret-pw'
-      - PDNS_VERSION=4.5
+      - PDNS_VERSION=4.7
       - PDNS_API_KEY=secret
     depends_on:
       - mariadb
