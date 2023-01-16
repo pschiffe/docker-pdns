@@ -53,6 +53,14 @@ if [ "$MYSQL_NUM_TABLE" -eq 0 ]; then
     $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" < /usr/share/doc/pdns/schema.mysql.sql
 fi
 
+# SQL migration to version 4.7
+MYSQL_CHECK_IF_47="SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = '${PDNS_gmysql_dbname}' AND table_name = 'domains' AND column_name = 'options';"
+MYSQL_NUM_TABLE=$($MYSQL_COMMAND --batch --skip-column-names -e "$MYSQL_CHECK_IF_47")
+if [ "$MYSQL_NUM_TABLE" -eq 0 ]; then
+    echo 'Migrating MySQL schema to version 4.7...'
+    $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" < /usr/share/doc/pdns/4.3.0_to_4.7.0_schema.mysql.sql
+fi
+
 if [ "${PDNS_superslave:-no}" == "yes" ]; then
     # Configure supermasters if needed
     if [ "${SUPERMASTER_IPS:-}" ]; then
