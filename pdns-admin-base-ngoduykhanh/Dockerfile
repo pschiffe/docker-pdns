@@ -2,9 +2,12 @@ FROM fedora:37
 
 RUN curl -sSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo \
   && dnf -y --setopt=install_weak_deps=False install \
+    npm \
     python3-ldap \
+    python3-lxml \
     python3-mysql \
     python3-pip \
+    python3-saml \
     python3-setuptools \
     python3-xmlsec \
     uwsgi \
@@ -16,6 +19,8 @@ RUN mkdir -p /opt/powerdns-admin \
     | tar -xzC /opt/powerdns-admin --strip 1 \
   && sed -i '/python-ldap/d' /opt/powerdns-admin/requirements.txt \
   && sed -i '/mysqlclient/d' /opt/powerdns-admin/requirements.txt \
+  && sed -i '/lxml/d' /opt/powerdns-admin/requirements.txt \
+  && sed -i '/python3-saml/d' /opt/powerdns-admin/requirements.txt \
   && chown -R root: /opt/powerdns-admin
 
 WORKDIR /opt/powerdns-admin
