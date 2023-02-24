@@ -6,6 +6,17 @@ BIND_ADDRESS = '0.0.0.0'
 PORT = 9191
 HSTS_ENABLED = False
 
+# CAPTCHA Config
+CAPTCHA_ENABLE = True
+CAPTCHA_LENGTH = 6
+CAPTCHA_WIDTH = 160
+CAPTCHA_HEIGHT = 60
+CAPTCHA_SESSION_KEY = 'captcha_image'
+
+# Server side sessions tracking
+# Set to TRUE for CAPTCHA, or enable another stateful session tracking system
+FILESYSTEM_SESSIONS_ENABLED = True
+
 # SAML Authnetication
 SAML_ENABLED = False
 

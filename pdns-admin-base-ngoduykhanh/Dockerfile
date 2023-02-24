@@ -39,4 +39,5 @@ RUN envtpl < /config.py.tpl > /opt/powerdns-admin/config.py \
 RUN yarn install --pure-lockfile --production \
   && yarn cache clean \
   && flask assets build \
-  && chown -R uwsgi: /opt/powerdns-admin/powerdnsadmin/static/.webassets-cache
+  && chown -R uwsgi: /opt/powerdns-admin/powerdnsadmin/static/.webassets-cache \
+  && chown -R uwsgi: /opt/powerdns-admin/flask_session
