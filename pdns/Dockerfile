@@ -1,4 +1,4 @@
-FROM fedora:37
+FROM fedora:38
 
 RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf \
   && dnf -y --setopt=install_weak_deps=False install \
