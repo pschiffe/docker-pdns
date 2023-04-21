@@ -6,7 +6,7 @@ RUN dnf -y --setopt=install_weak_deps=False install \
     python3-setuptools \
   && dnf clean all
 
-RUN pip3 install --no-cache-dir 'Jinja2<3.1' envtpl
+RUN pip3 install --no-cache-dir envtpl
 
 RUN mkdir -p /etc/pdns-recursor/api.d \
   && chown -R pdns-recursor: /etc/pdns-recursor/api.d \

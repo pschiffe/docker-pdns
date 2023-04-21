@@ -10,7 +10,7 @@ RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf \
     python3-setuptools \
   && dnf clean all
 
-RUN pip3 install --no-cache-dir 'Jinja2<3.1' envtpl
+RUN pip3 install --no-cache-dir envtpl
 
 ENV VERSION=4.7 \
   PDNS_guardian=yes \
