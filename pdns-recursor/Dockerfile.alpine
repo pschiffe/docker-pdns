@@ -1,18 +1,18 @@
-FROM alpine:3.17.3
+FROM alpine:3.19.0
 
 RUN apk add --no-cache \
     pdns-recursor \
     py3-pip \
     python3
 
-RUN pip3 install --no-cache-dir envtpl
+RUN pip3 install --no-cache-dir --break-system-packages envtpl
 
 RUN mkdir -p /etc/pdns/api.d \
   && chown -R recursor: /etc/pdns/api.d \
   && mkdir -p /var/run/pdns-recursor \
   && chown -R recursor: /var/run/pdns-recursor
 
-ENV VERSION=4.7 \
+ENV VERSION=4.9 \
   PDNS_setuid=recursor \
   PDNS_setgid=recursor \
   PDNS_daemon=no

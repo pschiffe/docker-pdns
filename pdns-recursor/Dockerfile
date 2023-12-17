@@ -1,4 +1,4 @@
-FROM fedora:38
+FROM fedora:39
 
 RUN dnf -y --setopt=install_weak_deps=False install \
     pdns-recursor \
@@ -13,7 +13,7 @@ RUN mkdir -p /etc/pdns-recursor/api.d \
   && mkdir -p /run/pdns-recursor \
   && chown -R pdns-recursor: /run/pdns-recursor
 
-ENV VERSION=4.8 \
+ENV VERSION=4.9 \
   PDNS_setuid=pdns-recursor \
   PDNS_setgid=pdns-recursor \
   PDNS_daemon=no

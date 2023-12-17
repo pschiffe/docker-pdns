@@ -1,4 +1,4 @@
-FROM alpine:3.17.3
+FROM alpine:3.19.0
 
 RUN apk add --no-cache \
     mariadb-client \
@@ -8,9 +8,9 @@ RUN apk add --no-cache \
     py3-pip \
     python3
 
-RUN pip3 install --no-cache-dir envtpl
+RUN pip3 install --no-cache-dir --break-system-packages envtpl
 
-ENV VERSION=4.7 \
+ENV VERSION=4.8 \
   PDNS_guardian=yes \
   PDNS_setuid=pdns \
   PDNS_setgid=pdns \
