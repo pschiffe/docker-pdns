@@ -8,9 +8,13 @@ services:
       - pdns
     volumes:
       - /etc/localtime:/etc/localtime:ro
+    ulimits:
+      nofile:
+        soft: 5000
+        hard: 5000
 
   mariadb:
-    image: mariadb:10.11
+    image: mariadb:11
     networks:
       pdns:
         aliases:
@@ -22,7 +26,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=my-secret-pw
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      test: ['CMD', 'healthcheck.sh', '--su=mysql', '--connect', '--innodb_initialized']
       timeout: 10s
       retries: 5
 
@@ -100,7 +104,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       - PDNS_ADMIN_SQLA_DB_PASSWORD='my-secret-pw'
-      - PDNS_VERSION=4.7
+      - PDNS_VERSION=4.8
       - PDNS_API_KEY=secret
     depends_on:
       - mariadb
