@@ -3,10 +3,12 @@ FROM fedora:38
 RUN curl -sSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo \
   && dnf -y --setopt=install_weak_deps=False install \
     nodejs-npm \
+    python3-cffi \
     python3-ldap \
     python3-lxml \
     python3-mysql \
     python3-pip \
+    python3-pyyaml \
     python3-saml \
     python3-setuptools \
     python3-wheel \
@@ -18,11 +20,13 @@ RUN curl -sSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo
 RUN mkdir -p /opt/powerdns-admin \
   && curl -sSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v0.4.1.tar.gz \
     | tar -xzC /opt/powerdns-admin --strip 1 \
+  && sed -i '/cffi/d' /opt/powerdns-admin/requirements.txt \
   && sed -i '/lxml/d' /opt/powerdns-admin/requirements.txt \
   && sed -i '/mysqlclient/d' /opt/powerdns-admin/requirements.txt \
   && sed -i '/psycopg2/d' /opt/powerdns-admin/requirements.txt \
   && sed -i '/python-ldap/d' /opt/powerdns-admin/requirements.txt \
   && sed -i '/python3-saml/d' /opt/powerdns-admin/requirements.txt \
+  && sed -i '/PyYAML/d' /opt/powerdns-admin/requirements.txt \
   && chown -R root: /opt/powerdns-admin
 
 WORKDIR /opt/powerdns-admin
