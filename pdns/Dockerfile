@@ -6,11 +6,12 @@ RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf \
     mariadb \
     pdns \
     pdns-backend-mysql \
-    python3-pip \
-    python3-setuptools \
   && dnf clean all
 
-RUN pip3 install --no-cache-dir envtpl
+RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'x86_64') \
+  && curl -fsSL https://github.com/kha7iq/subvars/releases/download/v0.1.4/subvars_Linux_${arch}.tar.gz \
+    | tar -xzf - -C /usr/local/bin subvars \
+  && chmod +x /usr/local/bin/subvars
 
 ENV VERSION=4.8 \
   PDNS_guardian=yes \

@@ -18,7 +18,7 @@ elif [ -f /etc/alpine-release ]; then
 fi
 
 # Create config file from template
-envtpl < /recursor.conf.tpl > $config_file
+subvars --prefix 'PDNS_' < /recursor.conf.tpl > $config_file
 
 # Fix config file ownership
 chown ${pdns_user}: $config_file

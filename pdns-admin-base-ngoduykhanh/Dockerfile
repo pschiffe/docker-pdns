@@ -17,6 +17,11 @@ RUN curl -sSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo
     yarn \
   && dnf clean all
 
+RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'x86_64') \
+  && curl -fsSL https://github.com/kha7iq/subvars/releases/download/v0.1.4/subvars_Linux_${arch}.tar.gz \
+    | tar -xzf - -C /usr/local/bin subvars \
+  && chmod +x /usr/local/bin/subvars
+
 RUN mkdir -p /opt/powerdns-admin \
   && curl -sSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v0.4.1.tar.gz \
     | tar -xzC /opt/powerdns-admin --strip 1 \
@@ -31,7 +36,7 @@ RUN mkdir -p /opt/powerdns-admin \
 
 WORKDIR /opt/powerdns-admin
 
-RUN pip3 install --no-cache-dir envtpl python-dotenv \
+RUN pip3 install --no-cache-dir python-dotenv \
   && pip3 install -r requirements.txt --no-cache-dir
 
 ENV FLASK_APP=/opt/powerdns-admin/powerdnsadmin/__init__.py
@@ -39,7 +44,7 @@ ENV FLASK_APP=/opt/powerdns-admin/powerdnsadmin/__init__.py
 COPY config.py.tpl /
 COPY run.py .
 
-RUN envtpl < /config.py.tpl > /opt/powerdns-admin/config.py \
+RUN subvars --prefix 'PDNS_ADMIN_' < /config.py.tpl > /opt/powerdns-admin/config.py \
   && sed -i '/SQLALCHEMY_DATABASE_URI/d' /opt/powerdns-admin/config.py
 
 RUN yarn install --pure-lockfile --production \
