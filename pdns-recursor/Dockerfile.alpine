@@ -1,11 +1,12 @@
 FROM alpine:3.19.0
 
 RUN apk add --no-cache \
-    pdns-recursor \
-    py3-pip \
-    python3
+    pdns-recursor
 
-RUN pip3 install --no-cache-dir --break-system-packages envtpl
+RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'x86_64') \
+  && wget -qO- https://github.com/kha7iq/subvars/releases/download/v0.1.4/subvars_Linux_${arch}.tar.gz \
+    | tar -xzf - -C /usr/local/bin subvars \
+  && chmod +x /usr/local/bin/subvars
 
 RUN mkdir -p /etc/pdns/api.d \
   && chown -R recursor: /etc/pdns/api.d \

@@ -85,6 +85,6 @@ if [ "${PDNS_superslave:-no}" == "yes" ]; then
 fi
 
 # Create config file from template
-envtpl < /pdns.conf.tpl > /etc/pdns/pdns.conf
+subvars --prefix 'PDNS_' < /pdns.conf.tpl > /etc/pdns/pdns.conf
 
 exec "$@"

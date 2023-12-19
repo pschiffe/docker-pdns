@@ -4,11 +4,12 @@ RUN apk add --no-cache \
     mariadb-client \
     pdns \
     pdns-backend-mysql \
-    pdns-doc \
-    py3-pip \
-    python3
+    pdns-doc
 
-RUN pip3 install --no-cache-dir --break-system-packages envtpl
+RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'x86_64') \
+  && wget -qO- https://github.com/kha7iq/subvars/releases/download/v0.1.4/subvars_Linux_${arch}.tar.gz \
+    | tar -xzf - -C /usr/local/bin subvars \
+  && chmod +x /usr/local/bin/subvars
 
 ENV VERSION=4.8 \
   PDNS_guardian=yes \

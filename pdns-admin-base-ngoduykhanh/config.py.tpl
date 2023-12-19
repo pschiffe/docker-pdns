@@ -19,15 +19,14 @@ SESSION_TYPE = 'sqlalchemy'
 SAML_ENABLED = False
 
 # Configuration from env vars
-{%- for key, value in environment('PDNS_ADMIN_') %}
-{%- set v = value | trim('"\'\\') %}
-{%- if v in ['True', 'False', 'None', '0'] or v | int != 0 %}
-{{ key }} = {{ v }}
-{%- else %}
-{{ key }} = '{{ v }}'
-{%- endif %}
-{%- endfor %}
-
+{{ range $key, $value := match "PDNS_ADMIN_" -}}
+{{ $v := $value | trimAll "\"'\\" -}}
+{{ if or (eq $v "True" "False" "None" "0") (ne ($v | int) 0) -}}
+{{- $key | trimPrefix "PDNS_ADMIN_" }} = {{ $v }}
+{{ else -}}
+{{- $key | trimPrefix "PDNS_ADMIN_" }} = '{{ $v }}'
+{{ end -}}
+{{ end }}
 ### DATABASE CONFIG
 SQLALCHEMY_DATABASE_URI = 'mysql://' + SQLA_DB_USER + ':' + SQLA_DB_PASSWORD + '@' + SQLA_DB_HOST + ':' + str(SQLA_DB_PORT) + '/' + SQLA_DB_NAME
 SQLALCHEMY_TRACK_MODIFICATIONS = True
