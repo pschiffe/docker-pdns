@@ -45,7 +45,7 @@ http {
 
         location @pdns_admin {
             include uwsgi_params;
-            uwsgi_pass pdns-admin-uwsgi:9494;
+            uwsgi_pass {{ .PDNS_ADMIN_STATIC_UWSGI_HOST | default "pdns-admin-uwsgi" }}:{{ .PDNS_ADMIN_STATIC_UWSGI_PORT | default 9494 }};
         }
 
         error_page 404 /404.html;

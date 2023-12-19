@@ -4,8 +4,10 @@ RUN dnf -y --setopt=install_weak_deps=False install \
     nginx \
   && dnf clean all
 
+COPY pdns-nginx.conf.tpl docker-entrypoint.sh /
+
 EXPOSE 80
 
-COPY pdns-nginx.conf /etc/nginx/nginx.conf
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
 
 CMD [ "/usr/sbin/nginx", "-g", "daemon off;" ]
