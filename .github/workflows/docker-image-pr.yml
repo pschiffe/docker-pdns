@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Build PDNS Recursor latest
         id: docker_build_recursor_latest
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: ./pdns-recursor
           file: ./pdns-recursor/Dockerfile
@@ -30,13 +30,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Build PDNS Recursor alpine
         id: docker_build_recursor_alpine
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: ./pdns-recursor
           file: ./pdns-recursor/Dockerfile.alpine
@@ -50,13 +50,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Build PDNS latest
         id: docker_build_pdns_latest
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: ./pdns
           file: ./pdns/Dockerfile
@@ -70,13 +70,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Build PDNS alpine
         id: docker_build_pdns_alpine
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: ./pdns
           file: ./pdns/Dockerfile.alpine
@@ -90,13 +90,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Build admin base
         id: docker_build_admin_base
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: ./pdns-admin-base-ngoduykhanh
           file: ./pdns-admin-base-ngoduykhanh/Dockerfile
@@ -113,13 +113,13 @@ jobs:
     needs: test-admin-base
     steps:
       - name: Check Out Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Build admin uwsgi
         id: docker_build_admin_uwsgi
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: ./pdns-admin-uwsgi-ngoduykhanh
           file: ./pdns-admin-uwsgi-ngoduykhanh/Dockerfile
@@ -136,13 +136,13 @@ jobs:
     needs: test-admin-base
     steps:
       - name: Check Out Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Build admin static
         id: docker_build_admin_static
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: ./pdns-admin-static-ngoduykhanh
           file: ./pdns-admin-static-ngoduykhanh/Dockerfile
