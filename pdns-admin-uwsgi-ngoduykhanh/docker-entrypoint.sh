@@ -32,7 +32,7 @@ PDNS_ADMIN_SECRET_KEY="$(cat /root/secret-key)"
 
 export PDNS_ADMIN_SECRET_KEY
 
-subvars --prefix 'PDNS_ADMIN_' < /config.py.tpl > /opt/powerdns-admin/powerdnsadmin/default_config.py
+subvars --prefix 'PDNS_ADMIN_' < '/config.py.tpl' > '/opt/powerdns-admin/powerdnsadmin/default_config.py'
 
 # Initialize DB if needed
 MYSQL_COMMAND="mysql -h ${PDNS_ADMIN_SQLA_DB_HOST} -P ${PDNS_ADMIN_SQLA_DB_PORT} -u ${PDNS_ADMIN_SQLA_DB_USER} -p${PDNS_ADMIN_SQLA_DB_PASSWORD}"
@@ -47,14 +47,14 @@ $MYSQL_COMMAND -e "CREATE DATABASE IF NOT EXISTS ${PDNS_ADMIN_SQLA_DB_NAME}"
 flask db upgrade
 
 # initial settings if not available in the DB
-$MYSQL_COMMAND ${PDNS_ADMIN_SQLA_DB_NAME} -e "INSERT INTO setting (name, value) SELECT * FROM (SELECT 'pdns_api_url', '${PDNS_API_URL//[\'\"]}') AS tmp WHERE NOT EXISTS (SELECT name FROM setting WHERE name = 'pdns_api_url') LIMIT 1;"
-$MYSQL_COMMAND ${PDNS_ADMIN_SQLA_DB_NAME} -e "INSERT INTO setting (name, value) SELECT * FROM (SELECT 'pdns_api_key', '${PDNS_API_KEY//[\'\"]}') AS tmp WHERE NOT EXISTS (SELECT name FROM setting WHERE name = 'pdns_api_key') LIMIT 1;"
-$MYSQL_COMMAND ${PDNS_ADMIN_SQLA_DB_NAME} -e "INSERT INTO setting (name, value) SELECT * FROM (SELECT 'pdns_version', '${PDNS_VERSION//[\'\"]}') AS tmp WHERE NOT EXISTS (SELECT name FROM setting WHERE name = 'pdns_version') LIMIT 1;"
+$MYSQL_COMMAND "${PDNS_ADMIN_SQLA_DB_NAME}" -e "INSERT INTO setting (name, value) SELECT * FROM (SELECT 'pdns_api_url', '${PDNS_API_URL//[\'\"]}') AS tmp WHERE NOT EXISTS (SELECT name FROM setting WHERE name = 'pdns_api_url') LIMIT 1;"
+$MYSQL_COMMAND "${PDNS_ADMIN_SQLA_DB_NAME}" -e "INSERT INTO setting (name, value) SELECT * FROM (SELECT 'pdns_api_key', '${PDNS_API_KEY//[\'\"]}') AS tmp WHERE NOT EXISTS (SELECT name FROM setting WHERE name = 'pdns_api_key') LIMIT 1;"
+$MYSQL_COMMAND "${PDNS_ADMIN_SQLA_DB_NAME}" -e "INSERT INTO setting (name, value) SELECT * FROM (SELECT 'pdns_version', '${PDNS_VERSION//[\'\"]}') AS tmp WHERE NOT EXISTS (SELECT name FROM setting WHERE name = 'pdns_version') LIMIT 1;"
 
 # update pdns api settings if env changed
-$MYSQL_COMMAND ${PDNS_ADMIN_SQLA_DB_NAME} -e "UPDATE setting SET value='${PDNS_API_URL//[\'\"]}' WHERE name='pdns_api_url';"
-$MYSQL_COMMAND ${PDNS_ADMIN_SQLA_DB_NAME} -e "UPDATE setting SET value='${PDNS_API_KEY//[\'\"]}' WHERE name='pdns_api_key';"
-$MYSQL_COMMAND ${PDNS_ADMIN_SQLA_DB_NAME} -e "UPDATE setting SET value='${PDNS_VERSION//[\'\"]}' WHERE name='pdns_version';"
+$MYSQL_COMMAND "${PDNS_ADMIN_SQLA_DB_NAME}" -e "UPDATE setting SET value='${PDNS_API_URL//[\'\"]}' WHERE name='pdns_api_url';"
+$MYSQL_COMMAND "${PDNS_ADMIN_SQLA_DB_NAME}" -e "UPDATE setting SET value='${PDNS_API_KEY//[\'\"]}' WHERE name='pdns_api_key';"
+$MYSQL_COMMAND "${PDNS_ADMIN_SQLA_DB_NAME}" -e "UPDATE setting SET value='${PDNS_VERSION//[\'\"]}' WHERE name='pdns_version';"
 
 mkdir -p /run/uwsgi
 chown uwsgi: /run/uwsgi

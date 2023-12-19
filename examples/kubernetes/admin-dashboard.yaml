@@ -43,18 +43,18 @@ spec:
         imagePullPolicy: IfNotPresent
         env:
         - name: PDNS_ADMIN_SQLA_DB_HOST
-          value: "'mariadb-pdns'"
+          value: "mariadb-pdns"
         - name: PDNS_ADMIN_SQLA_DB_PORT
-          value: "'3306'"
+          value: "3306"
         - name: PDNS_ADMIN_SQLA_DB_USER
-          value: "'root'"
+          value: "root"
         - name: PDNS_ADMIN_SQLA_DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: pdns-admin-secret
               key: quoted_mysql_password
         - name: PDNS_ADMIN_SQLA_DB_NAME
-          value: "'pdnsadmin'"
+          value: "pdnsadmin"
         - name: PDNS_API_URL
           value: "http://master-api-pdns:8081/"
         - name: PDNS_VERSION

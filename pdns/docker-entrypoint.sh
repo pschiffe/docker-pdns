@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euo pipefail
+set -eu
 
 # Configure mysql env vars
 : "${PDNS_gmysql_host:=${MYSQL_ENV_MYSQL_HOST:-mysql}}"
@@ -14,23 +14,23 @@ fi
 
 # use first part of node name as database name suffix
 if [ "${NODE_NAME:-}" ]; then
-    NODE_NAME=$(echo ${NODE_NAME} | sed -e 's/\..*//' -e 's/-//')
+    NODE_NAME=$(echo "${NODE_NAME}" | sed -e 's/\..*//' -e 's/-//')
     PDNS_gmysql_dbname="${PDNS_gmysql_dbname}${NODE_NAME}"
 fi
 
-
 export PDNS_gmysql_host PDNS_gmysql_port PDNS_gmysql_user PDNS_gmysql_password PDNS_gmysql_dbname
 
-EXTRA=""
+
+EXTRA=''
 
 # Password Auth
-if [ "${PDNS_gmysql_password}" != "" ]; then
+if [ "${PDNS_gmysql_password}" ]; then
     EXTRA="${EXTRA} -p${PDNS_gmysql_password}"
 fi
 
 # Allow socket connections
-if [ "${PDNS_gmysql_socket:-}" != "" ]; then
-    export PDNS_gmysql_host="localhost"
+if [ "${PDNS_gmysql_socket:-}" ]; then
+    export PDNS_gmysql_host='localhost'
     EXTRA="${EXTRA} --socket=${PDNS_gmysql_socket}"
 fi
 
@@ -61,17 +61,17 @@ if [ "$MYSQL_NUM_TABLE" -eq 0 ]; then
     $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" < /usr/share/doc/pdns/4.3.0_to_4.7.0_schema.mysql.sql
 fi
 
-if [ "${PDNS_superslave:-no}" == "yes" ]; then
+if [ "${PDNS_superslave:-no}" = 'yes' ]; then
     # Configure supermasters if needed
     if [ "${SUPERMASTER_IPS:-}" ]; then
-        $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" -e "TRUNCATE supermasters;"
+        $MYSQL_COMMAND -D "$PDNS_gmysql_dbname" -e 'TRUNCATE supermasters;'
         MYSQL_INSERT_SUPERMASTERS=''
-        if [ "${SUPERMASTER_COUNT:-0}" == "0" ]; then
+        if [ "${SUPERMASTER_COUNT:-0}" -eq 0 ]; then
             SUPERMASTER_COUNT=10
         fi
-        i=1; while [ $i -le ${SUPERMASTER_COUNT} ]; do
-            SUPERMASTER_HOST=$(echo ${SUPERMASTER_HOSTS:-} | awk -v col="$i" '{ print $col }')
-            SUPERMASTER_IP=$(echo ${SUPERMASTER_IPS} | awk -v col="$i" '{ print $col }')
+        i=1; while [ $i -le "${SUPERMASTER_COUNT}" ]; do
+            SUPERMASTER_HOST=$(echo "${SUPERMASTER_HOSTS:-}" | awk -v col="$i" '{ print $col }')
+            SUPERMASTER_IP=$(echo "${SUPERMASTER_IPS}" | awk -v col="$i" '{ print $col }')
             if [ -z "${SUPERMASTER_HOST:-}" ]; then
                 SUPERMASTER_HOST=$(hostname -f)
             fi
@@ -85,6 +85,6 @@ if [ "${PDNS_superslave:-no}" == "yes" ]; then
 fi
 
 # Create config file from template
-subvars --prefix 'PDNS_' < /pdns.conf.tpl > /etc/pdns/pdns.conf
+subvars --prefix 'PDNS_' < '/pdns.conf.tpl' > '/etc/pdns/pdns.conf'
 
 exec "$@"

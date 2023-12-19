@@ -103,7 +103,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - PDNS_ADMIN_SQLA_DB_PASSWORD='my-secret-pw'
+      - PDNS_ADMIN_SQLA_DB_PASSWORD=my-secret-pw
       - PDNS_VERSION=4.8
       - PDNS_API_KEY=secret
     depends_on:

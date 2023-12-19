@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euo pipefail
+set -eu
 
 # Configure base vars
 : "${PDNS_local_port:=53}"
@@ -18,9 +18,9 @@ elif [ -f /etc/alpine-release ]; then
 fi
 
 # Create config file from template
-subvars --prefix 'PDNS_' < /recursor.conf.tpl > $config_file
+subvars --prefix 'PDNS_' < '/recursor.conf.tpl' > "${config_file}"
 
 # Fix config file ownership
-chown ${pdns_user}: $config_file
+chown "${pdns_user}:" "${config_file}"
 
 exec "$@"

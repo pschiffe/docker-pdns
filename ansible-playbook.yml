@@ -234,9 +234,9 @@
         volumes:
           - /etc/localtime:/etc/localtime:ro
         env:
-          PDNS_ADMIN_SQLA_DB_PASSWORD: "'my-secret-pw'"
-          PDNS_VERSION: "4.8"
-          PDNS_API_KEY: "secret"
+          PDNS_ADMIN_SQLA_DB_PASSWORD: 'my-secret-pw'
+          PDNS_VERSION: '4.8'
+          PDNS_API_KEY: 'secret'
       tags:
         - pdns-admin
 
