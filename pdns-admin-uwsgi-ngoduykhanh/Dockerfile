@@ -1,15 +1,14 @@
 FROM pschiffe/pdns-admin-base
 
-RUN dnf -y --setopt=install_weak_deps=False install \
+RUN dnf install \
     mariadb \
     uwsgi-plugin-python3 \
   && dnf clean all
 
-EXPOSE 9494
-
 COPY docker-entrypoint.sh /
-COPY pdns-admin.ini /etc/uwsgi.ini
-RUN chown uwsgi: /etc/uwsgi.ini
+COPY --chown=uwsgi:uwsgi pdns-admin.ini /etc/uwsgi.ini
+
+EXPOSE 9494
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 

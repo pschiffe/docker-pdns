@@ -1,7 +1,9 @@
 FROM fedora:39
 
-RUN dnf -y --setopt=install_weak_deps=False install \
-    pdns-recursor \
+RUN echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
+  && echo 'assumeyes=True' >> /etc/dnf/dnf.conf \
+  && dnf --refresh upgrade \
+  && dnf install pdns-recursor \
   && dnf clean all
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'x86_64') \
@@ -9,10 +11,10 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'x86_64') \
     | tar -xzf - -C /usr/local/bin subvars \
   && chmod +x /usr/local/bin/subvars
 
-RUN mkdir -p /etc/pdns-recursor/api.d \
-  && chown -R pdns-recursor: /etc/pdns-recursor/api.d \
-  && mkdir -p /run/pdns-recursor \
-  && chown -R pdns-recursor: /run/pdns-recursor
+RUN mkdir -p /etc/pdns-recursor/api.d /run/pdns-recursor \
+  && chown -R pdns-recursor: /etc/pdns-recursor/api.d /run/pdns-recursor
+
+COPY recursor.conf.tpl docker-entrypoint.sh /
 
 ENV VERSION=4.9 \
   PDNS_setuid=pdns-recursor \
@@ -20,9 +22,6 @@ ENV VERSION=4.9 \
   PDNS_daemon=no
 
 EXPOSE 53 53/udp
-
-COPY recursor.conf.tpl /
-COPY docker-entrypoint.sh /
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 

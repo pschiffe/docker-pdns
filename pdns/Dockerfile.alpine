@@ -1,15 +1,20 @@
 FROM alpine:3.19.0
 
-RUN apk add --no-cache \
+RUN apk update \
+  && apk upgrade \
+  && apk add \
     mariadb-client \
     pdns \
     pdns-backend-mysql \
-    pdns-doc
+    pdns-doc \
+  && rm -rf /var/cache/apk/*
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'x86_64') \
   && wget -qO- https://github.com/kha7iq/subvars/releases/download/v0.1.4/subvars_Linux_${arch}.tar.gz \
     | tar -xzf - -C /usr/local/bin subvars \
   && chmod +x /usr/local/bin/subvars
+
+COPY pdns.conf.tpl docker-entrypoint.sh /
 
 ENV VERSION=4.8 \
   PDNS_guardian=yes \
@@ -18,9 +23,6 @@ ENV VERSION=4.8 \
   PDNS_launch=gmysql
 
 EXPOSE 53 53/udp
-
-COPY pdns.conf.tpl /
-COPY docker-entrypoint.sh /
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 

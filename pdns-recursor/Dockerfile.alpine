@@ -1,17 +1,19 @@
 FROM alpine:3.19.0
 
-RUN apk add --no-cache \
-    pdns-recursor
+RUN apk update \
+  && apk upgrade \
+  && apk add pdns-recursor \
+  && rm -rf /var/cache/apk/*
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'x86_64') \
   && wget -qO- https://github.com/kha7iq/subvars/releases/download/v0.1.4/subvars_Linux_${arch}.tar.gz \
     | tar -xzf - -C /usr/local/bin subvars \
   && chmod +x /usr/local/bin/subvars
 
-RUN mkdir -p /etc/pdns/api.d \
-  && chown -R recursor: /etc/pdns/api.d \
-  && mkdir -p /var/run/pdns-recursor \
-  && chown -R recursor: /var/run/pdns-recursor
+RUN mkdir -p /etc/pdns/api.d /var/run/pdns-recursor \
+  && chown -R recursor: /etc/pdns/api.d /var/run/pdns-recursor
+
+COPY recursor.conf.tpl docker-entrypoint.sh /
 
 ENV VERSION=4.9 \
   PDNS_setuid=recursor \
@@ -19,9 +21,6 @@ ENV VERSION=4.9 \
   PDNS_daemon=no
 
 EXPOSE 53 53/udp
-
-COPY recursor.conf.tpl /
-COPY docker-entrypoint.sh /
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 

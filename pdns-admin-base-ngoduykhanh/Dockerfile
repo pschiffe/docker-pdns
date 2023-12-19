@@ -1,7 +1,10 @@
 FROM fedora:38
 
-RUN curl -sSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo \
-  && dnf -y --setopt=install_weak_deps=False install \
+RUN echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
+  && echo 'assumeyes=True' >> /etc/dnf/dnf.conf \
+  && curl -fsSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo \
+  && dnf --refresh upgrade \
+  && dnf install \
     nodejs-npm \
     python3-cffi \
     python3-ldap \
@@ -23,15 +26,17 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'x86_64') \
   && chmod +x /usr/local/bin/subvars
 
 RUN mkdir -p /opt/powerdns-admin \
-  && curl -sSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v0.4.1.tar.gz \
-    | tar -xzC /opt/powerdns-admin --strip 1 \
-  && sed -i '/cffi/d' /opt/powerdns-admin/requirements.txt \
-  && sed -i '/lxml/d' /opt/powerdns-admin/requirements.txt \
-  && sed -i '/mysqlclient/d' /opt/powerdns-admin/requirements.txt \
-  && sed -i '/psycopg2/d' /opt/powerdns-admin/requirements.txt \
-  && sed -i '/python-ldap/d' /opt/powerdns-admin/requirements.txt \
-  && sed -i '/python3-saml/d' /opt/powerdns-admin/requirements.txt \
-  && sed -i '/PyYAML/d' /opt/powerdns-admin/requirements.txt \
+  && curl -fsSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v0.4.1.tar.gz \
+    | tar -xzf - -C /opt/powerdns-admin --strip 1 \
+  && sed -i \
+    -e '/cffi/d' \
+    -e '/lxml/d' \
+    -e '/mysqlclient/d' \
+    -e '/psycopg2/d' \
+    -e '/python-ldap/d' \
+    -e '/python3-saml/d' \
+    -e '/PyYAML/d' \
+    /opt/powerdns-admin/requirements.txt \
   && chown -R root: /opt/powerdns-admin
 
 WORKDIR /opt/powerdns-admin

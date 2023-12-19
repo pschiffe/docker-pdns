@@ -1,7 +1,6 @@
 FROM pschiffe/pdns-admin-base
 
-RUN dnf -y --setopt=install_weak_deps=False install \
-    nginx \
+RUN dnf install nginx \
   && dnf clean all
 
 COPY pdns-nginx.conf.tpl docker-entrypoint.sh /
