@@ -1,6 +1,7 @@
 FROM rockylinux/rockylinux:9-ubi
 
-RUN echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
+RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
+  && echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
   && echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf \
   && echo 'assumeyes=True' >> /etc/dnf/dnf.conf \
   && curl -fsSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo \
@@ -19,12 +20,8 @@ RUN echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
     python3-xmlsec \
     uwsgi \
     yarn \
+    https://github.com/kha7iq/subvars/releases/download/v0.1.5/subvars_${arch}.rpm \
   && dnf clean all
-
-RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'x86_64') \
-  && curl -fsSL https://github.com/kha7iq/subvars/releases/download/v0.1.4/subvars_Linux_${arch}.tar.gz \
-    | tar -xzf - -C /usr/local/bin subvars \
-  && chmod +x /usr/local/bin/subvars
 
 RUN mkdir -p /opt/powerdns-admin \
   && curl -fsSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v0.4.1.tar.gz \

@@ -1,18 +1,16 @@
 FROM alpine:3.19.0
 
-RUN apk update \
+RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
+  && apk update \
   && apk upgrade \
   && apk add \
     mariadb-client \
     pdns \
     pdns-backend-mysql \
     pdns-doc \
-  && rm -rf /var/cache/apk/*
-
-RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'x86_64') \
-  && wget -qO- https://github.com/kha7iq/subvars/releases/download/v0.1.4/subvars_Linux_${arch}.tar.gz \
-    | tar -xzf - -C /usr/local/bin subvars \
-  && chmod +x /usr/local/bin/subvars
+  && wget -O subvars.apk https://github.com/kha7iq/subvars/releases/download/v0.1.5/subvars_${arch}.apk \
+  && apk add --allow-untrusted subvars.apk \
+  && rm -rf subvars.apk /var/cache/apk/*
 
 COPY pdns.conf.tpl docker-entrypoint.sh /
 
