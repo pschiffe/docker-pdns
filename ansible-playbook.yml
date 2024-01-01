@@ -183,74 +183,36 @@
       tags:
         - pdns
 
-    - name: Build pdns-admin base
+    - name: Build pdns-admin
       community.docker.docker_image:
-        name: pschiffe/pdns-admin-base
+        name: pschiffe/pdns-admin
         tag: latest
         state: '{{ i_state }}'
         source: build
         force_source: true
         build:
           pull: true
-          path: ./pdns-admin-base-ngoduykhanh
+          path: ./pdns-admin
       tags:
         - pdns-admin
 
-    - name: Build pdns-admin backend
-      community.docker.docker_image:
-        name: pschiffe/pdns-admin-uwsgi
-        tag: latest
-        state: '{{ i_state }}'
-        source: build
-        force_source: true
-        build:
-          pull: false
-          path: ./pdns-admin-uwsgi-ngoduykhanh
-      tags:
-        - pdns-admin
-
-    - name: Build pdns-admin frontent
-      community.docker.docker_image:
-        name: pschiffe/pdns-admin-static
-        tag: latest
-        state: '{{ i_state }}'
-        source: build
-        force_source: true
-        build:
-          pull: false
-          path: ./pdns-admin-static-ngoduykhanh
-      tags:
-        - pdns-admin
-
-    - name: PDNS-admin backend
+    - name: PDNS-admin
       community.docker.docker_container:
-        name: pdns-admin-uwsgi
-        image: pschiffe/pdns-admin-uwsgi
+        name: pdns-admin
+        image: pschiffe/pdns-admin
         state: '{{ c_state }}'
         networks:
           - name: pdns-net
             aliases:
-              - pdns-admin-uwsgi
+              - pdns-admin
+        published_ports:
+          - '8889:8080'
         volumes:
           - /etc/localtime:/etc/localtime:ro
         env:
           PDNS_ADMIN_SQLA_DB_PASSWORD: 'my-secret-pw'
           PDNS_VERSION: '4.8'
           PDNS_API_KEY: 'secret'
-      tags:
-        - pdns-admin
-
-    - name: PDNS-admin frontend
-      community.docker.docker_container:
-        name: pdns-admin-static
-        image: pschiffe/pdns-admin-static
-        state: '{{ c_state }}'
-        networks:
-          - name: pdns-net
-        published_ports:
-          - '8889:80'
-        volumes:
-          - /etc/localtime:/etc/localtime:ro
       tags:
         - pdns-admin
 

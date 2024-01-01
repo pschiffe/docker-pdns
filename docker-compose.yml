@@ -94,12 +94,14 @@ services:
       - mariadb
       - pdns-master
 
-  pdns-admin-uwsgi:
-    image: pschiffe/pdns-admin-uwsgi
+  pdns-admin:
+    image: pschiffe/pdns-admin
     networks:
       pdns:
         aliases:
-          - pdns-admin-uwsgi
+          - pdns-admin
+    ports:
+      - '8989:8080'
     volumes:
       - /etc/localtime:/etc/localtime:ro
     environment:
@@ -109,17 +111,6 @@ services:
     depends_on:
       - mariadb
       - pdns-master
-
-  pdns-admin-static:
-    image: pschiffe/pdns-admin-static
-    networks:
-      - pdns
-    ports:
-      - '8989:80'
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-    depends_on:
-      - pdns-admin-uwsgi
 
 networks:
   pdns:

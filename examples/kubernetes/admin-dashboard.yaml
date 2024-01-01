@@ -23,24 +23,14 @@ spec:
       hostAliases:
       - ip: "127.0.0.1"
         hostnames:
-        - "pdns-admin-uwsgi"
+        - "pdns-admin"
       containers:
-      - name: pdns-admin-static
-        image: pschiffe/pdns-admin-static
+      - name: pdns-admin
+        image: pschiffe/pdns-admin
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80
+        - containerPort: 8080
           protocol: TCP
-        resources:
-          limits:
-            cpu: 300m
-            memory: 128Mi
-          requests:
-            cpu: 50m
-            memory: 64Mi
-      - name: pdns-admin-uwsgi
-        image: pschiffe/pdns-admin-uwsgi
-        imagePullPolicy: IfNotPresent
         env:
         - name: PDNS_ADMIN_SQLA_DB_HOST
           value: "mariadb-pdns"
@@ -106,7 +96,7 @@ spec:
   type: ClusterIP
   ports:
   - port: 80
-    targetPort: 80
+    targetPort: 8080
   selector:
     app.kubernetes.io/name: pdns-admin
 ---
