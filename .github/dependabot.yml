@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "docker"
-    directory: "/pdns"
+    directory: "/pdns-mysql"
     schedule:
       interval: "monthly"
   - package-ecosystem: "docker"

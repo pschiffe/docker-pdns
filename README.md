@@ -178,16 +178,16 @@ docker run -d -p 80:8080 -p 443:8443 -p 443:8443/udp --name pdns-admin \
   pschiffe/pdns-admin
 ```
 
-## ansible-playbook.yml
-
-Included ansible playbook can be used to build and run the containers from this repo. Run it with:
-```
-ansible-playbook ansible-playbook.yml
-```
-
-## docker-compose.yml
+## Docker Compose
 
 Included docker compose file contains example configuration of how to use these containers:
 ```
-docker-compose up -d
+docker-compose up -d -f docker-compose-mysql.yml
+```
+
+## Ansible playbook
+
+Included ansible playbook can be used to build and run the containers from this repo. Run it with:
+```
+ansible-playbook ansible-playbook-mysql.yml
 ```

@@ -33,12 +33,12 @@ jobs:
         id: vars
         run: echo ::set-output name=version::${GITHUB_REF##*-}
 
-      - name: Build and push PDNS
+      - name: Build and push PDNS mysql
         id: docker_build_pdns
         uses: docker/build-push-action@v5
         with:
-          context: ./pdns
-          file: ./pdns/Dockerfile.alpine
+          context: ./pdns-mysql
+          file: ./pdns-mysql/Dockerfile.alpine
           platforms: linux/amd64,linux/arm64
           builder: ${{ steps.buildx.outputs.name }}
           push: true

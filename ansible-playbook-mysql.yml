@@ -107,7 +107,7 @@
         force_source: true
         build:
           pull: true
-          path: ./pdns
+          path: ./pdns-mysql
       tags:
         - pdns
 
@@ -120,7 +120,7 @@
         force_source: true
         build:
           pull: true
-          path: ./pdns
+          path: ./pdns-mysql
           dockerfile: Dockerfile.alpine
       tags:
         - pdns

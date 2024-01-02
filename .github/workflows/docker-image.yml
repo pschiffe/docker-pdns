@@ -62,7 +62,7 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker_build_recursor_alpine.outputs.digest }}
 
-  build-pdns-latest:
+  build-pdns-mysql-latest:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
@@ -77,20 +77,20 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Build and push PDNS latest
-        id: docker_build_pdns_latest
+      - name: Build and push PDNS mysql latest
+        id: docker_build_pdns_mysql_latest
         uses: docker/build-push-action@v5
         with:
-          context: ./pdns
-          file: ./pdns/Dockerfile
+          context: ./pdns-mysql
+          file: ./pdns-mysql/Dockerfile
           platforms: linux/amd64,linux/arm64
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-mysql:latest
       - name: Image digest
-        run: echo ${{ steps.docker_build_pdns_latest.outputs.digest }}
+        run: echo ${{ steps.docker_build_pdns_mysql_latest.outputs.digest }}
 
-  build-pdns-alpine:
+  build-pdns-mysql-alpine:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
@@ -105,18 +105,18 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Build and push PDNS alpine
-        id: docker_build_pdns_alpine
+      - name: Build and push PDNS mysql alpine
+        id: docker_build_pdns_mysql_alpine
         uses: docker/build-push-action@v5
         with:
-          context: ./pdns
-          file: ./pdns/Dockerfile.alpine
+          context: ./pdns-mysql
+          file: ./pdns-mysql/Dockerfile.alpine
           platforms: linux/amd64,linux/arm64
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-mysql:alpine
       - name: Image digest
-        run: echo ${{ steps.docker_build_pdns_alpine.outputs.digest }}
+        run: echo ${{ steps.docker_build_pdns_mysql_alpine.outputs.digest }}
 
   build-pdns-admin:
     runs-on: ubuntu-latest
