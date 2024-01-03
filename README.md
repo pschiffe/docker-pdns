@@ -2,7 +2,7 @@
 
 This repository contains the following Docker images - pdns-mysql, pdns-pgsql, pdns-recursor and pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Image **pdns-pgsql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with postgres backend (without postgres server). Image **pdns-recursor** contains completely configurable [PowerDNS 4.x recursor](https://www.powerdns.com/). Image **pdns-admin** contains fronted (Caddy) and backend (uWSGI) for the [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, which is written in Flask and used for managing PowerDNS servers.
 
-The pdns-mysql and pdns-recursor images also have the `alpine` tag, thanks to @PoppyPop.
+The pdns-mysql, pdns-pgsql and pdns-recursor images have also the `alpine` tag, thanks to @PoppyPop.
 
 All images are available on Docker Hub:
 
