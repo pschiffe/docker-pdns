@@ -2,10 +2,10 @@ version: '2.4'
 
 services:
 
-  pdns-recursor-mysql:
+  pdns-recursor-pgsql:
     image: pschiffe/pdns-recursor:${RECURSOR_TAG:-latest}
     networks:
-      - pdns-mysql
+      - pdns-pgsql
     volumes:
       - /etc/localtime:/etc/localtime:ro
     ulimits:
@@ -13,111 +13,115 @@ services:
         soft: 5000
         hard: 5000
 
-  mariadb:
-    image: mariadb:11
+  postgres:
+    image: postgres:16-alpine
     networks:
-      pdns-mysql:
+      pdns-pgsql:
         aliases:
           - db
-          - mysql
+          - pgsql
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - mariadb:/var/lib/mysql:Z
+      - pgsql:/var/lib/postgresql/data:Z
     environment:
-      - MYSQL_ROOT_PASSWORD=my-secret-pw
+      - POSTGRES_PASSWORD=my-secret-pw
     healthcheck:
-      test: ['CMD', 'healthcheck.sh', '--su=mysql', '--connect', '--innodb_initialized']
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
       timeout: 10s
       retries: 5
 
-  phpmyadmin:
-    image: phpmyadmin:5
+  adminer:
+    image: adminer
     networks:
-      - pdns-mysql
+      - pdns-pgsql
     ports:
-      - '8988:80'
+      - '7988:8080'
     volumes:
       - /etc/localtime:/etc/localtime:ro
 
-  pdns-mysql-master:
-    image: pschiffe/pdns-mysql:${PDNS_MYSQL_TAG:-latest}
+  pdns-pgsql-master:
+    image: pschiffe/pdns-pgsql:${PDNS_PGSQL_TAG:-latest}
     hostname: ns1.example.com
     networks:
-      pdns-mysql:
-        ipv4_address: 172.6.0.20
+      pdns-pgsql:
+        ipv4_address: 172.8.0.20
         aliases:
           - pdns
     extra_hosts:
-      - 'ns1.example.com:172.6.0.20'
-      - 'ns2.example.com:172.6.0.21'
+      - 'ns1.example.com:172.8.0.20'
+      - 'ns2.example.com:172.8.0.21'
     volumes:
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - PDNS_gmysql_password=my-secret-pw
+      - PDNS_gpgsql_password=my-secret-pw
       - PDNS_master=yes
       - PDNS_api=yes
       - PDNS_api_key=secret
       - PDNS_webserver=yes
       - PDNS_webserver_address=0.0.0.0
-      - PDNS_webserver_allow_from=172.6.0.0/16
+      - PDNS_webserver_allow_from=172.8.0.0/16
       - PDNS_version_string=anonymous
       - PDNS_default_ttl=1500
-      - PDNS_allow_axfr_ips=172.6.0.21
-      - PDNS_only_notify=172.6.0.21
+      - PDNS_allow_axfr_ips=172.8.0.21
+      - PDNS_only_notify=172.8.0.21
     depends_on:
-      - mariadb
+      - postgres
 
-  pdns-mysql-slave:
-    image: pschiffe/pdns-mysql:${PDNS_MYSQL_TAG:-latest}
+  pdns-pgsql-slave:
+    image: pschiffe/pdns-pgsql:${PDNS_PGSQL_TAG:-latest}
     hostname: ns2.example.com
     networks:
-      pdns-mysql:
-        ipv4_address: 172.6.0.21
+      pdns-pgsql:
+        ipv4_address: 172.8.0.21
     extra_hosts:
-      - 'ns1.example.com:172.6.0.20'
-      - 'ns2.example.com:172.6.0.21'
+      - 'ns1.example.com:172.8.0.20'
+      - 'ns2.example.com:172.8.0.21'
     volumes:
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - PDNS_gmysql_dbname=powerdnsslave
-      - PDNS_gmysql_password=my-secret-pw
+      - PDNS_gpgsql_dbname=powerdnsslave
+      - PDNS_gpgsql_password=my-secret-pw
       - PDNS_slave=yes
       - PDNS_superslave=yes
       - PDNS_webserver=yes
       - PDNS_webserver_address=0.0.0.0
-      - PDNS_webserver_allow_from=172.6.0.0/16
+      - PDNS_webserver_allow_from=172.8.0.0/16
       - PDNS_version_string=anonymous
       - PDNS_disable_axfr=yes
-      - PDNS_allow_notify_from=172.6.0.20
-      - SUPERMASTER_IPS=172.6.0.20
+      - PDNS_allow_notify_from=172.8.0.20
+      - SUPERMASTER_IPS=172.8.0.20
     depends_on:
-      - mariadb
-      - pdns-mysql-master
+      - postgres
+      - pdns-pgsql-master
 
-  pdns-admin-mysql:
+  pdns-admin-pgsql:
     image: pschiffe/pdns-admin
     networks:
-      pdns-mysql:
+      pdns-pgsql:
         aliases:
           - pdns-admin
     ports:
-      - '8989:8080'
+      - '7989:8080'
     volumes:
       - /etc/localtime:/etc/localtime:ro
     environment:
+      - PDNS_ADMIN_SQLA_DB_TYPE=postgres
+      - PDNS_ADMIN_SQLA_DB_HOST=pgsql
+      - PDNS_ADMIN_SQLA_DB_PORT=5432
+      - PDNS_ADMIN_SQLA_DB_USER=postgres
       - PDNS_ADMIN_SQLA_DB_PASSWORD=my-secret-pw
       - PDNS_VERSION=4.8
       - PDNS_API_KEY=secret
     depends_on:
-      - mariadb
-      - pdns-mysql-master
+      - postgres
+      - pdns-pgsql-master
 
 networks:
-  pdns-mysql:
+  pdns-pgsql:
     ipam:
       config:
-        - subnet: 172.6.0.0/16
-          gateway: 172.6.0.1
+        - subnet: 172.8.0.0/16
+          gateway: 172.8.0.1
 
 volumes:
-  mariadb:
+  pgsql:

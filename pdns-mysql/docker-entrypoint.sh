@@ -12,7 +12,7 @@ fi
 : "${PDNS_gmysql_password:=${MYSQL_ENV_MYSQL_PASSWORD:-powerdns}}"
 : "${PDNS_gmysql_dbname:=${MYSQL_ENV_MYSQL_DATABASE:-powerdns}}"
 
-# use first part of node name as database name suffix
+# Use first part of node name as database name suffix
 if [ "${NODE_NAME:-}" ]; then
     NODE_NAME=$(echo "${NODE_NAME}" | sed -e 's/\..*//' -e 's/-//')
     PDNS_gmysql_dbname="${PDNS_gmysql_dbname}${NODE_NAME}"

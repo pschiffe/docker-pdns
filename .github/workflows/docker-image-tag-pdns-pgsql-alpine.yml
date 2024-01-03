@@ -1,4 +1,4 @@
-name: Docker Image CI pdns-mysql alpine
+name: Docker Image CI pdns-pgsql alpine
 
 on:
   push:
@@ -33,16 +33,16 @@ jobs:
         id: vars
         run: echo ::set-output name=version::${GITHUB_REF##*-}
 
-      - name: Build and push PDNS mysql
+      - name: Build and push PDNS pgsql
         id: docker_build_pdns
         uses: docker/build-push-action@v5
         with:
-          context: ./pdns-mysql
-          file: ./pdns-mysql/Dockerfile.alpine
+          context: ./pdns-pgsql
+          file: ./pdns-pgsql/Dockerfile.alpine
           platforms: linux/amd64,linux/arm64
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-mysql:${{ steps.vars.outputs.version }}-alpine
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/pdns-pgsql:${{ steps.vars.outputs.version }}-alpine
 
       - name: Image digest
         run: echo ${{ steps.docker_build_pdns.outputs.digest }}

@@ -5,7 +5,7 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf \
   && echo 'assumeyes=True' >> /etc/dnf/dnf.conf \
   && curl -fsSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo \
-  && dnf module enable nodejs:20 \
+  && dnf module enable nodejs:20 postgresql:15 \
   && dnf install dnf-plugins-core epel-release \
   && dnf config-manager --set-disabled epel-cisco-openh264 \
   && dnf config-manager --set-enabled crb \
@@ -14,11 +14,13 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
     caddy \
     mariadb \
     npm \
+    postgresql \
     python3-cffi \
     python3-ldap \
     python3-lxml \
     python3-mysqlclient \
     python3-pip \
+    python3-psycopg2 \
     python3-pyyaml \
     python3-saml \
     python3-xmlsec \

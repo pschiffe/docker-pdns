@@ -3,7 +3,7 @@ name: Docker Image CI pdns-mysql fedora
 on:
   push:
     tags:
-      - 'pdns-mysql-fedora-*'
+      - 'pdns-fedora-*'
 
 jobs:
 

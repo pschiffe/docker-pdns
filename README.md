@@ -1,6 +1,6 @@
 # PowerDNS Docker Images
 
-This repository contains the following Docker images - pdns-mysql, pdns-recursor and pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Image **pdns-recursor** contains completely configurable [PowerDNS 4.x recursor](https://www.powerdns.com/). Image **pdns-admin** contains fronted (Caddy) and backend (uWSGI) for the [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, which is written in Flask and used for managing PowerDNS servers.
+This repository contains the following Docker images - pdns-mysql, pdns-pgsql, pdns-recursor and pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Image **pdns-pgsql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with postgres backend (without postgres server). Image **pdns-recursor** contains completely configurable [PowerDNS 4.x recursor](https://www.powerdns.com/). Image **pdns-admin** contains fronted (Caddy) and backend (uWSGI) for the [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, which is written in Flask and used for managing PowerDNS servers.
 
 The pdns-mysql and pdns-recursor images also have the `alpine` tag, thanks to @PoppyPop.
 
@@ -8,9 +8,13 @@ All images are available on Docker Hub:
 
 https://hub.docker.com/r/pschiffe/pdns-mysql/
 
+https://hub.docker.com/r/pschiffe/pdns-pgsql/
+
 https://hub.docker.com/r/pschiffe/pdns-recursor/
 
 https://hub.docker.com/r/pschiffe/pdns-admin/
+
+Source GitHub repository: https://github.com/pschiffe/docker-pdns
 
 ## pdns-mysql
 
@@ -18,7 +22,7 @@ https://hub.docker.com/r/pschiffe/pdns-admin/
 
 https://hub.docker.com/r/pschiffe/pdns-mysql/
 
-Docker image with [PowerDNS 4.x server](https://www.powerdns.com/) and mysql backend (without mysql server). Requires external mysql server. Env vars for mysql configuration:
+Docker image with [PowerDNS 4.x server](https://www.powerdns.com/) and mysql backend. Requires external mysql server. Env vars for mysql configuration:
 ```
 (name=default value)
 
@@ -69,6 +73,63 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-slave \
   pschiffe/pdns-mysql
 ```
 
+## pdns-pgsql
+
+![Docker Image Size (tag)](https://img.shields.io/docker/image-size/pschiffe/pdns-pgsql/latest?label=latest) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/pschiffe/pdns-pgsql/alpine?label=alpine) ![Docker Pulls](https://img.shields.io/docker/pulls/pschiffe/pdns-pgsql)
+
+https://hub.docker.com/r/pschiffe/pdns-pgsql/
+
+Docker image with [PowerDNS 4.x server](https://www.powerdns.com/) and postgres backend. Requires external postgres server. Env vars for pgsql configuration:
+```
+(name=default value)
+
+PDNS_gpgsql_host=pgsql
+PDNS_gpgsql_port=5432
+PDNS_gpgsql_user=postgres
+PDNS_gpgsql_password=powerdns
+PDNS_gpgsql_dbname=powerdns
+```
+
+If linked with the official [postgres](https://hub.docker.com/_/postgres) image using the alias `pgsql`, the connection can be automatically configured, eliminating the need to specify any of the above. The DB is automatically initialized if tables are missing.
+
+The PowerDNS server is configurable via env vars. Every variable starting with `PDNS_` will be inserted into `/etc/pdns/pdns.conf` conf file in the following way: prefix `PDNS_` will be stripped away and every `_` will be replaced with `-`. For example, from the above pgsql config, `PDNS_gpgsql_host=pgsql` will became `gpgsql-host=pgsql` in `/etc/pdns/pdns.conf` file. This way, you can configure PowerDNS server in any way you need within a `docker run` command.
+
+The `SUPERMASTER_IPS` env var is also supported, which can be used to configure supermasters for a slave DNS server. [Docs](https://doc.powerdns.com/md/authoritative/modes-of-operation/#supermaster-automatic-provisioning-of-slaves). Multiple IP addresses separated by spaces should work.
+
+You can find all the available settings [here](https://doc.powerdns.com/md/authoritative/).
+
+### Examples
+
+Example of a master server with the API enabled and one slave server configured:
+```
+docker run -d -p 53:53 -p 53:53/udp --name pdns-master \
+  --hostname ns1.example.com --link postgres:pgsql \
+  -e PDNS_master=yes \
+  -e PDNS_api=yes \
+  -e PDNS_api_key=secret \
+  -e PDNS_webserver=yes \
+  -e PDNS_webserver_address=0.0.0.0 \
+  -e PDNS_webserver_password=secret2 \
+  -e PDNS_version_string=anonymous \
+  -e PDNS_default_ttl=1500 \
+  -e PDNS_allow_axfr_ips=172.5.0.21 \
+  -e PDNS_only_notify=172.5.0.21 \
+  pschiffe/pdns-pgsql
+```
+
+Example of a slave server with a supermaster:
+```
+docker run -d -p 53:53 -p 53:53/udp --name pdns-slave \
+  --hostname ns2.example.com --link postgres:pgsql \
+  -e PDNS_gpgsql_dbname=powerdnsslave \
+  -e PDNS_slave=yes \
+  -e PDNS_version_string=anonymous \
+  -e PDNS_disable_axfr=yes \
+  -e PDNS_allow_notify_from=172.5.0.20 \
+  -e SUPERMASTER_IPS=172.5.0.20 \
+  pschiffe/pdns-pgsql
+```
+
 ## pdns-recursor
 
 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/pschiffe/pdns-recursor/latest?label=latest) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/pschiffe/pdns-recursor/alpine?label=alpine) ![Docker Pulls](https://img.shields.io/docker/pulls/pschiffe/pdns-recursor)
@@ -99,7 +160,7 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-recursor \
 
 https://hub.docker.com/r/pschiffe/pdns-admin/
 
-Docker image with [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, written in Flask, for managing PowerDNS servers. It needs external mysql server.
+Docker image with [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, written in Flask, for managing PowerDNS servers. It needs external mysql or postgres server.
 
 There is also an official image for the pdns-admin on [Docker Hub](https://hub.docker.com/r/powerdnsadmin/pda-legacy). That image contains only gunicorn process that handles both - static files and the python app. Image in this repo contains uWSGI server handling requests for python app and Caddy web server handling static files and optionally HTTPS with Let's Encrypt.
 
@@ -107,13 +168,25 @@ Env vars for mysql configuration:
 ```
 (name=default value)
 
-PDNS_ADMIN_SQLA_DB_HOST="mysql"
-PDNS_ADMIN_SQLA_DB_PORT="3306"
-PDNS_ADMIN_SQLA_DB_USER="root"
-PDNS_ADMIN_SQLA_DB_PASSWORD="powerdnsadmin"
-PDNS_ADMIN_SQLA_DB_NAME="powerdnsadmin"
+PDNS_ADMIN_SQLA_DB_HOST=mysql
+PDNS_ADMIN_SQLA_DB_PORT=3306
+PDNS_ADMIN_SQLA_DB_USER=root
+PDNS_ADMIN_SQLA_DB_PASSWORD=powerdnsadmin
+PDNS_ADMIN_SQLA_DB_NAME=powerdnsadmin
 ```
-If linked with official [mariadb](https://hub.docker.com/_/mariadb/) image with alias `mysql`, the connection can be automatically configured, so you don't need to specify any of the above. The DB is automatically initialized if tables are missing.
+If linked with official [mariadb](https://hub.docker.com/_/mariadb/) image with alias `mysql`, the connection can be automatically configured, so you don't need to specify any of the above.
+
+Env vars for pgsql configuration:
+```
+PDNS_ADMIN_SQLA_DB_TYPE=postgres
+PDNS_ADMIN_SQLA_DB_HOST=pgsql
+PDNS_ADMIN_SQLA_DB_PORT=5432
+PDNS_ADMIN_SQLA_DB_USER=postgres
+PDNS_ADMIN_SQLA_DB_PASSWORD=powerdnsadmin
+PDNS_ADMIN_SQLA_DB_NAME=powerdnsadmin
+```
+
+The DB is automatically initialized if tables are missing.
 
 Similar to the pdns-mysql, pdns-admin is also completely configurable via env vars. Prefix in this case is `PDNS_ADMIN_`, configuration will be written to the `/opt/powerdns-admin/powerdnsadmin/default_config.py` file.
 
@@ -180,14 +253,14 @@ docker run -d -p 80:8080 -p 443:8443 -p 443:8443/udp --name pdns-admin \
 
 ## Docker Compose
 
-Included docker compose file contains example configuration of how to use these containers:
+Included docker compose files contain example configuration of how to use these containers:
 ```
-docker-compose up -d -f docker-compose-mysql.yml
+docker-compose -f docker-compose-mysql.yml up -d
 ```
 
 ## Ansible playbook
 
-Included ansible playbook can be used to build and run the containers from this repo. Run it with:
+Included ansible playbooks can be used to build and run the containers from this repo. Run it with:
 ```
 ansible-playbook ansible-playbook-mysql.yml
 ```

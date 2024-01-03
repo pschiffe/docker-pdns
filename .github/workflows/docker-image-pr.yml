@@ -86,6 +86,46 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker_build_pdns_mysql_alpine.outputs.digest }}
 
+  test-pdns-pgsql-latest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build PDNS pgsql latest
+        id: docker_build_pdns_pgsql_latest
+        uses: docker/build-push-action@v5
+        with:
+          context: ./pdns-pgsql
+          file: ./pdns-pgsql/Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: false
+          tags: pdns-pgsql:latest
+      - name: Image digest
+        run: echo ${{ steps.docker_build_pdns_pgsql_latest.outputs.digest }}
+
+  test-pdns-pgsql-alpine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build PDNS pgsql alpine
+        id: docker_build_pdns_pgsql_alpine
+        uses: docker/build-push-action@v5
+        with:
+          context: ./pdns-pgsql
+          file: ./pdns-pgsql/Dockerfile.alpine
+          builder: ${{ steps.buildx.outputs.name }}
+          push: false
+          tags: pdns-pgsql:alpine
+      - name: Image digest
+        run: echo ${{ steps.docker_build_pdns_pgsql_alpine.outputs.digest }}
+
   test-pdns-admin:
     runs-on: ubuntu-latest
     steps:

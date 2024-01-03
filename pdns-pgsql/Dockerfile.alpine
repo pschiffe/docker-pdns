@@ -1,0 +1,27 @@
+FROM alpine:3.19.0
+
+RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
+  && apk update \
+  && apk upgrade \
+  && apk add \
+    pdns \
+    pdns-backend-pgsql \
+    pdns-doc \
+    postgresql16-client \
+  && wget -O subvars.apk https://github.com/kha7iq/subvars/releases/download/v0.1.5/subvars_${arch}.apk \
+  && apk add --allow-untrusted subvars.apk \
+  && rm -rf subvars.apk /var/cache/apk/*
+
+COPY pdns.conf.tpl docker-entrypoint.sh /
+
+ENV VERSION=4.8 \
+  PDNS_guardian=yes \
+  PDNS_setuid=pdns \
+  PDNS_setgid=pdns \
+  PDNS_launch=gpgsql
+
+EXPOSE 53 53/udp
+
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
+
+CMD [ "/usr/sbin/pdns_server" ]

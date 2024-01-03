@@ -1,9 +1,9 @@
 ---
-- name: PDNS mysql
+- name: PDNS pgsql
   hosts: localhost
   vars:
-    pdns_master_ip: 172.5.0.20
-    pdns_slave_ip: 172.5.0.21
+    pdns_master_ip: 172.7.0.20
+    pdns_slave_ip: 172.7.0.21
     wipe: false
     c_state: '{{ "absent" if wipe | bool else "started" }}'
     i_state: present
@@ -11,11 +11,11 @@
   tasks:
     - name: Create docker network
       community.docker.docker_network:
-        name: pdns-net-mysql
+        name: pdns-net-pgsql
         state: present
         ipam_config:
-          - subnet: '172.5.0.0/16'
-            gateway: '172.5.0.1'
+          - subnet: '172.7.0.0/16'
+            gateway: '172.7.0.1'
       tags:
         - pdns
         - pdns-admin
@@ -49,11 +49,11 @@
 
     - name: PDNS recursor
       community.docker.docker_container:
-        name: pdns-recursor-mysql
+        name: pdns-recursor-pgsql
         image: pschiffe/pdns-recursor:{{ "alpine" if alpine | bool else "latest" }}
         state: '{{ c_state }}'
         networks:
-          - name: pdns-net-mysql
+          - name: pdns-net-pgsql
         volumes:
           - /etc/localtime:/etc/localtime:ro
         ulimits:
@@ -63,76 +63,76 @@
 
     - name: DB
       community.docker.docker_container:
-        name: pdns-mariadb
-        image: mariadb:11
+        name: pdns-postgres
+        image: postgres:16-alpine
         pull: true
         state: '{{ c_state }}'
         networks:
-          - name: pdns-net-mysql
+          - name: pdns-net-pgsql
             aliases:
               - db
-              - mysql
+              - pgsql
         volumes:
           - /etc/localtime:/etc/localtime:ro
-          - pdns-mariadb-volume:/var/lib/mysql:Z
+          - pdns-postgres-volume:/var/lib/postgresql/data:Z
         env:
-          MYSQL_ROOT_PASSWORD: 'my-secret-pw'
+          POSTGRES_PASSWORD: 'my-secret-pw'
         healthcheck:
-          test: ['CMD', 'healthcheck.sh', '--su=mysql', '--connect', '--innodb_initialized']
+          test: ['CMD', 'pg_isready', '-U', 'postgres']
           timeout: 10s
           retries: 5
       tags:
         - db
 
-    - name: Phpmyadmin
+    - name: Adminer
       community.docker.docker_container:
-        name: pdns-phpmyadmin
-        image: phpmyadmin:5
+        name: pdns-adminer
+        image: adminer
         pull: true
         state: '{{ c_state }}'
         networks:
-          - name: pdns-net-mysql
+          - name: pdns-net-pgsql
         published_ports:
-          - '8888:80'
+          - '7888:8080'
         volumes:
           - /etc/localtime:/etc/localtime:ro
       tags:
         - db
 
-    - name: Build pdns mysql
+    - name: Build pdns pgsql
       community.docker.docker_image:
-        name: pschiffe/pdns-mysql
+        name: pschiffe/pdns-pgsql
         state: '{{ i_state }}'
         source: build
         force_source: true
         build:
           pull: true
-          path: ./pdns-mysql
+          path: ./pdns-pgsql
       tags:
         - pdns
 
-    - name: Build pdns mysql alpine version
+    - name: Build pdns pgsql alpine version
       community.docker.docker_image:
-        name: pschiffe/pdns-mysql
+        name: pschiffe/pdns-pgsql
         tag: alpine
         state: '{{ i_state }}'
         source: build
         force_source: true
         build:
           pull: true
-          path: ./pdns-mysql
+          path: ./pdns-pgsql
           dockerfile: Dockerfile.alpine
       tags:
         - pdns
 
-    - name: PDNS mysql master
+    - name: PDNS pgsql master
       community.docker.docker_container:
-        name: pdns-mysql
-        image: pschiffe/pdns-mysql:{{ "alpine" if alpine | bool else "latest" }}
+        name: pdns-pgsql
+        image: pschiffe/pdns-pgsql:{{ "alpine" if alpine | bool else "latest" }}
         state: '{{ c_state }}'
         hostname: ns1.example.com
         networks:
-          - name: pdns-net-mysql
+          - name: pdns-net-pgsql
             ipv4_address: '{{ pdns_master_ip }}'
             aliases:
               - pdns
@@ -142,13 +142,13 @@
         volumes:
           - /etc/localtime:/etc/localtime:ro
         env:
-          PDNS_gmysql_password: 'my-secret-pw'
+          PDNS_gpgsql_password: 'my-secret-pw'
           PDNS_master: 'yes'
           PDNS_api: 'yes'
           PDNS_api_key: 'secret'
           PDNS_webserver: 'yes'
           PDNS_webserver_address: '0.0.0.0'
-          PDNS_webserver_allow_from: '172.5.0.0/16'
+          PDNS_webserver_allow_from: '172.7.0.0/16'
           PDNS_version_string: 'anonymous'
           PDNS_default_ttl: '1500'
           PDNS_allow_axfr_ips: '{{ pdns_slave_ip }}'
@@ -156,14 +156,14 @@
       tags:
         - pdns
 
-    - name: PDNS mysql slave
+    - name: PDNS pgsql slave
       community.docker.docker_container:
-        name: pdns-mysql-slave
-        image: pschiffe/pdns-mysql:{{ "alpine" if alpine | bool else "latest" }}
+        name: pdns-pgsql-slave
+        image: pschiffe/pdns-pgsql:{{ "alpine" if alpine | bool else "latest" }}
         state: '{{ c_state }}'
         hostname: ns2.example.com
         networks:
-          - name: pdns-net-mysql
+          - name: pdns-net-pgsql
             ipv4_address: '{{ pdns_slave_ip }}'
         etc_hosts:
           ns1.example.com: '{{ pdns_master_ip }}'
@@ -171,13 +171,13 @@
         volumes:
           - /etc/localtime:/etc/localtime:ro
         env:
-          PDNS_gmysql_dbname: 'powerdnsslave'
-          PDNS_gmysql_password: 'my-secret-pw'
+          PDNS_gpgsql_dbname: 'powerdnsslave'
+          PDNS_gpgsql_password: 'my-secret-pw'
           PDNS_slave: 'yes'
           PDNS_superslave: 'yes'
           PDNS_webserver: 'yes'
           PDNS_webserver_address: '0.0.0.0'
-          PDNS_webserver_allow_from: '172.5.0.0/16'
+          PDNS_webserver_allow_from: '172.7.0.0/16'
           PDNS_version_string: 'anonymous'
           PDNS_disable_axfr: 'yes'
           PDNS_allow_notify_from: '{{ pdns_master_ip }}'
@@ -198,20 +198,24 @@
       tags:
         - pdns-admin
 
-    - name: PDNS-admin
+    - name: PDNS-admin pgsql
       community.docker.docker_container:
-        name: pdns-admin-mysql
+        name: pdns-admin-pgsql
         image: pschiffe/pdns-admin
         state: '{{ c_state }}'
         networks:
-          - name: pdns-net-mysql
+          - name: pdns-net-pgsql
             aliases:
               - pdns-admin
         published_ports:
-          - '8889:8080'
+          - '7889:8080'
         volumes:
           - /etc/localtime:/etc/localtime:ro
         env:
+          PDNS_ADMIN_SQLA_DB_TYPE: 'postgres'
+          PDNS_ADMIN_SQLA_DB_HOST: 'pgsql'
+          PDNS_ADMIN_SQLA_DB_PORT: '5432'
+          PDNS_ADMIN_SQLA_DB_USER: 'postgres'
           PDNS_ADMIN_SQLA_DB_PASSWORD: 'my-secret-pw'
           PDNS_VERSION: '4.8'
           PDNS_API_KEY: 'secret'
@@ -220,12 +224,12 @@
 
     - name: Remove docker volume
       community.docker.docker_volume:
-        name: pdns-mariadb-volume
+        name: pdns-postgres-volume
         state: absent
       when: wipe | bool
 
     - name: Remove network
       community.docker.docker_network:
-        name: pdns-net-mysql
+        name: pdns-net-pgsql
         state: absent
       when: wipe | bool

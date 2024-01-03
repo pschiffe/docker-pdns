@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: "monthly"
   - package-ecosystem: "docker"
+    directory: "/pdns-pgsql"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "docker"
     directory: "/pdns-recursor"
     schedule:
       interval: "monthly"
