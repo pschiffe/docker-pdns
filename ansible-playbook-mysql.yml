@@ -96,6 +96,10 @@
           - '8888:80'
         volumes:
           - /etc/localtime:/etc/localtime:ro
+        healthcheck:
+          test: ['CMD', 'curl', '-fsSL', 'http://127.0.0.1:80']
+          timeout: 10s
+          retries: 5
       tags:
         - db
 

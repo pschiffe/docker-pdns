@@ -38,6 +38,10 @@ services:
       - '8988:80'
     volumes:
       - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: ['CMD', 'curl', '-fsSL', 'http://127.0.0.1:80']
+      timeout: 10s
+      retries: 5
 
   pdns-mysql-master:
     image: pschiffe/pdns-mysql:${PDNS_MYSQL_TAG:-latest}

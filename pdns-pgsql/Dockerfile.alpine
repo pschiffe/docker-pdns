@@ -22,6 +22,8 @@ ENV VERSION=4.8 \
 
 EXPOSE 53 53/udp
 
+HEALTHCHECK --interval=10s --timeout=10s --retries=3 --start-period=2s CMD ["pdns_control", "ping"]
+
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 
 CMD [ "/usr/sbin/pdns_server" ]
