@@ -16,6 +16,11 @@ https://hub.docker.com/r/pschiffe/pdns-admin/
 
 Source GitHub repository: https://github.com/pschiffe/docker-pdns
 
+---
+[![Static Badge](https://img.shields.io/badge/GitHub_Sponsors-grey?logo=github)](https://github.com/sponsors/pschiffe) [![Static Badge](https://img.shields.io/badge/paypal.me-grey?logo=paypal)](https://www.paypal.com/paypalme/pschiffe)
+
+If this project is useful to you, please consider sponsoring me to support maintenance and further development. Thank you!
+
 ## pdns-mysql
 
 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/pschiffe/pdns-mysql/latest?label=latest) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/pschiffe/pdns-mysql/alpine?label=alpine) ![Docker Pulls](https://img.shields.io/docker/pulls/pschiffe/pdns-mysql)
