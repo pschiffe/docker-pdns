@@ -1,6 +1,6 @@
 # PowerDNS Docker Images
 
-This repository contains the following Docker images - pdns-mysql, pdns-pgsql, pdns-recursor and pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with mysql backend (without mysql server). Image **pdns-pgsql** contains completely configurable [PowerDNS 4.x server](https://www.powerdns.com/) with postgres backend (without postgres server). Image **pdns-recursor** contains completely configurable [PowerDNS 4.x recursor](https://www.powerdns.com/). Image **pdns-admin** contains fronted (Caddy) and backend (uWSGI) for the [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, which is written in Flask and used for managing PowerDNS servers.
+This repository contains the following Docker images - pdns-mysql, pdns-pgsql, pdns-recursor and pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://doc.powerdns.com/authoritative/) with mysql backend (without mysql server). Image **pdns-pgsql** contains completely configurable [PowerDNS 4.x server](https://doc.powerdns.com/authoritative/) with postgres backend (without postgres server). Image **pdns-recursor** contains completely configurable [PowerDNS 4.x recursor](https://doc.powerdns.com/recursor/). Image **pdns-admin** contains fronted (Caddy) and backend (uWSGI) for the [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, which is written in Flask and used for managing PowerDNS servers.
 
 The pdns-mysql, pdns-pgsql and pdns-recursor images have also the `alpine` tag, thanks to @PoppyPop.
 
@@ -27,7 +27,7 @@ If this project is useful to you, please consider sponsoring me to support maint
 
 https://hub.docker.com/r/pschiffe/pdns-mysql/
 
-Docker image with [PowerDNS 4.x server](https://www.powerdns.com/) and mysql backend. Requires external mysql server. Env vars for mysql configuration:
+Docker image with [PowerDNS 4.x server](https://doc.powerdns.com/authoritative/) and mysql backend. Requires external mysql server. Env vars for mysql configuration:
 ```
 (name=default value)
 
@@ -42,9 +42,9 @@ If linked with the official [mariadb](https://hub.docker.com/_/mariadb/) image u
 
 The PowerDNS server is configurable via env vars. Every variable starting with `PDNS_` will be inserted into `/etc/pdns/pdns.conf` conf file in the following way: prefix `PDNS_` will be stripped away and every `_` will be replaced with `-`. For example, from the above mysql config, `PDNS_gmysql_host=mysql` will became `gmysql-host=mysql` in `/etc/pdns/pdns.conf` file. This way, you can configure PowerDNS server in any way you need within a `docker run` command.
 
-The `SUPERMASTER_IPS` env var is also supported, which can be used to configure supermasters for a slave DNS server. [Docs](https://doc.powerdns.com/md/authoritative/modes-of-operation/#supermaster-automatic-provisioning-of-slaves). Multiple IP addresses separated by spaces should work.
+The `SUPERMASTER_IPS` env var is also supported, which can be used to configure supermasters for a slave DNS server. [Docs](https://doc.powerdns.com/authoritative/modes-of-operation.html#autoprimary-automatic-provisioning-of-secondaries). Multiple IP addresses separated by spaces should work.
 
-You can find all the available settings [here](https://doc.powerdns.com/md/authoritative/).
+You can find all the available settings [here](https://doc.powerdns.com/authoritative/settings.html).
 
 ### Examples
 
@@ -84,7 +84,7 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-slave \
 
 https://hub.docker.com/r/pschiffe/pdns-pgsql/
 
-Docker image with [PowerDNS 4.x server](https://www.powerdns.com/) and postgres backend. Requires external postgres server. Env vars for pgsql configuration:
+Docker image with [PowerDNS 4.x server](https://doc.powerdns.com/authoritative/) and postgres backend. Requires external postgres server. Env vars for pgsql configuration:
 ```
 (name=default value)
 
@@ -99,9 +99,9 @@ If linked with the official [postgres](https://hub.docker.com/_/postgres) image 
 
 The PowerDNS server is configurable via env vars. Every variable starting with `PDNS_` will be inserted into `/etc/pdns/pdns.conf` conf file in the following way: prefix `PDNS_` will be stripped away and every `_` will be replaced with `-`. For example, from the above pgsql config, `PDNS_gpgsql_host=pgsql` will became `gpgsql-host=pgsql` in `/etc/pdns/pdns.conf` file. This way, you can configure PowerDNS server in any way you need within a `docker run` command.
 
-The `SUPERMASTER_IPS` env var is also supported, which can be used to configure supermasters for a slave DNS server. [Docs](https://doc.powerdns.com/md/authoritative/modes-of-operation/#supermaster-automatic-provisioning-of-slaves). Multiple IP addresses separated by spaces should work.
+The `SUPERMASTER_IPS` env var is also supported, which can be used to configure supermasters for a slave DNS server. [Docs](https://doc.powerdns.com/authoritative/modes-of-operation.html#autoprimary-automatic-provisioning-of-secondaries). Multiple IP addresses separated by spaces should work.
 
-You can find all the available settings [here](https://doc.powerdns.com/md/authoritative/).
+You can find all the available settings [here](https://doc.powerdns.com/authoritative/settings.html).
 
 ### Examples
 
@@ -141,11 +141,11 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-slave \
 
 https://hub.docker.com/r/pschiffe/pdns-recursor/
 
-Docker image with [PowerDNS 4.x recursor](https://www.powerdns.com/).
+Docker image with [PowerDNS 4.x recursor](https://doc.powerdns.com/recursor/).
 
 PowerDNS recursor is configurable via env vars. Every variable starting with `PDNS_` will be inserted into `/etc/pdns/recursor.conf` conf file in the following way: prefix `PDNS_` will be stripped away and every `_` will be replaced with `-`. For example, from the above mysql config, `PDNS_gmysql_host=mysql` will became `gmysql-host=mysql` in `/etc/pdns/recursor.conf` file. This way, you can configure PowerDNS recursor any way you need within a `docker run` command.
 
-You can find all available settings [here](https://doc.powerdns.com/md/recursor/settings/).
+You can find all available settings [here](https://doc.powerdns.com/recursor/settings.html).
 
 ### Example
 
