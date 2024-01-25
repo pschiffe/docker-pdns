@@ -69,7 +69,7 @@ RUN yarn install --pure-lockfile --production \
 EXPOSE 8080
 
 HEALTHCHECK --interval=10s --timeout=10s --retries=3 --start-period=6s \
-  CMD ["curl", "-fsSL", "http://127.0.0.1:8080"]
+  CMD ["curl", "-fsSLo", "/dev/null", "http://127.0.0.1:9494"]
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 
