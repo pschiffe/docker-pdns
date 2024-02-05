@@ -11,7 +11,7 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && dnf clean all
 
 RUN mkdir -p /etc/pdns-recursor/api.d /run/pdns-recursor \
-  && chown -R pdns-recursor: /etc/pdns-recursor/api.d /run/pdns-recursor
+  && chown -R pdns-recursor: /etc/pdns-recursor /run/pdns-recursor
 
 COPY recursor.conf.tpl docker-entrypoint.sh /
 

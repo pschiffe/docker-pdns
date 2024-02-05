@@ -9,7 +9,7 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && rm -rf subvars.apk /var/cache/apk/*
 
 RUN mkdir -p /etc/pdns/api.d /var/run/pdns-recursor \
-  && chown -R recursor: /etc/pdns/api.d /var/run/pdns-recursor
+  && chown -R recursor: /etc/pdns /var/run/pdns-recursor
 
 COPY recursor.conf.tpl docker-entrypoint.sh /
 

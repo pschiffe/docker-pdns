@@ -13,6 +13,9 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && dnf --setopt 'tsflags=' install pdns-backend-postgresql \
   && dnf clean all
 
+RUN mkdir -p /run/pdns \
+  && chown -R pdns: /etc/pdns /run/pdns
+
 COPY pdns.conf.tpl docker-entrypoint.sh /
 
 ENV VERSION=4.8 \

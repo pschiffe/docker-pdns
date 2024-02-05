@@ -12,6 +12,9 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && apk add --allow-untrusted subvars.apk \
   && rm -rf subvars.apk /var/cache/apk/*
 
+RUN mkdir -p /run/pdns \
+  && chown -R pdns: /etc/pdns /run/pdns
+
 COPY pdns.conf.tpl docker-entrypoint.sh /
 
 ENV VERSION=4.8 \
