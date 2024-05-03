@@ -1,0 +1,133 @@
+version: '2.4'
+
+services:
+
+  pdns-recursor-mysql:
+    image: pschiffe/pdns-recursor:${RECURSOR_TAG:-latest}
+    networks:
+      pdns-mysql:
+        - ipv6_address: ${NETWORK_IPV6_PREFIX}::1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ulimits:
+      nofile:
+        soft: 5000
+        hard: 5000
+
+  mariadb:
+    image: mariadb:11
+    networks:
+      pdns-mysql:
+        aliases:
+          - db
+          - mysql
+        ipv6_address: ${NETWORK_IPV6_PREFIX}::2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mariadb:/var/lib/mysql:Z
+    environment:
+      - MYSQL_ROOT_PASSWORD=my-secret-pw
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--su=mysql', '--connect', '--innodb_initialized']
+      timeout: 10s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    networks:
+      pdns-mysql:
+        ipv6_address: ${NETWORK_IPV6_PREFIX}::3
+    ports:
+      - '8988:80'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: ['CMD', 'curl', '-fsSL', 'http://127.0.0.1:80']
+      timeout: 10s
+      retries: 5
+
+  pdns-mysql-master:
+    image: pschiffe/pdns-mysql:${PDNS_MYSQL_TAG:-latest}
+    hostname: ns1.example.com
+    networks:
+      pdns-mysql:
+        ipv6_address: ${NETWORK_IPV6_PREFIX}::4
+        aliases:
+          - pdns
+    extra_hosts:
+      - 'ns1.example.com:172.6.0.20'
+      - 'ns2.example.com:172.6.0.21'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - PDNS_gmysql_password=my-secret-pw
+      - PDNS_master=yes
+      - PDNS_api=yes
+      - PDNS_api_key=secret
+      - PDNS_webserver=yes
+      - PDNS_webserver_address=0.0.0.0
+      - PDNS_webserver_allow_from=${NETWORK_IPV6_PREFIX}::/${NETWORK_IPV6_PREFIX_LENGTH}
+      - PDNS_version_string=anonymous
+      - PDNS_default_ttl=1500
+      - PDNS_allow_axfr_ips=${NETWORK_IPV6_PREFIX}::5
+      - PDNS_only_notify=${NETWORK_IPV6_PREFIX}::5
+    depends_on:
+      - mariadb
+
+  pdns-mysql-slave:
+    image: pschiffe/pdns-mysql:${PDNS_MYSQL_TAG:-latest}
+    hostname: ns2.example.com
+    networks:
+      pdns-mysql:
+        ipv6_address: ${NETWORK_IPV6_PREFIX}::5
+    extra_hosts:
+      - 'ns1.example.com:${NETWORK_IPV6_PREFIX}::4'
+      - 'ns2.example.com:${NETWORK_IPV6_PREFIX}::5'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - PDNS_gmysql_dbname=powerdnsslave
+      - PDNS_gmysql_password=my-secret-pw
+      - PDNS_slave=yes
+      - PDNS_superslave=yes
+      - PDNS_webserver=yes
+      - PDNS_webserver_address=0.0.0.0
+      - PDNS_webserver_allow_from=${NETWORK_IPV6_PREFIX}::/${NETWORK_IPV6_PREFIX_LENGTH}
+      - PDNS_version_string=anonymous
+      - PDNS_disable_axfr=yes
+      - PDNS_allow_notify_from=${NETWORK_IPV6_PREFIX}::4
+      - SUPERMASTER_IPS=${NETWORK_IPV6_PREFIX}::4
+    depends_on:
+      - mariadb
+      - pdns-mysql-master
+
+  pdns-admin-mysql:
+    image: pschiffe/pdns-admin
+    networks:
+      pdns-mysql:
+        aliases:
+          - pdns-admin
+        ipv6_address: ${NETWORK_IPV6_PREFIX}::6
+    ports:
+      - '8989:8080'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - PDNS_ADMIN_SQLA_DB_PASSWORD=my-secret-pw
+      - PDNS_VERSION=4.8
+      - PDNS_API_KEY=secret
+    depends_on:
+      - mariadb
+      - pdns-mysql-master
+
+networks:
+  pdns-mysql:
+    enable_ipv6: true
+    name: ${NETWORK_NAME:-dns}
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: ${NETWORK_IPV6_PREFIX:?network_prefix_missing}::/${NETWORK_IPV6_PREFIX_LENGTH?:network_prefix_length_missing}
+volumes:
+  mariadb:
