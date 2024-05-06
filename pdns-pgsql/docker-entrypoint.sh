@@ -15,7 +15,6 @@ function derivePostgreSQLSettingsFromExistingConfigFile {
 }
 
 function derivePostgreSQLSettingsFromEnvironment {
-  # Configure mysql env vars
   # Configure gpgsql env vars
   : "${PDNS_gpgsql_host:=pgsql}"
   : "${PDNS_gpgsql_port:=5432}"
@@ -109,6 +108,12 @@ done
 createDatabaseIfRequested
 initDatabase
 initSuperslave
+
+if [ ${USE_EXISTING_CONFIG_FILE:-false} = 'false' ]; then 
+  echo "(re-)generating config file from environment variables"
+  generateAndInstallConfigFileFromEnvironment
+fi
+
 
 unset PGPASSWORD
 
