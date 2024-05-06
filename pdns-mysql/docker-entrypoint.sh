@@ -136,6 +136,7 @@ done
 createDatabaseIfRequested
 initDatabase
 migrateDatabaseTo47
+initSuperslave
 
 if [ ${USE_EXISTING_CONFIG_FILE:-false} = 'false' ]; then 
   echo "(re-)generating config file from environment variables"

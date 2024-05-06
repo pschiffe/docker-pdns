@@ -108,6 +108,7 @@ done
 
 createDatabaseIfRequested
 initDatabase
+initSuperslave
 
 unset PGPASSWORD
 
