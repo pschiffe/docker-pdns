@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: pdns-slave
     app.kubernetes.io/part-of: pdns
     app.kubernetes.io/component: slave
-  name: pdns-slave 
+  name: pdns-slave
 spec:
   revisionHistoryLimit: 10
   selector:
@@ -53,9 +53,9 @@ spec:
           value: "anonymous"
         - name: PDNS_disable_axfr
           value: "yes"
-        - name: PDNS_slave
+        - name: PDNS_secondary
           value: "yes"
-        - name: PDNS_superslave
+        - name: PDNS_autosecondary
           value: "yes"
         - name: PDNS_allow_unsigned_supermaster
           value: "no"

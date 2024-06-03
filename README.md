@@ -1,6 +1,6 @@
 # PowerDNS Docker Images
 
-This repository contains the following Docker images - pdns-mysql, pdns-pgsql, pdns-recursor and pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://doc.powerdns.com/authoritative/) with mysql backend (without mysql server). Image **pdns-pgsql** contains completely configurable [PowerDNS 4.x server](https://doc.powerdns.com/authoritative/) with postgres backend (without postgres server). Image **pdns-recursor** contains completely configurable [PowerDNS 4.x recursor](https://doc.powerdns.com/recursor/). Image **pdns-admin** contains fronted (Caddy) and backend (uWSGI) for the [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, which is written in Flask and used for managing PowerDNS servers.
+This repository contains the following Docker images - pdns-mysql, pdns-pgsql, pdns-recursor and pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://doc.powerdns.com/authoritative/) with mysql backend (without mysql server). Image **pdns-pgsql** contains completely configurable [PowerDNS 4.x server](https://doc.powerdns.com/authoritative/) with postgres backend (without postgres server). Image **pdns-recursor** contains completely configurable [PowerDNS 5.x recursor](https://doc.powerdns.com/recursor/). Image **pdns-admin** contains fronted (Caddy) and backend (uWSGI) for the [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, which is written in Flask and used for managing PowerDNS servers.
 
 The pdns-mysql, pdns-pgsql and pdns-recursor images have also the `alpine` tag, thanks to @PoppyPop.
 
@@ -52,7 +52,7 @@ Example of a master server with the API enabled and one slave server configured:
 ```
 docker run -d -p 53:53 -p 53:53/udp --name pdns-master \
   --hostname ns1.example.com --link mariadb:mysql \
-  -e PDNS_master=yes \
+  -e PDNS_primary=yes \
   -e PDNS_api=yes \
   -e PDNS_api_key=secret \
   -e PDNS_webserver=yes \
@@ -70,7 +70,8 @@ Example of a slave server with a supermaster:
 docker run -d -p 53:53 -p 53:53/udp --name pdns-slave \
   --hostname ns2.example.com --link mariadb:mysql \
   -e PDNS_gmysql_dbname=powerdnsslave \
-  -e PDNS_slave=yes \
+  -e PDNS_secondary=yes \
+  -e PDNS_autosecondary=yes \
   -e PDNS_version_string=anonymous \
   -e PDNS_disable_axfr=yes \
   -e PDNS_allow_notify_from=172.5.0.20 \
@@ -109,7 +110,7 @@ Example of a master server with the API enabled and one slave server configured:
 ```
 docker run -d -p 53:53 -p 53:53/udp --name pdns-master \
   --hostname ns1.example.com --link postgres:pgsql \
-  -e PDNS_master=yes \
+  -e PDNS_primary=yes \
   -e PDNS_api=yes \
   -e PDNS_api_key=secret \
   -e PDNS_webserver=yes \
@@ -127,7 +128,8 @@ Example of a slave server with a supermaster:
 docker run -d -p 53:53 -p 53:53/udp --name pdns-slave \
   --hostname ns2.example.com --link postgres:pgsql \
   -e PDNS_gpgsql_dbname=powerdnsslave \
-  -e PDNS_slave=yes \
+  -e PDNS_secondary=yes \
+  -e PDNS_autosecondary=yes \
   -e PDNS_version_string=anonymous \
   -e PDNS_disable_axfr=yes \
   -e PDNS_allow_notify_from=172.5.0.20 \
@@ -141,7 +143,7 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-slave \
 
 https://hub.docker.com/r/pschiffe/pdns-recursor/
 
-Docker image with [PowerDNS 4.x recursor](https://doc.powerdns.com/recursor/).
+Docker image with [PowerDNS 5.x recursor](https://doc.powerdns.com/recursor/).
 
 PowerDNS recursor is configurable via env vars. Every variable starting with `PDNS_` will be inserted into `/etc/pdns/recursor.conf` conf file in the following way: prefix `PDNS_` will be stripped away and every `_` will be replaced with `-`. For example, from the above mysql config, `PDNS_gmysql_host=mysql` will became `gmysql-host=mysql` in `/etc/pdns/recursor.conf` file. This way, you can configure PowerDNS recursor any way you need within a `docker run` command.
 

@@ -51,7 +51,7 @@ spec:
           value: "master_"
         - name: PDNS_version_string
           value: "anonymous"
-        - name: PDNS_master
+        - name: PDNS_primary
           value: "yes"
         - name: PDNS_api
           value: "yes"

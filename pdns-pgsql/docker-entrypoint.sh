@@ -2,49 +2,50 @@
 
 set -eu
 
-function derivePostgreSQLSettingsFromExistingConfigFile {
+##### Function definitions ####
+
+derivePostgreSQLSettingsFromExistingConfigFile() {
   if [ ! -f /etc/pdns/pdns.conf ]; then
     echo "Use of existing file /etc/pdns/pdns.conf requested but file does not exist!"
     exit 1
   fi
-  PDNS_gpgsql_host=`sed -n 's/^gpgsql-host=\(.*\)/\1/p' < /etc/pdns/pdns.conf`
-  PDNS_gpgsql_port=`sed -n 's/^gpgsql-port=\(.*\)/\1/p' < /etc/pdns/pdns.conf`
-  PDNS_gpgsql_user=`sed -n 's/^gpgsql-user=\(.*\)/\1/p' < /etc/pdns/pdns.conf`
-  PDNS_gpgsql_password=`sed -n 's/^gpgsql-password=\(.*\)/\1/p' < /etc/pdns/pdns.conf`
-  PDNS_gpgsql_dbname=`sed -n 's/^gpgsql-dbname=\(.*\)/\1/p' < /etc/pdns/pdns.conf`
+
+  PDNS_gpgsql_host=$(sed -n 's/^gpgsql-host=\(.*\)/\1/p' < /etc/pdns/pdns.conf)
+  PDNS_gpgsql_port=$(sed -n 's/^gpgsql-port=\(.*\)/\1/p' < /etc/pdns/pdns.conf)
+  PDNS_gpgsql_user=$(sed -n 's/^gpgsql-user=\(.*\)/\1/p' < /etc/pdns/pdns.conf)
+  PDNS_gpgsql_password=$(sed -n 's/^gpgsql-password=\(.*\)/\1/p' < /etc/pdns/pdns.conf)
+  PDNS_gpgsql_dbname=$(sed -n 's/^gpgsql-dbname=\(.*\)/\1/p' < /etc/pdns/pdns.conf)
 }
 
-function derivePostgreSQLSettingsFromEnvironment {
+derivePostgreSQLSettingsFromEnvironment() {
   # Configure gpgsql env vars
   : "${PDNS_gpgsql_host:=pgsql}"
   : "${PDNS_gpgsql_port:=5432}"
   : "${PDNS_gpgsql_user:=${PGSQL_ENV_POSTGRES_USER:-postgres}}"
   : "${PDNS_gpgsql_password:=${PGSQL_ENV_POSTGRES_PASSWORD:-powerdns}}"
   : "${PDNS_gpgsql_dbname:=${PGSQL_ENV_POSTGRES_DB:-powerdns}}"
-  
+
   # Use first part of node name as database name suffix
   if [ "${NODE_NAME:-}" ]; then
       NODE_NAME=$(echo "${NODE_NAME}" | sed -e 's/\..*//' -e 's/-//')
       PDNS_gpgsql_dbname="${PDNS_gpgsql_dbname}${NODE_NAME}"
   fi
-  
+
   export PDNS_gpgsql_host PDNS_gpgsql_port PDNS_gpgsql_user PDNS_gpgsql_password PDNS_gpgsql_dbname
 }
 
-
-
-function generatePostgreSQLCommand {
+generatePostgreSQLCommand() {
   PGSQL_COMMAND="psql -h ${PDNS_gpgsql_host} -p ${PDNS_gpgsql_port} -U ${PDNS_gpgsql_user}"
 }
 
-function createDatabaseIfRequested {
+createDatabaseIfRequested() {
   # Initialize DB if needed
   if [ "${SKIP_DB_CREATE:-false}" != 'true' ]; then
       echo "SELECT 'CREATE DATABASE ${PDNS_gpgsql_dbname}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${PDNS_gpgsql_dbname}')\gexec" | $PGSQL_COMMAND
   fi
 }
 
-function initDatabase {
+initDatabase() {
   if [ "${SKIP_DB_INIT:-false}" != 'true'  ]; then
     PGSQL_CHECK_IF_HAS_TABLE="SELECT COUNT(DISTINCT table_name) FROM information_schema.columns WHERE table_catalog = '${PDNS_gpgsql_dbname}' AND table_schema = 'public';"
     PGSQL_NUM_TABLE=$($PGSQL_COMMAND -At -d "$PDNS_gpgsql_dbname" -c "$PGSQL_CHECK_IF_HAS_TABLE")
@@ -54,11 +55,11 @@ function initDatabase {
     else
       echo "Database exists but already has tables, will not try to init";
     fi
-  fi 
+  fi
 }
 
-function initSuperslave {
-  if [ "${PDNS_superslave:-no}" = 'yes' ]; then
+initSuperslave() {
+  if [ "${PDNS_autosecondary:-no}" = 'yes' ] || [ "${PDNS_superslave:-no}" = 'yes' ]; then
       # Configure supermasters if needed
       if [ "${SUPERMASTER_IPS:-}" ]; then
           $PGSQL_COMMAND -d "$PDNS_gpgsql_dbname" -c 'TRUNCATE supermasters;'
@@ -82,13 +83,14 @@ function initSuperslave {
   fi
 }
 
-function generateAndInstallConfigFileFromEnvironment {
+generateAndInstallConfigFileFromEnvironment() {
   # Create config file from template
   subvars --prefix 'PDNS_' < '/pdns.conf.tpl' > '/etc/pdns/pdns.conf'
 }
-###End of function definitions
 
-if [ ${USE_EXISTING_CONFIG_FILE:-false} = 'true' ]; then 
+#### End of function definitions, let's get to work ...
+
+if [ "${USE_EXISTING_CONFIG_FILE:-false}" = 'true' ]; then
   derivePostgreSQLSettingsFromExistingConfigFile
 else
   derivePostgreSQLSettingsFromEnvironment
@@ -109,11 +111,10 @@ createDatabaseIfRequested
 initDatabase
 initSuperslave
 
-if [ ${USE_EXISTING_CONFIG_FILE:-false} = 'false' ]; then 
+if [ "${USE_EXISTING_CONFIG_FILE:-false}" = 'false' ]; then
   echo "(re-)generating config file from environment variables"
   generateAndInstallConfigFileFromEnvironment
 fi
-
 
 unset PGPASSWORD
 

@@ -143,7 +143,7 @@
           - /etc/localtime:/etc/localtime:ro
         env:
           PDNS_gpgsql_password: 'my-secret-pw'
-          PDNS_master: 'yes'
+          PDNS_primary: 'yes'
           PDNS_api: 'yes'
           PDNS_api_key: 'secret'
           PDNS_webserver: 'yes'
@@ -173,8 +173,8 @@
         env:
           PDNS_gpgsql_dbname: 'powerdnsslave'
           PDNS_gpgsql_password: 'my-secret-pw'
-          PDNS_slave: 'yes'
-          PDNS_superslave: 'yes'
+          PDNS_secondary: 'yes'
+          PDNS_autosecondary: 'yes'
           PDNS_webserver: 'yes'
           PDNS_webserver_address: '0.0.0.0'
           PDNS_webserver_allow_from: '172.7.0.0/16'

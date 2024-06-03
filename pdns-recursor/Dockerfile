@@ -1,4 +1,4 @@
-FROM fedora:39
+FROM fedora:40
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
@@ -15,10 +15,11 @@ RUN mkdir -p /etc/pdns-recursor/api.d /run/pdns-recursor \
 
 COPY recursor.conf.tpl docker-entrypoint.sh /
 
-ENV VERSION=4.9 \
+ENV VERSION=5.0 \
   PDNS_setuid=pdns-recursor \
   PDNS_setgid=pdns-recursor \
-  PDNS_daemon=no
+  PDNS_daemon=no \
+  PDNS_loglevel=5
 
 EXPOSE 53 53/udp
 
