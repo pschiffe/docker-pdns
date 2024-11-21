@@ -4,7 +4,7 @@ services:
     image: pschiffe/pdns-recursor:${RECURSOR_TAG:-latest}
     networks:
       pdns-mysql:
-        ipv6_address: ${NETWORK_IPV6_PREFIX}::1
+        ipv6_address: ${NETWORK_IPV6_PREFIX}::7
     volumes:
       - /etc/localtime:/etc/localtime:ro
     ulimits:
