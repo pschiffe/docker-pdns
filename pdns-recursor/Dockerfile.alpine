@@ -1,10 +1,10 @@
-FROM alpine:3.20.0
+FROM alpine:3.21
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && apk update \
   && apk upgrade \
   && apk add pdns-recursor \
-  && wget -O subvars.apk https://github.com/kha7iq/subvars/releases/download/v0.1.5/subvars_${arch}.apk \
+  && wget -O subvars.apk https://github.com/TektonOps/subvars/releases/download/v0.1.5/subvars_${arch}.apk \
   && apk add --allow-untrusted subvars.apk \
   && rm -rf subvars.apk /var/cache/apk/*
 
@@ -13,7 +13,7 @@ RUN mkdir -p /etc/pdns/api.d /var/run/pdns-recursor \
 
 COPY recursor.conf.tpl docker-entrypoint.sh /
 
-ENV VERSION=5.0 \
+ENV VERSION=5.1 \
   PDNS_setuid=recursor \
   PDNS_setgid=recursor \
   PDNS_daemon=no \

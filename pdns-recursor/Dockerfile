@@ -1,4 +1,4 @@
-FROM fedora:40
+FROM fedora:41
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
@@ -7,7 +7,7 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && dnf --refresh upgrade \
   && dnf install \
     pdns-recursor \
-    https://github.com/kha7iq/subvars/releases/download/v0.1.5/subvars_${arch}.rpm \
+    https://github.com/TektonOps/subvars/releases/download/v0.1.5/subvars_${arch}.rpm \
   && dnf clean all
 
 RUN mkdir -p /etc/pdns-recursor/api.d /run/pdns-recursor \
@@ -15,7 +15,7 @@ RUN mkdir -p /etc/pdns-recursor/api.d /run/pdns-recursor \
 
 COPY recursor.conf.tpl docker-entrypoint.sh /
 
-ENV VERSION=5.0 \
+ENV VERSION=5.1 \
   PDNS_setuid=pdns-recursor \
   PDNS_setgid=pdns-recursor \
   PDNS_daemon=no \
