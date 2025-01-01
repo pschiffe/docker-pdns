@@ -28,7 +28,7 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
     uwsgi \
     uwsgi-plugin-python3 \
     yarn \
-    https://github.com/kha7iq/subvars/releases/download/v0.1.5/subvars_${arch}.rpm \
+    https://github.com/TektonOps/subvars/releases/download/v0.1.5/subvars_${arch}.rpm \
   && dnf clean all
 
 RUN mkdir -p /opt/powerdns-admin \

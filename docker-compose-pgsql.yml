@@ -108,7 +108,7 @@ services:
       - PDNS_ADMIN_SQLA_DB_PORT=5432
       - PDNS_ADMIN_SQLA_DB_USER=postgres
       - PDNS_ADMIN_SQLA_DB_PASSWORD=my-secret-pw
-      - PDNS_VERSION=4.8
+      - PDNS_VERSION=4.9
       - PDNS_API_KEY=secret
     depends_on:
       - postgres

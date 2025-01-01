@@ -24,7 +24,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=my-secret-pw
     healthcheck:
-      test: ['CMD', 'healthcheck.sh', '--su=mysql', '--connect', '--innodb_initialized']
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
       timeout: 10s
       retries: 5
 
@@ -108,7 +108,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       - PDNS_ADMIN_SQLA_DB_PASSWORD=my-secret-pw
-      - PDNS_VERSION=4.8
+      - PDNS_VERSION=4.9
       - PDNS_API_KEY=secret
     depends_on:
       - mariadb

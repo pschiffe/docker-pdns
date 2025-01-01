@@ -15,7 +15,7 @@ CAPTCHA_SESSION_KEY = 'captcha_image'
 
 SESSION_TYPE = 'sqlalchemy'
 
-# SAML Authnetication
+# SAML Authentication
 SAML_ENABLED = False
 
 # Configuration from env vars

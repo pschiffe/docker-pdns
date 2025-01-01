@@ -1,4 +1,4 @@
-FROM fedora:40
+FROM fedora:41
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
@@ -9,7 +9,7 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
     hostname \
     mariadb \
     pdns \
-    https://github.com/kha7iq/subvars/releases/download/v0.1.5/subvars_${arch}.rpm \
+    https://github.com/TektonOps/subvars/releases/download/v0.1.5/subvars_${arch}.rpm \
   && dnf --setopt 'tsflags=' install pdns-backend-mysql \
   && dnf clean all
 
@@ -18,7 +18,7 @@ RUN mkdir -p /run/pdns \
 
 COPY pdns.conf.tpl docker-entrypoint.sh /
 
-ENV VERSION=4.8 \
+ENV VERSION=4.9 \
   PDNS_guardian=yes \
   PDNS_setuid=pdns \
   PDNS_setgid=pdns \

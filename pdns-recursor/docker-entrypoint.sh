@@ -4,7 +4,7 @@ set -eu
 
 #### Function definitions
 
-deriveConfigValuesFromEnvrionement() {
+deriveConfigValuesFromEnvironment() {
   # Configure base vars
   : "${PDNS_local_port:=53}"
   : "${PDNS_local_address:=0.0.0.0}"
@@ -24,7 +24,7 @@ elif [ -f /etc/alpine-release ]; then
 fi
 
 if [ "${USE_EXISTING_CONFIG_FILE:-false}" = 'false' ]; then
-    deriveConfigValuesFromEnvrionement
+    deriveConfigValuesFromEnvironment
     echo "Generating config file from environment"
     subvars --prefix 'PDNS_' < '/recursor.conf.tpl' > "${config_file}"
     chown "${pdns_user}:" "${config_file}"

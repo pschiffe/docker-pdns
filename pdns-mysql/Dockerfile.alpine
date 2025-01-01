@@ -1,4 +1,4 @@
-FROM alpine:3.20.0
+FROM alpine:3.21
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && apk update \
@@ -8,7 +8,7 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
     pdns \
     pdns-backend-mysql \
     pdns-doc \
-  && wget -O subvars.apk https://github.com/kha7iq/subvars/releases/download/v0.1.5/subvars_${arch}.apk \
+  && wget -O subvars.apk https://github.com/TektonOps/subvars/releases/download/v0.1.5/subvars_${arch}.apk \
   && apk add --allow-untrusted subvars.apk \
   && rm -rf subvars.apk /var/cache/apk/*
 
