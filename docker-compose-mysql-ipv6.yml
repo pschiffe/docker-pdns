@@ -9,8 +9,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
     ulimits:
       nofile:
-        soft: 5000
-        hard: 5000
+        soft: 10000
+        hard: 10000
 
   mariadb:
     image: mariadb:11-ubi

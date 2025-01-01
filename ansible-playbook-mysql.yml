@@ -57,7 +57,7 @@
         volumes:
           - /etc/localtime:/etc/localtime:ro
         ulimits:
-          - 'nofile:5000:5000'
+          - 'nofile:10000:10000'
       tags:
         - pdns-recursor
 
