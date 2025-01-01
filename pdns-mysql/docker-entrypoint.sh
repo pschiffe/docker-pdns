@@ -51,7 +51,7 @@ generateMySQLCommand() {
       EXTRA="${EXTRA} --socket=${PDNS_gmysql_socket}"
   fi
 
-  MYSQL_COMMAND="mysql -h ${PDNS_gmysql_host} -P ${PDNS_gmysql_port} -u ${PDNS_gmysql_user}${EXTRA}"
+  MYSQL_COMMAND="mariadb -h ${PDNS_gmysql_host} -P ${PDNS_gmysql_port} -u ${PDNS_gmysql_user}${EXTRA}"
 }
 
 createDatabaseIfRequested() {
