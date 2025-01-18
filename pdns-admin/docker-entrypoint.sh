@@ -2,6 +2,12 @@
 
 set -euo pipefail
 
+: "${DEBUG:=0}"
+
+if [ "${DEBUG}" -eq 1 ]; then
+    set -x
+fi
+
 # Configure db env vars
 : "${PDNS_ADMIN_SQLA_DB_TYPE:=mysql}" # or postgres
 : "${PDNS_ADMIN_SQLA_DB_HOST:=${MYSQL_ENV_MYSQL_HOST:-mysql}}"

@@ -2,6 +2,12 @@
 
 set -eu
 
+: "${DEBUG:=0}"
+
+if [ "${DEBUG}" -eq 1 ]; then
+    set -x
+fi
+
 ##### Function definitions ####
 
 deriveMySQLSettingsFromExistingConfigFile() {
