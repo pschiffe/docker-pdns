@@ -1,4 +1,4 @@
-FROM fedora:41
+FROM fedora:42
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
@@ -6,6 +6,7 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/fedora-cisco-openh264.repo \
   && dnf --refresh upgrade \
   && dnf install \
+    gawk \
     hostname \
     mariadb \
     pdns \

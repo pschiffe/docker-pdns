@@ -1,4 +1,4 @@
-FROM alpine:3.21
+FROM alpine:3.22
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && apk update \
@@ -13,7 +13,7 @@ RUN mkdir -p /etc/pdns/api.d /var/run/pdns-recursor \
 
 COPY recursor.conf.tpl docker-entrypoint.sh /
 
-ENV VERSION=5.1 \
+ENV VERSION=5.2 \
   PDNS_setuid=recursor \
   PDNS_setgid=recursor \
   PDNS_daemon=no \
@@ -25,4 +25,4 @@ HEALTHCHECK --interval=10s --timeout=10s --retries=3 --start-period=2s CMD ["rec
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 
-CMD [ "/usr/sbin/pdns_recursor" ]
+CMD [ "/usr/sbin/pdns_recursor", "--enable-old-settings" ]
