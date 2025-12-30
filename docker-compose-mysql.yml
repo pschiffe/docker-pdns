@@ -12,7 +12,7 @@ services:
         hard: 10000
 
   mariadb:
-    image: mariadb:11-ubi
+    image: mariadb:lts-ubi
     networks:
       pdns-mysql:
         aliases:
@@ -108,7 +108,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       - PDNS_ADMIN_SQLA_DB_PASSWORD=my-secret-pw
-      - PDNS_VERSION=4.9
+      - PDNS_VERSION=5.0
       - PDNS_API_KEY=secret
     depends_on:
       - mariadb

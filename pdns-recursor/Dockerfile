@@ -1,4 +1,4 @@
-FROM fedora:42
+FROM fedora:43
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \

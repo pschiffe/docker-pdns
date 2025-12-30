@@ -1,6 +1,6 @@
 # PowerDNS Docker Images
 
-This repository contains the following Docker images - pdns-mysql, pdns-pgsql, pdns-recursor and pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 4.x server](https://doc.powerdns.com/authoritative/) with mysql backend (without mysql server). Image **pdns-pgsql** contains completely configurable [PowerDNS 4.x server](https://doc.powerdns.com/authoritative/) with postgres backend (without postgres server). Image **pdns-recursor** contains completely configurable [PowerDNS 5.x recursor](https://doc.powerdns.com/recursor/). Image **pdns-admin** contains fronted (Caddy) and backend (uWSGI) for the [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, which is written in Flask and used for managing PowerDNS servers.
+This repository contains the following Docker images - pdns-mysql, pdns-pgsql, pdns-recursor and pdns-admin. Image **pdns-mysql** contains completely configurable [PowerDNS 5.x server](https://doc.powerdns.com/authoritative/) with mysql backend (without mysql server). Image **pdns-pgsql** contains completely configurable [PowerDNS 5.x server](https://doc.powerdns.com/authoritative/) with postgres backend (without postgres server). Image **pdns-recursor** contains completely configurable [PowerDNS 5.x recursor](https://doc.powerdns.com/recursor/). Image **pdns-admin** contains fronted (Caddy) and backend (uWSGI) for the [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Admin) web app, which is written in Flask and used for managing PowerDNS servers.
 
 The pdns-mysql, pdns-pgsql and pdns-recursor images have also the `alpine` tag, thanks to @PoppyPop.
 
@@ -27,7 +27,7 @@ If this project is useful to you, please consider sponsoring me to support maint
 
 https://hub.docker.com/r/pschiffe/pdns-mysql/
 
-Docker image with [PowerDNS 4.x server](https://doc.powerdns.com/authoritative/) and mysql backend. Requires external mysql server. Env vars for mysql configuration:
+Docker image with [PowerDNS 5.x server](https://doc.powerdns.com/authoritative/) and mysql backend. Requires external mysql server. Env vars for mysql configuration:
 ```
 (name=default value)
 
@@ -85,7 +85,7 @@ docker run -d -p 53:53 -p 53:53/udp --name pdns-slave \
 
 https://hub.docker.com/r/pschiffe/pdns-pgsql/
 
-Docker image with [PowerDNS 4.x server](https://doc.powerdns.com/authoritative/) and postgres backend. Requires external postgres server. Env vars for pgsql configuration:
+Docker image with [PowerDNS 5.x server](https://doc.powerdns.com/authoritative/) and postgres backend. Requires external postgres server. Env vars for pgsql configuration:
 ```
 (name=default value)
 

@@ -64,7 +64,7 @@
     - name: DB
       community.docker.docker_container:
         name: pdns-postgres
-        image: postgres:16-alpine
+        image: postgres:18-alpine
         pull: true
         state: '{{ c_state }}'
         networks:
@@ -217,7 +217,7 @@
           PDNS_ADMIN_SQLA_DB_PORT: '5432'
           PDNS_ADMIN_SQLA_DB_USER: 'postgres'
           PDNS_ADMIN_SQLA_DB_PASSWORD: 'my-secret-pw'
-          PDNS_VERSION: '4.9'
+          PDNS_VERSION: '5.0'
           PDNS_API_KEY: 'secret'
       tags:
         - pdns-admin

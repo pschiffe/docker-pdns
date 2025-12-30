@@ -1,4 +1,4 @@
-FROM alpine:3.22
+FROM alpine:3.23
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && apk update \
@@ -13,7 +13,7 @@ RUN mkdir -p /etc/pdns/api.d /var/run/pdns-recursor \
 
 COPY recursor.conf.tpl docker-entrypoint.sh /
 
-ENV VERSION=5.2 \
+ENV VERSION=5.3 \
   PDNS_setuid=recursor \
   PDNS_setgid=recursor \
   PDNS_daemon=no \

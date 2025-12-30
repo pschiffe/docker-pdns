@@ -12,7 +12,7 @@ services:
         hard: 10000
 
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     networks:
       pdns-pgsql:
         aliases:
@@ -108,7 +108,7 @@ services:
       - PDNS_ADMIN_SQLA_DB_PORT=5432
       - PDNS_ADMIN_SQLA_DB_USER=postgres
       - PDNS_ADMIN_SQLA_DB_PASSWORD=my-secret-pw
-      - PDNS_VERSION=4.9
+      - PDNS_VERSION=5.0
       - PDNS_API_KEY=secret
     depends_on:
       - postgres

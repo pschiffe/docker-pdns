@@ -1,4 +1,4 @@
-FROM alpine:3.22
+FROM alpine:3.23
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && apk update \
@@ -7,7 +7,7 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
     pdns \
     pdns-backend-pgsql \
     pdns-doc \
-    postgresql16-client \
+    postgresql18-client \
   && wget -O subvars.apk https://github.com/TektonOps/subvars/releases/download/v0.1.5/subvars_${arch}.apk \
   && apk add --allow-untrusted subvars.apk \
   && rm -rf subvars.apk /var/cache/apk/*
@@ -17,7 +17,7 @@ RUN mkdir -p /run/pdns \
 
 COPY pdns.conf.tpl docker-entrypoint.sh /
 
-ENV VERSION=4.9 \
+ENV VERSION=5.0 \
   PDNS_guardian=yes \
   PDNS_setuid=pdns \
   PDNS_setgid=pdns \

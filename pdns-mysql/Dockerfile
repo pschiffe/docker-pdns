@@ -1,4 +1,4 @@
-FROM fedora:42
+FROM fedora:43
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
@@ -19,7 +19,7 @@ RUN mkdir -p /run/pdns \
 
 COPY pdns.conf.tpl docker-entrypoint.sh /
 
-ENV VERSION=4.9 \
+ENV VERSION=5.0 \
   PDNS_guardian=yes \
   PDNS_setuid=pdns \
   PDNS_setgid=pdns \
