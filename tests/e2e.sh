@@ -57,6 +57,32 @@ mysql_started=false
 pgsql_started=false
 current_target=$requested_target
 
+docker_version=$(docker --version 2>/dev/null || true)
+
+build_image() {
+    image=$1
+    dockerfile=$2
+    context=$3
+
+    case "$docker_version" in
+        *podman*)
+            BUILDAH_FORMAT=docker docker build \
+                --no-cache \
+                --tag "$image" \
+                --file "$dockerfile" \
+                "$context"
+            ;;
+        *)
+            docker build \
+                --progress=plain \
+                --no-cache \
+                --tag "$image" \
+                --file "$dockerfile" \
+                "$context"
+            ;;
+    esac
+}
+
 register_container() {
     containers="$1 $containers"
 }
@@ -110,7 +136,7 @@ if [ "$needs_mysql" = true ]; then
         --network "$network" \
         --network-alias mysql \
         -e MYSQL_ROOT_PASSWORD=powerdns \
-        mariadb:lts-ubi >/dev/null; then
+        docker.io/library/mariadb:lts-ubi >/dev/null; then
         fail "$current_target" "could not start MariaDB"
     fi
     mysql_started=true
@@ -123,7 +149,7 @@ if [ "$needs_pgsql" = true ]; then
         --network "$network" \
         --network-alias pgsql \
         -e POSTGRES_PASSWORD=powerdns \
-        postgres:18-alpine >/dev/null; then
+        docker.io/library/postgres:18-alpine >/dev/null; then
         fail "$current_target" "could not start PostgreSQL"
     fi
     pgsql_started=true
@@ -133,7 +159,7 @@ register_container "$probe_container"
 if ! docker run -d \
     --name "$probe_container" \
     --network "$network" \
-    alpine tail -f /dev/null >/dev/null; then
+    docker.io/library/alpine:latest tail -f /dev/null >/dev/null; then
     fail "$current_target" "could not start probe container"
 fi
 if ! docker exec "$probe_container" apk add --no-cache bind-tools; then
@@ -207,7 +233,7 @@ run_target() {
             ;;
     esac
 
-    if ! BUILDAH_FORMAT=docker docker build --tag "$image" --file "$dockerfile" "$context"; then
+    if ! build_image "$image" "$dockerfile" "$context"; then
         fail "$target" "image build failed"
     fi
 

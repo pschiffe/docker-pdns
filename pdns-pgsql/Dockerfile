@@ -19,7 +19,7 @@ RUN mkdir -p /run/pdns \
 
 COPY pdns.conf.tpl docker-entrypoint.sh /
 
-ENV VERSION=5.0.5 \
+ENV VERSION=5.0.6 \
   PDNS_guardian=yes \
   PDNS_setuid=pdns \
   PDNS_setgid=pdns \
