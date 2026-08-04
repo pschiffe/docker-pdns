@@ -23,6 +23,10 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: master
+
+      - name: Preserve end-to-end runner
+        run: install -m 0755 tests/e2e.sh "$RUNNER_TEMP/e2e.sh"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -76,6 +80,9 @@ jobs:
         env:
           TAG: ${{ steps.vars.outputs.tag }}
         run: git checkout --detach "refs/tags/$TAG"
+
+      - name: Run image end-to-end test
+        run: '"$RUNNER_TEMP/e2e.sh" pgsql-alpine'
 
       - name: Build and push PDNS pgsql
         id: docker_build_pdns

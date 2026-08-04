@@ -6,143 +6,21 @@ on:
 
 jobs:
 
-  test-recursor-latest:
+  e2e:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - recursor-fedora
+          - recursor-alpine
+          - mysql-fedora
+          - mysql-alpine
+          - pgsql-fedora
+          - pgsql-alpine
+          - admin
     steps:
       - name: Check Out Repo
         uses: actions/checkout@v6
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Build PDNS Recursor latest
-        id: docker_build_recursor_latest
-        uses: docker/build-push-action@v7
-        with:
-          context: ./pdns-recursor
-          file: ./pdns-recursor/Dockerfile
-          builder: ${{ steps.buildx.outputs.name }}
-          push: false
-          tags: pdns-recursor:latest
-      - name: Image digest
-        run: echo ${{ steps.docker_build_recursor_latest.outputs.digest }}
-
-  test-recursor-alpine:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Out Repo
-        uses: actions/checkout@v6
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Build PDNS Recursor alpine
-        id: docker_build_recursor_alpine
-        uses: docker/build-push-action@v7
-        with:
-          context: ./pdns-recursor
-          file: ./pdns-recursor/Dockerfile.alpine
-          builder: ${{ steps.buildx.outputs.name }}
-          push: false
-          tags: pdns-recursor:alpine
-      - name: Image digest
-        run: echo ${{ steps.docker_build_recursor_alpine.outputs.digest }}
-
-  test-pdns-mysql-latest:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Out Repo
-        uses: actions/checkout@v6
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Build PDNS mysql latest
-        id: docker_build_pdns_mysql_latest
-        uses: docker/build-push-action@v7
-        with:
-          context: ./pdns-mysql
-          file: ./pdns-mysql/Dockerfile
-          builder: ${{ steps.buildx.outputs.name }}
-          push: false
-          tags: pdns-mysql:latest
-      - name: Image digest
-        run: echo ${{ steps.docker_build_pdns_mysql_latest.outputs.digest }}
-
-  test-pdns-mysql-alpine:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Out Repo
-        uses: actions/checkout@v6
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Build PDNS mysql alpine
-        id: docker_build_pdns_mysql_alpine
-        uses: docker/build-push-action@v7
-        with:
-          context: ./pdns-mysql
-          file: ./pdns-mysql/Dockerfile.alpine
-          builder: ${{ steps.buildx.outputs.name }}
-          push: false
-          tags: pdns-mysql:alpine
-      - name: Image digest
-        run: echo ${{ steps.docker_build_pdns_mysql_alpine.outputs.digest }}
-
-  test-pdns-pgsql-latest:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Out Repo
-        uses: actions/checkout@v6
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Build PDNS pgsql latest
-        id: docker_build_pdns_pgsql_latest
-        uses: docker/build-push-action@v7
-        with:
-          context: ./pdns-pgsql
-          file: ./pdns-pgsql/Dockerfile
-          builder: ${{ steps.buildx.outputs.name }}
-          push: false
-          tags: pdns-pgsql:latest
-      - name: Image digest
-        run: echo ${{ steps.docker_build_pdns_pgsql_latest.outputs.digest }}
-
-  test-pdns-pgsql-alpine:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Out Repo
-        uses: actions/checkout@v6
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Build PDNS pgsql alpine
-        id: docker_build_pdns_pgsql_alpine
-        uses: docker/build-push-action@v7
-        with:
-          context: ./pdns-pgsql
-          file: ./pdns-pgsql/Dockerfile.alpine
-          builder: ${{ steps.buildx.outputs.name }}
-          push: false
-          tags: pdns-pgsql:alpine
-      - name: Image digest
-        run: echo ${{ steps.docker_build_pdns_pgsql_alpine.outputs.digest }}
-
-  test-pdns-admin:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Out Repo
-        uses: actions/checkout@v6
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v4
-      - name: Build pdns admin
-        id: docker_build_pdns_admin
-        uses: docker/build-push-action@v7
-        with:
-          context: ./pdns-admin
-          file: ./pdns-admin/Dockerfile
-          builder: ${{ steps.buildx.outputs.name }}
-          push: false
-          tags: |
-            pdns-admin:latest
-      - name: Image digest
-        run: echo ${{ steps.docker_build_pdns_admin.outputs.digest }}
+      - name: Run image end-to-end test
+        run: tests/e2e.sh ${{ matrix.target }}

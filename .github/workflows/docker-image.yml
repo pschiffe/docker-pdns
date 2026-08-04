@@ -7,7 +7,27 @@ on:
 
 jobs:
 
+  e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - recursor-fedora
+          - recursor-alpine
+          - mysql-fedora
+          - mysql-alpine
+          - pgsql-fedora
+          - pgsql-alpine
+          - admin
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v6
+      - name: Run image end-to-end test
+        run: tests/e2e.sh ${{ matrix.target }}
+
   build-recursor-latest:
+    needs: e2e
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
@@ -36,6 +56,7 @@ jobs:
         run: echo ${{ steps.docker_build_recursor_latest.outputs.digest }}
 
   build-recursor-alpine:
+    needs: e2e
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
@@ -64,6 +85,7 @@ jobs:
         run: echo ${{ steps.docker_build_recursor_alpine.outputs.digest }}
 
   build-pdns-mysql-latest:
+    needs: e2e
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
@@ -92,6 +114,7 @@ jobs:
         run: echo ${{ steps.docker_build_pdns_mysql_latest.outputs.digest }}
 
   build-pdns-mysql-alpine:
+    needs: e2e
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
@@ -120,6 +143,7 @@ jobs:
         run: echo ${{ steps.docker_build_pdns_mysql_alpine.outputs.digest }}
 
   build-pdns-pgsql-latest:
+    needs: e2e
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
@@ -148,6 +172,7 @@ jobs:
         run: echo ${{ steps.docker_build_pdns_pgsql_latest.outputs.digest }}
 
   build-pdns-pgsql-alpine:
+    needs: e2e
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
@@ -176,6 +201,7 @@ jobs:
         run: echo ${{ steps.docker_build_pdns_pgsql_alpine.outputs.digest }}
 
   build-pdns-admin:
+    needs: e2e
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo
