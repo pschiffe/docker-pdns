@@ -124,8 +124,12 @@ needs_mysql=false
 needs_pgsql=false
 for target in $targets; do
     case "$target" in
-        mysql-fedora|mysql-alpine|admin) needs_mysql=true ;;
+        mysql-fedora|mysql-alpine) needs_mysql=true ;;
         pgsql-fedora|pgsql-alpine) needs_pgsql=true ;;
+        admin)
+            needs_mysql=true
+            needs_pgsql=true
+            ;;
     esac
 done
 
@@ -159,10 +163,10 @@ register_container "$probe_container"
 if ! docker run -d \
     --name "$probe_container" \
     --network "$network" \
-    docker.io/library/alpine:latest tail -f /dev/null >/dev/null; then
+    docker.io/library/alpine:3.24 tail -f /dev/null >/dev/null; then
     fail "$current_target" "could not start probe container"
 fi
-if ! docker exec "$probe_container" apk add --no-cache bind-tools; then
+if ! docker exec "$probe_container" apk add --no-cache bind-tools curl jq; then
     fail "$current_target" "could not install probe tools"
 fi
 
@@ -194,6 +198,228 @@ assert_dns() {
         "dig +short +time=2 +tries=1 @$container version.bind TXT CH | grep -Fx '\"docker-pdns-e2e\"'"; then
         fail "$target" "DNS version.bind assertion failed"
     fi
+}
+
+assert_recursion() {
+    target=$1
+    container=$2
+    if ! docker exec "$probe_container" sh -c \
+        "dig +short +time=5 +tries=2 @$container example.com A | grep -Eq '^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$'"; then
+        fail "$target" "real-world recursive DNS assertion failed"
+    fi
+}
+
+assert_authoritative_zone() {
+    target=$1
+    container=$2
+    zone="e2e-$target.test."
+    record="www.$zone"
+    address=192.0.2.1
+    api="http://$container:8081/api/v1/servers/localhost/zones"
+
+    if ! docker exec "$probe_container" curl -fsS \
+        -H 'X-API-Key: powerdns' \
+        -H 'Content-Type: application/json' \
+        --data "{\"name\":\"$zone\",\"kind\":\"Native\",\"nameservers\":[]}" \
+        "$api" >/dev/null; then
+        fail "$target" "authoritative zone creation failed"
+    fi
+
+    if ! docker exec "$probe_container" curl -fsS \
+        -X PATCH \
+        -H 'X-API-Key: powerdns' \
+        -H 'Content-Type: application/json' \
+        --data "{\"rrsets\":[{\"name\":\"$record\",\"type\":\"A\",\"ttl\":60,\"changetype\":\"REPLACE\",\"records\":[{\"content\":\"$address\",\"disabled\":false}]}]}" \
+        "$api/$zone" >/dev/null; then
+        fail "$target" "authoritative record creation failed"
+    fi
+
+    if ! docker exec "$probe_container" sh -c \
+        "dig +short +time=2 +tries=1 @$container $record A | grep -Fx '$address'"; then
+        fail "$target" "authoritative record resolution failed"
+    fi
+}
+
+start_admin_pdns() {
+    admin_pdns_container="$run_key-admin-pdns"
+    admin_pdns_image='docker-pdns-e2e:admin-pdns'
+
+    if ! build_image "$admin_pdns_image" pdns-mysql/Dockerfile pdns-mysql; then
+        fail admin "Admin PowerDNS image build failed"
+    fi
+
+    register_container "$admin_pdns_container"
+    if ! docker run -d \
+        --name "$admin_pdns_container" \
+        --network "$network" \
+        -e PDNS_gmysql_password=powerdns \
+        -e PDNS_gmysql_dbname=powerdns_e2e_admin_pdns \
+        -e PDNS_api=yes \
+        -e PDNS_api_key=powerdns \
+        -e PDNS_webserver=yes \
+        -e PDNS_webserver_address=0.0.0.0 \
+        -e PDNS_webserver_allow_from=0.0.0.0/0 \
+        "$admin_pdns_image" >/dev/null; then
+        fail admin-pdns "could not start Admin PowerDNS container"
+    fi
+
+    wait_for_health admin-pdns "$admin_pdns_container"
+}
+
+assert_admin_flow() {
+    backend=$1
+    admin_container=$2
+    pdns_container=$3
+
+    if ! docker exec -i "$probe_container" sh -s -- \
+        "$backend" "$admin_container" "$pdns_container" <<'ADMIN_PROBE'
+set -eu
+
+backend=$1
+admin_container=$2
+pdns_container=$3
+base_url="http://$admin_container:8080"
+cookie_jar="/tmp/admin-$backend.cookies"
+username="e2e-$backend"
+password='PowerdnsE2e1!'
+zone="admin-$backend.e2e.test."
+record="www.$zone"
+address=192.0.2.2
+
+csrf_token() {
+    awk '$6 == "_csrf_token" { token = $7 } END { print token }' "$cookie_jar"
+}
+
+curl -fsS -c "$cookie_jar" "$base_url/register" -o /dev/null
+csrf=$(csrf_token)
+test -n "$csrf"
+curl -fsS \
+    -b "$cookie_jar" \
+    -c "$cookie_jar" \
+    -H "Referer: $base_url/register" \
+    --data-urlencode "_csrf_token=$csrf" \
+    --data-urlencode "username=$username" \
+    --data-urlencode "password=$password" \
+    --data-urlencode "rpassword=$password" \
+    --data-urlencode 'firstname=E2E' \
+    --data-urlencode "lastname=$backend" \
+    --data-urlencode "email=$username@example.test" \
+    "$base_url/register" \
+    -o /dev/null
+
+curl -fsS -b "$cookie_jar" -c "$cookie_jar" "$base_url/login" -o /dev/null
+csrf=$(csrf_token)
+test -n "$csrf"
+effective_url=$(curl -fsS \
+    -L \
+    -b "$cookie_jar" \
+    -c "$cookie_jar" \
+    -H "Referer: $base_url/login" \
+    --data-urlencode "_csrf_token=$csrf" \
+    --data-urlencode "username=$username" \
+    --data-urlencode "password=$password" \
+    --data-urlencode 'auth_method=LOCAL' \
+    -o /dev/null \
+    -w '%{url_effective}' \
+    "$base_url/login")
+case "$effective_url" in
+    "$base_url/dashboard"*) ;;
+    *) exit 1 ;;
+esac
+
+api_key=$(curl -fsS \
+    -u "$username:$password" \
+    -H 'Content-Type: application/json' \
+    --data '{"role":"Administrator","description":"docker-pdns-e2e"}' \
+    "$base_url/api/v1/pdnsadmin/apikeys" \
+    | jq -er '.plain_key')
+
+zones_api="$base_url/api/v1/servers/localhost/zones"
+curl -fsS \
+    -H "X-API-Key: $api_key" \
+    -H 'Content-Type: application/json' \
+    --data "{\"name\":\"$zone\",\"kind\":\"Native\",\"nameservers\":[]}" \
+    "$zones_api" \
+    -o /dev/null
+curl -fsS \
+    -X PATCH \
+    -H "X-API-Key: $api_key" \
+    -H 'Content-Type: application/json' \
+    --data "{\"rrsets\":[{\"name\":\"$record\",\"type\":\"A\",\"ttl\":60,\"changetype\":\"REPLACE\",\"records\":[{\"content\":\"$address\",\"disabled\":false}]}]}" \
+    "$zones_api/$zone" \
+    -o /dev/null
+
+dig +short +time=2 +tries=1 "@$pdns_container" "$record" A | grep -Fx "$address"
+ADMIN_PROBE
+    then
+        fail "admin-$backend" "Admin $backend functional flow failed"
+    fi
+}
+
+run_admin_instance() {
+    backend=$1
+    image=$2
+    container="$run_key-admin-$backend"
+
+    register_container "$container"
+    case "$backend" in
+        mysql)
+            if ! docker run -d \
+                --name "$container" \
+                --network "$network" \
+                -e PDNS_ADMIN_SQLA_DB_TYPE=mysql \
+                -e PDNS_ADMIN_SQLA_DB_HOST=mysql \
+                -e PDNS_ADMIN_SQLA_DB_USER=root \
+                -e PDNS_ADMIN_SQLA_DB_PASSWORD=powerdns \
+                -e PDNS_ADMIN_SQLA_DB_NAME=powerdns_admin_e2e_mysql \
+                -e PDNS_ADMIN_CAPTCHA_ENABLE=False \
+                -e 'PDNS_ADMIN_SALT=$2b$12$abcdefghijklmnopqrstuu' \
+                -e "PDNS_API_URL=http://$admin_pdns_container:8081/" \
+                -e PDNS_API_KEY=powerdns \
+                -e PDNS_VERSION=5.0.6 \
+                "$image" >/dev/null; then
+                fail admin-mysql "could not start Admin MySQL container"
+            fi
+            ;;
+        postgresql)
+            if ! docker run -d \
+                --name "$container" \
+                --network "$network" \
+                -e PDNS_ADMIN_SQLA_DB_TYPE=postgresql \
+                -e PDNS_ADMIN_SQLA_DB_HOST=pgsql \
+                -e PDNS_ADMIN_SQLA_DB_PORT=5432 \
+                -e PDNS_ADMIN_SQLA_DB_USER=postgres \
+                -e PDNS_ADMIN_SQLA_DB_PASSWORD=powerdns \
+                -e PDNS_ADMIN_SQLA_DB_NAME=powerdns_admin_e2e_postgresql \
+                -e PDNS_ADMIN_CAPTCHA_ENABLE=False \
+                -e 'PDNS_ADMIN_SALT=$2b$12$abcdefghijklmnopqrstuu' \
+                -e "PDNS_API_URL=http://$admin_pdns_container:8081/" \
+                -e PDNS_API_KEY=powerdns \
+                -e PDNS_VERSION=5.0.6 \
+                "$image" >/dev/null; then
+                fail admin-postgresql "could not start Admin PostgreSQL container"
+            fi
+            ;;
+    esac
+
+    wait_for_health "admin-$backend" "$container"
+    attempt=1
+    while ! docker exec "$probe_container" curl -fsS \
+        "http://$container:8080/login" -o /dev/null 2>/dev/null; do
+        if [ "$attempt" -ge 180 ]; then
+            fail "admin-$backend" "Admin HTTP endpoint did not become ready within 180 seconds"
+        fi
+        attempt=$((attempt + 1))
+        sleep 1
+    done
+    assert_admin_flow "$backend" "$container" "$admin_pdns_container"
+}
+
+run_admin_tests() {
+    admin_image=$1
+    start_admin_pdns
+    run_admin_instance mysql "$admin_image"
+    run_admin_instance postgresql "$admin_image"
 }
 
 run_target() {
@@ -237,6 +463,12 @@ run_target() {
         fail "$target" "image build failed"
     fi
 
+    if [ "$target" = admin ]; then
+        run_admin_tests "$image"
+        echo "PASS admin"
+        return
+    fi
+
     register_container "$container"
     case "$target" in
         recursor-fedora|recursor-alpine)
@@ -256,6 +488,11 @@ run_target() {
                 -e PDNS_gmysql_password=powerdns \
                 -e "PDNS_gmysql_dbname=powerdns_e2e_$database" \
                 -e PDNS_version_string=docker-pdns-e2e \
+                -e PDNS_api=yes \
+                -e PDNS_api_key=powerdns \
+                -e PDNS_webserver=yes \
+                -e PDNS_webserver_address=0.0.0.0 \
+                -e PDNS_webserver_allow_from=0.0.0.0/0 \
                 "$image" >/dev/null; then
                 fail "$target" "could not start target container"
             fi
@@ -268,15 +505,11 @@ run_target() {
                 -e PDNS_gpgsql_password=powerdns \
                 -e "PDNS_gpgsql_dbname=powerdns_e2e_$database" \
                 -e PDNS_version_string=docker-pdns-e2e \
-                "$image" >/dev/null; then
-                fail "$target" "could not start target container"
-            fi
-            ;;
-        admin)
-            if ! docker run -d \
-                --name "$container" \
-                --network "$network" \
-                -e PDNS_ADMIN_SQLA_DB_PASSWORD=powerdns \
+                -e PDNS_api=yes \
+                -e PDNS_api_key=powerdns \
+                -e PDNS_webserver=yes \
+                -e PDNS_webserver_address=0.0.0.0 \
+                -e PDNS_webserver_allow_from=0.0.0.0/0 \
                 "$image" >/dev/null; then
                 fail "$target" "could not start target container"
             fi
@@ -286,13 +519,13 @@ run_target() {
     wait_for_health "$target" "$container"
 
     case "$target" in
-        admin)
-            if ! docker exec "$probe_container" wget -q -O /dev/null "http://$container:8080/"; then
-                fail "$target" "HTTP assertion failed"
-            fi
-            ;;
-        *)
+        recursor-fedora|recursor-alpine)
             assert_dns "$target" "$container"
+            assert_recursion "$target" "$container"
+            ;;
+        mysql-fedora|mysql-alpine|pgsql-fedora|pgsql-alpine)
+            assert_dns "$target" "$container"
+            assert_authoritative_zone "$target" "$container"
             ;;
     esac
 
