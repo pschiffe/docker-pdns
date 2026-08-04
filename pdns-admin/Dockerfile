@@ -1,19 +1,17 @@
-FROM rockylinux/rockylinux:9-ubi
+FROM quay.io/centos/centos:stream10
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
   && echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf \
   && echo 'assumeyes=True' >> /etc/dnf/dnf.conf \
-  && curl -fsSL -o /etc/yum.repos.d/yarn.repo https://dl.yarnpkg.com/rpm/yarn.repo \
-  && dnf module enable nodejs:20 postgresql:15 \
   && dnf install dnf-plugins-core epel-release \
-  && dnf config-manager --set-disabled epel-cisco-openh264 \
   && dnf config-manager --set-enabled crb \
   && dnf --refresh upgrade \
   && dnf install \
     caddy \
     mariadb \
-    npm \
+    nodejs \
+    nodejs-npm \
     postgresql \
     python3-cffi \
     python3-ldap \
@@ -22,18 +20,20 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
     python3-pip \
     python3-psycopg2 \
     python3-pyyaml \
-    python3-saml \
-    python3-xmlsec \
     supervisor \
     uwsgi \
     uwsgi-plugin-python3 \
-    yarn \
+    xmlsec1 \
+    xmlsec1-openssl \
     https://github.com/TektonOps/subvars/releases/download/v0.1.5/subvars_${arch}.rpm \
   && dnf clean all \
   && systemd-sysusers
 
-RUN mkdir -p /opt/powerdns-admin \
-  && curl -fsSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v0.4.1.tar.gz \
+RUN npm install --global corepack@0.35.0 \
+  && corepack enable
+
+RUN mkdir -p /data /opt/powerdns-admin \
+  && curl -fsSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v0.5.1.tar.gz \
     | tar -xzf - -C /opt/powerdns-admin --strip 1 \
   && sed -i \
     -e '/cffi/d' \
@@ -41,7 +41,6 @@ RUN mkdir -p /opt/powerdns-admin \
     -e '/mysqlclient/d' \
     -e '/psycopg2/d' \
     -e '/python-ldap/d' \
-    -e '/python3-saml/d' \
     -e '/PyYAML/d' \
     /opt/powerdns-admin/requirements.txt \
   && chown -R root: /opt/powerdns-admin
@@ -62,10 +61,24 @@ COPY supervisor.ini /etc/supervisord.d/supervisor.ini
 RUN subvars --prefix 'PDNS_ADMIN_' < /config.py.tpl > /opt/powerdns-admin/config.py \
   && sed -i '/SQLALCHEMY_DATABASE_URI/d' /opt/powerdns-admin/config.py
 
-RUN yarn install --pure-lockfile --production \
-  && yarn cache clean \
+RUN YARN_NODE_LINKER=node-modules yarn install --immutable --inline-builds \
+  && rm -rf /opt/powerdns-admin/powerdnsadmin/static/node_modules \
+  && ln -s ../../node_modules /opt/powerdns-admin/powerdnsadmin/static/node_modules \
   && flask assets build \
-  && chown -R uwsgi: /opt/powerdns-admin/powerdnsadmin/static/.webassets-cache
+  && rm /opt/powerdns-admin/powerdnsadmin/static/node_modules \
+  && mkdir -p /opt/powerdns-admin/powerdnsadmin/static/node_modules/@fortawesome/fontawesome-free \
+  && cp -a \
+    /opt/powerdns-admin/node_modules/@fortawesome/fontawesome-free/webfonts \
+    /opt/powerdns-admin/powerdnsadmin/static/node_modules/@fortawesome/fontawesome-free/ \
+  && { \
+    echo "from flask_assets import Environment"; \
+    echo "assets = Environment()"; \
+    echo "assets.register('js_login', 'generated/login.js')"; \
+    echo "assets.register('css_login', 'generated/login.css')"; \
+    echo "assets.register('js_main', 'generated/main.js')"; \
+    echo "assets.register('css_main', 'generated/main.css')"; \
+  } > /opt/powerdns-admin/powerdnsadmin/assets.py \
+  && chown -R uwsgi: /opt/powerdns-admin/powerdnsadmin/static
 
 EXPOSE 8080
 

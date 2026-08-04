@@ -9,7 +9,7 @@ if [ "${DEBUG}" -eq 1 ]; then
 fi
 
 # Configure db env vars
-: "${PDNS_ADMIN_SQLA_DB_TYPE:=mysql}" # or postgres
+: "${PDNS_ADMIN_SQLA_DB_TYPE:=mysql}" # or postgresql
 : "${PDNS_ADMIN_SQLA_DB_HOST:=${MYSQL_ENV_MYSQL_HOST:-mysql}}"
 : "${PDNS_ADMIN_SQLA_DB_PORT:=${MYSQL_ENV_MYSQL_PORT:-3306}}"
 : "${PDNS_ADMIN_SQLA_DB_USER:=${MYSQL_ENV_MYSQL_USER:-${PGSQL_ENV_POSTGRES_USER:-root}}}"
@@ -46,7 +46,7 @@ subvars --prefix 'PDNS_ADMIN_' < '/config.py.tpl' > '/opt/powerdns-admin/powerdn
 # Initialize DB if needed
 if [[ "${PDNS_ADMIN_SQLA_DB_TYPE}" == 'mysql' ]]; then
     SQL_COMMAND="mariadb -h ${PDNS_ADMIN_SQLA_DB_HOST} -P ${PDNS_ADMIN_SQLA_DB_PORT} -u ${PDNS_ADMIN_SQLA_DB_USER} -p${PDNS_ADMIN_SQLA_DB_PASSWORD} -e"
-elif [[ "${PDNS_ADMIN_SQLA_DB_TYPE}" == 'postgres' ]]; then
+elif [[ "${PDNS_ADMIN_SQLA_DB_TYPE}" == 'postgresql' ]]; then
     PGPASSWORD="${PDNS_ADMIN_SQLA_DB_PASSWORD}"
     export PGPASSWORD
     SQL_COMMAND="psql -h ${PDNS_ADMIN_SQLA_DB_HOST} -p ${PDNS_ADMIN_SQLA_DB_PORT} -U ${PDNS_ADMIN_SQLA_DB_USER} -c"
@@ -63,7 +63,7 @@ done
 if [[ "${SKIP_DB_CREATE:-false}" != 'true' ]]; then
     if [[ "${PDNS_ADMIN_SQLA_DB_TYPE}" == 'mysql' ]]; then
         $SQL_COMMAND "CREATE DATABASE IF NOT EXISTS ${PDNS_ADMIN_SQLA_DB_NAME}"
-    elif [[ "${PDNS_ADMIN_SQLA_DB_TYPE}" == 'postgres' ]]; then
+    elif [[ "${PDNS_ADMIN_SQLA_DB_TYPE}" == 'postgresql' ]]; then
         echo "SELECT 'CREATE DATABASE ${PDNS_ADMIN_SQLA_DB_NAME}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${PDNS_ADMIN_SQLA_DB_NAME}')\gexec" | ${SQL_COMMAND::-3}
     fi
 fi

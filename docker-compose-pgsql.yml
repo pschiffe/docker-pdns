@@ -103,12 +103,12 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - PDNS_ADMIN_SQLA_DB_TYPE=postgres
+      - PDNS_ADMIN_SQLA_DB_TYPE=postgresql
       - PDNS_ADMIN_SQLA_DB_HOST=pgsql
       - PDNS_ADMIN_SQLA_DB_PORT=5432
       - PDNS_ADMIN_SQLA_DB_USER=postgres
       - PDNS_ADMIN_SQLA_DB_PASSWORD=my-secret-pw
-      - PDNS_VERSION=5.0.5
+      - PDNS_VERSION=5.0.6
       - PDNS_API_KEY=secret
     depends_on:
       - postgres
