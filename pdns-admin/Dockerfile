@@ -1,11 +1,9 @@
-FROM quay.io/centos/centos:stream10
+FROM fedora:44
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
   && echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf \
   && echo 'assumeyes=True' >> /etc/dnf/dnf.conf \
-  && dnf install dnf-plugins-core epel-release \
-  && dnf config-manager --set-enabled crb \
   && dnf --refresh upgrade \
   && dnf install \
     caddy \
