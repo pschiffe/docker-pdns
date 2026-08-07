@@ -13,7 +13,7 @@ RUN mkdir -p /etc/pdns/api.d /var/run/pdns-recursor \
 
 COPY recursor.conf.tpl docker-entrypoint.sh /
 
-ENV VERSION=5.4.4 \
+ENV VERSION=5.4.5 \
   PDNS_setuid=recursor \
   PDNS_setgid=recursor \
   PDNS_daemon=no \
