@@ -327,6 +327,8 @@ case "$effective_url" in
     *) exit 1 ;;
 esac
 
+curl -fsS -b "$cookie_jar" "$base_url/admin/history" -o /dev/null
+
 api_key=$(curl -fsS \
     -u "$username:$password" \
     -H 'Content-Type: application/json' \

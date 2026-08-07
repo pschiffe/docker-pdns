@@ -32,7 +32,6 @@ export PDNS_ADMIN_SQLA_DB_TYPE PDNS_ADMIN_SQLA_DB_HOST PDNS_ADMIN_SQLA_DB_PORT P
 # Configure pdns server env vars
 : "${PDNS_API_URL:=http://${PDNS_ENV_PDNS_webserver_host:-pdns}:${PDNS_ENV_PDNS_webserver_port:-8081}/}"
 : "${PDNS_API_KEY:=${PDNS_ENV_PDNS_api_key:-}}"
-: "${PDNS_VERSION:=${PDNS_ENV_VERSION:-}}"
 
 # Generate secret key
 [ -f /root/secret-key ] || tr -dc _A-Z-a-z-0-9 < /dev/urandom | head -c 32 > /root/secret-key || true
@@ -73,12 +72,10 @@ flask db upgrade
 # initial settings if not available in the DB
 $SQL_COMMAND "INSERT INTO setting (name, value) SELECT * FROM (SELECT 'pdns_api_url', '${PDNS_API_URL//[\'\"]}') AS tmp WHERE NOT EXISTS (SELECT name FROM setting WHERE name = 'pdns_api_url') LIMIT 1;" "${PDNS_ADMIN_SQLA_DB_NAME}"
 $SQL_COMMAND "INSERT INTO setting (name, value) SELECT * FROM (SELECT 'pdns_api_key', '${PDNS_API_KEY//[\'\"]}') AS tmp WHERE NOT EXISTS (SELECT name FROM setting WHERE name = 'pdns_api_key') LIMIT 1;" "${PDNS_ADMIN_SQLA_DB_NAME}"
-$SQL_COMMAND "INSERT INTO setting (name, value) SELECT * FROM (SELECT 'pdns_version', '${PDNS_VERSION//[\'\"]}') AS tmp WHERE NOT EXISTS (SELECT name FROM setting WHERE name = 'pdns_version') LIMIT 1;" "${PDNS_ADMIN_SQLA_DB_NAME}"
 
 # update pdns api settings if env changed
 $SQL_COMMAND "UPDATE setting SET value='${PDNS_API_URL//[\'\"]}' WHERE name='pdns_api_url';" "${PDNS_ADMIN_SQLA_DB_NAME}"
 $SQL_COMMAND "UPDATE setting SET value='${PDNS_API_KEY//[\'\"]}' WHERE name='pdns_api_key';" "${PDNS_ADMIN_SQLA_DB_NAME}"
-$SQL_COMMAND "UPDATE setting SET value='${PDNS_VERSION//[\'\"]}' WHERE name='pdns_version';" "${PDNS_ADMIN_SQLA_DB_NAME}"
 
 mkdir -p /run/uwsgi
 chown uwsgi: /run/uwsgi

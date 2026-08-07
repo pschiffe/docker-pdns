@@ -30,9 +30,12 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
 RUN npm install --global corepack@0.35.0 \
   && corepack enable
 
+# Work around https://github.com/PowerDNS-Admin/PowerDNS-Admin/issues/1883 in v0.6.1.
 RUN mkdir -p /data /opt/powerdns-admin \
-  && curl -fsSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v0.5.1.tar.gz \
+  && curl -fsSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v0.6.1.tar.gz \
     | tar -xzf - -C /opt/powerdns-admin --strip 1 \
+  && sed -i "s|'admin/history.html'|'admin/history/history.html'|" \
+    /opt/powerdns-admin/powerdnsadmin/routes/admin.py \
   && sed -i \
     -e '/cffi/d' \
     -e '/lxml/d' \
