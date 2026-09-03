@@ -287,11 +287,12 @@ record="www.$zone"
 address=192.0.2.2
 
 csrf_token() {
-    awk '$6 == "_csrf_token" { token = $7 } END { print token }' "$cookie_jar"
+    sed -n 's/.*name="_csrf_token" value="\([^"]*\)".*/\1/p' "$1"
 }
 
-curl -fsS -c "$cookie_jar" "$base_url/register" -o /dev/null
-csrf=$(csrf_token)
+csrf_page="/tmp/admin-$backend-csrf.html"
+curl -fsS -c "$cookie_jar" "$base_url/register" -o "$csrf_page"
+csrf=$(csrf_token "$csrf_page")
 test -n "$csrf"
 curl -fsS \
     -b "$cookie_jar" \
@@ -307,8 +308,8 @@ curl -fsS \
     "$base_url/register" \
     -o /dev/null
 
-curl -fsS -b "$cookie_jar" -c "$cookie_jar" "$base_url/login" -o /dev/null
-csrf=$(csrf_token)
+curl -fsS -b "$cookie_jar" -c "$cookie_jar" "$base_url/login" -o "$csrf_page"
+csrf=$(csrf_token "$csrf_page")
 test -n "$csrf"
 effective_url=$(curl -fsS \
     -L \
@@ -362,6 +363,7 @@ run_admin_instance() {
     backend=$1
     image=$2
     container="$run_key-admin-$backend"
+    admin_host="admin-$backend.test"
 
     register_container "$container"
     case "$backend" in
@@ -369,6 +371,7 @@ run_admin_instance() {
             if ! docker run -d \
                 --name "$container" \
                 --network "$network" \
+                --network-alias "$admin_host" \
                 -e PDNS_ADMIN_SQLA_DB_TYPE=mysql \
                 -e PDNS_ADMIN_SQLA_DB_HOST=mysql \
                 -e PDNS_ADMIN_SQLA_DB_USER=root \
@@ -387,6 +390,7 @@ run_admin_instance() {
             if ! docker run -d \
                 --name "$container" \
                 --network "$network" \
+                --network-alias "$admin_host" \
                 -e PDNS_ADMIN_SQLA_DB_TYPE=postgresql \
                 -e PDNS_ADMIN_SQLA_DB_HOST=pgsql \
                 -e PDNS_ADMIN_SQLA_DB_PORT=5432 \
@@ -407,14 +411,14 @@ run_admin_instance() {
     wait_for_health "admin-$backend" "$container"
     attempt=1
     while ! docker exec "$probe_container" curl -fsS \
-        "http://$container:8080/login" -o /dev/null 2>/dev/null; do
+        "http://$admin_host:8080/login" -o /dev/null 2>/dev/null; do
         if [ "$attempt" -ge 180 ]; then
             fail "admin-$backend" "Admin HTTP endpoint did not become ready within 180 seconds"
         fi
         attempt=$((attempt + 1))
         sleep 1
     done
-    assert_admin_flow "$backend" "$container" "$admin_pdns_container"
+    assert_admin_flow "$backend" "$admin_host" "$admin_pdns_container"
 }
 
 run_admin_tests() {

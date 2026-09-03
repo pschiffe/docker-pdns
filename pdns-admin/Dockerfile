@@ -30,12 +30,9 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
 RUN npm install --global corepack@0.35.0 \
   && corepack enable
 
-# Work around https://github.com/PowerDNS-Admin/PowerDNS-Admin/issues/1883 in v0.6.1.
 RUN mkdir -p /data /opt/powerdns-admin \
-  && curl -fsSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v0.6.1.tar.gz \
+  && curl -fsSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v2026.08.1.tar.gz \
     | tar -xzf - -C /opt/powerdns-admin --strip 1 \
-  && sed -i "s|'admin/history.html'|'admin/history/history.html'|" \
-    /opt/powerdns-admin/powerdnsadmin/routes/admin.py \
   && sed -i \
     -e '/cffi/d' \
     -e '/lxml/d' \
@@ -65,7 +62,7 @@ RUN subvars --prefix 'PDNS_ADMIN_' < /config.py.tpl > /opt/powerdns-admin/config
 RUN YARN_NODE_LINKER=node-modules yarn install --immutable --inline-builds \
   && rm -rf /opt/powerdns-admin/powerdnsadmin/static/node_modules \
   && ln -s ../../node_modules /opt/powerdns-admin/powerdnsadmin/static/node_modules \
-  && flask assets build \
+  && SQLALCHEMY_DATABASE_URI=sqlite:////tmp/powerdns-admin-build.db flask assets build \
   && rm /opt/powerdns-admin/powerdnsadmin/static/node_modules \
   && mkdir -p /opt/powerdns-admin/powerdnsadmin/static/node_modules/@fortawesome/fontawesome-free \
   && cp -a \
