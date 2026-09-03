@@ -27,7 +27,7 @@ RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && dnf clean all \
   && systemd-sysusers
 
-RUN npm install --global corepack@0.35.0 \
+RUN npm install --global corepack@0.36.0 \
   && corepack enable
 
 RUN mkdir -p /data /opt/powerdns-admin \

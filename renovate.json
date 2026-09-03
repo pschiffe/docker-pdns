@@ -41,6 +41,45 @@
       "depNameTemplate": "alpine",
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Update Tekton subvars releases",
+      "managerFilePatterns": [
+        "/(^|/)Dockerfile(?:\\.[^/]*)?$/"
+      ],
+      "matchStrings": [
+        "github\\.com/TektonOps/subvars/releases/download/(?<currentValue>v[^/]+)/subvars_\\$\\{arch\\}\\.(?:rpm|apk)"
+      ],
+      "depNameTemplate": "TektonOps/subvars",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "description": "Update PowerDNS Admin releases",
+      "managerFilePatterns": [
+        "/^pdns-admin/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "github\\.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/(?<currentValue>v[^/]+)\\.tar\\.gz"
+      ],
+      "depNameTemplate": "PowerDNS-Admin/PowerDNS-Admin",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "description": "Update Corepack releases",
+      "managerFilePatterns": [
+        "/^pdns-admin/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "npm install --global corepack@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "corepack",
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "npm"
     }
   ]
 }
