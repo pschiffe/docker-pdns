@@ -50,10 +50,12 @@ done
 run_key="docker-pdns-e2e-$$"
 network=$run_key
 mysql_container="$run_key-mysql"
+legacy_mysql_container="$run_key-mysql-legacy"
 pgsql_container="$run_key-pgsql"
 probe_container="$run_key-probe"
 containers=""
 mysql_started=false
+legacy_mysql_started=false
 pgsql_started=false
 current_target=$requested_target
 
@@ -110,6 +112,9 @@ fail() {
     if [ "$mysql_started" = true ]; then
         docker logs "$mysql_container" >&2 2>/dev/null || true
     fi
+    if [ "$legacy_mysql_started" = true ]; then
+        docker logs "$legacy_mysql_container" >&2 2>/dev/null || true
+    fi
     if [ "$pgsql_started" = true ]; then
         docker logs "$pgsql_container" >&2 2>/dev/null || true
     fi
@@ -121,6 +126,7 @@ if ! docker network create "$network" >/dev/null; then
 fi
 
 needs_mysql=false
+needs_legacy_mysql=false
 needs_pgsql=false
 for target in $targets; do
     case "$target" in
@@ -129,6 +135,7 @@ for target in $targets; do
         admin)
             needs_mysql=true
             needs_pgsql=true
+            needs_legacy_mysql=true
             ;;
     esac
 done
@@ -144,6 +151,19 @@ if [ "$needs_mysql" = true ]; then
         fail "$current_target" "could not start MariaDB"
     fi
     mysql_started=true
+fi
+
+if [ "$needs_legacy_mysql" = true ]; then
+    register_container "$legacy_mysql_container"
+    if ! docker run -d \
+        --name "$legacy_mysql_container" \
+        --network "$network" \
+        --network-alias mysql-legacy \
+        -e MARIADB_ROOT_PASSWORD=powerdns \
+        docker.io/library/mariadb:11.2.4 >/dev/null; then
+        fail "$current_target" "could not start legacy MariaDB"
+    fi
+    legacy_mysql_started=true
 fi
 
 if [ "$needs_pgsql" = true ]; then
@@ -386,6 +406,26 @@ run_admin_instance() {
                 fail admin-mysql "could not start Admin MySQL container"
             fi
             ;;
+        mysql-legacy)
+            if ! docker run -d \
+                --name "$container" \
+                --network "$network" \
+                --network-alias "$admin_host" \
+                -e PDNS_ADMIN_SQLA_DB_TYPE=mysql \
+                -e PDNS_ADMIN_SQLA_DB_HOST=mysql-legacy \
+                -e PDNS_ADMIN_SQLA_DB_USER=root \
+                -e PDNS_ADMIN_SQLA_DB_PASSWORD=powerdns \
+                -e PDNS_ADMIN_SQLA_DB_NAME=powerdns_admin_e2e_mysql_legacy \
+                -e MYSQL_CLIENT_EXTRA_PARAMS=--skip-ssl \
+                -e PDNS_ADMIN_CAPTCHA_ENABLE=False \
+                -e 'PDNS_ADMIN_SALT=$2b$12$abcdefghijklmnopqrstuu' \
+                -e "PDNS_API_URL=http://$admin_pdns_container:8081/" \
+                -e PDNS_API_KEY=powerdns \
+                -e PDNS_VERSION=5.0.6 \
+                "$image" >/dev/null; then
+                fail admin-mysql-legacy "could not start Admin legacy MySQL container"
+            fi
+            ;;
         postgresql)
             if ! docker run -d \
                 --name "$container" \
@@ -425,6 +465,7 @@ run_admin_tests() {
     admin_image=$1
     start_admin_pdns
     run_admin_instance mysql "$admin_image"
+    run_admin_instance mysql-legacy "$admin_image"
     run_admin_instance postgresql "$admin_image"
 }
 

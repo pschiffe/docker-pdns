@@ -183,6 +183,8 @@ PDNS_ADMIN_SQLA_DB_NAME=powerdnsadmin
 ```
 If linked with official [mariadb](https://hub.docker.com/_/mariadb/) image with alias `mysql`, the connection can be automatically configured, so you don't need to specify any of the above.
 
+Additional options for the MariaDB command-line client used during database initialization can be supplied with `MYSQL_CLIENT_EXTRA_PARAMS`. For example, set `MYSQL_CLIENT_EXTRA_PARAMS='--skip-ssl'` when connecting to an older MariaDB server that does not support the client's required TLS mode.
+
 Env vars for pgsql configuration:
 ```
 PDNS_ADMIN_SQLA_DB_TYPE=postgres
