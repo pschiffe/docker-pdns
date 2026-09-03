@@ -210,13 +210,12 @@ webserver-address=0.0.0.0
 webserver-allow-from=172.5.0.0/16
 ```
 
-And again, PowerDNS connection is configured via env vars (it needs url of the PowerDNS server, api key and a version of PowerDNS server, for example 4.0):
+And again, the PowerDNS connection is configured via environment variables for the server URL and API key:
 ```
 (name=default value)
 
 PDNS_API_URL="http://pdns:8081/"
 PDNS_API_KEY=""
-PDNS_VERSION=""
 ```
 
 If this container is linked with pdns-mysql from this repo with alias `pdns`, it will be configured automatically and none of the env vars from above are needed to be specified.

@@ -401,7 +401,6 @@ run_admin_instance() {
                 -e 'PDNS_ADMIN_SALT=$2b$12$abcdefghijklmnopqrstuu' \
                 -e "PDNS_API_URL=http://$admin_pdns_container:8081/" \
                 -e PDNS_API_KEY=powerdns \
-                -e PDNS_VERSION=5.0.6 \
                 "$image" >/dev/null; then
                 fail admin-mysql "could not start Admin MySQL container"
             fi
@@ -421,7 +420,6 @@ run_admin_instance() {
                 -e 'PDNS_ADMIN_SALT=$2b$12$abcdefghijklmnopqrstuu' \
                 -e "PDNS_API_URL=http://$admin_pdns_container:8081/" \
                 -e PDNS_API_KEY=powerdns \
-                -e PDNS_VERSION=5.0.6 \
                 "$image" >/dev/null; then
                 fail admin-mysql-legacy "could not start Admin legacy MySQL container"
             fi
@@ -441,7 +439,6 @@ run_admin_instance() {
                 -e 'PDNS_ADMIN_SALT=$2b$12$abcdefghijklmnopqrstuu' \
                 -e "PDNS_API_URL=http://$admin_pdns_container:8081/" \
                 -e PDNS_API_KEY=powerdns \
-                -e PDNS_VERSION=5.0.6 \
                 "$image" >/dev/null; then
                 fail admin-postgresql "could not start Admin PostgreSQL container"
             fi
