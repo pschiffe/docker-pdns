@@ -2,5 +2,45 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "ignorePaths": [
+    "deprecated/**"
+  ],
+  "packageRules": [
+    {
+      "description": "Manage Fedora base image updates manually",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "fedora"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Manage PostgreSQL database images manually",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "postgres"
+      ],
+      "enabled": false
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update the Alpine end-to-end test image",
+      "managerFilePatterns": [
+        "/^tests\\/e2e\\.sh$/"
+      ],
+      "matchStrings": [
+        "docker\\.io/library/alpine:(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "alpine",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    }
   ]
 }

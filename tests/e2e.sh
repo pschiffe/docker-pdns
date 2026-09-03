@@ -183,7 +183,7 @@ register_container "$probe_container"
 if ! docker run -d \
     --name "$probe_container" \
     --network "$network" \
-    docker.io/library/alpine:3.24 tail -f /dev/null >/dev/null; then
+    docker.io/library/alpine:3.24.1 tail -f /dev/null >/dev/null; then
     fail "$current_target" "could not start probe container"
 fi
 if ! docker exec "$probe_container" apk add --no-cache bind-tools curl jq; then
