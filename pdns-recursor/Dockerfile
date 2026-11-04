@@ -1,9 +1,9 @@
-FROM fedora:44
+FROM fedora:45
 
 RUN arch=$([ "$(arch)" = 'aarch64' ] && echo -n 'arm64' || echo -n 'amd64') \
   && echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf \
   && echo 'assumeyes=True' >> /etc/dnf/dnf.conf \
-  && sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/fedora-cisco-openh264.repo \
+  && sed -i 's/enabled=1/enabled=0/g' /usr/share/dnf5/repos.d/fedora-cisco-openh264.repo \
   && dnf --refresh upgrade \
   && dnf install \
     pdns-recursor \
@@ -15,7 +15,7 @@ RUN mkdir -p /etc/pdns-recursor/api.d /run/pdns-recursor \
 
 COPY recursor.conf.tpl docker-entrypoint.sh /
 
-ENV VERSION=5.4.4 \
+ENV VERSION=5.4.8 \
   PDNS_setuid=pdns-recursor \
   PDNS_setgid=pdns-recursor \
   PDNS_daemon=no \
