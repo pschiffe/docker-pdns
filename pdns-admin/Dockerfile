@@ -62,7 +62,9 @@ RUN subvars --prefix 'PDNS_ADMIN_' < /config.py.tpl > /opt/powerdns-admin/config
 RUN YARN_NODE_LINKER=node-modules yarn install --immutable --inline-builds \
   && rm -rf /opt/powerdns-admin/powerdnsadmin/static/node_modules \
   && ln -s ../../node_modules /opt/powerdns-admin/powerdnsadmin/static/node_modules \
-  && SQLALCHEMY_DATABASE_URI=sqlite:////tmp/powerdns-admin-build.db flask assets build \
+  && SECRET_KEY="$(python3 -c 'import secrets; print(secrets.token_hex(32))')" \
+    SALT="$(python3 -c 'import bcrypt; print(bcrypt.gensalt().decode())')" \
+    SQLALCHEMY_DATABASE_URI=sqlite:////tmp/powerdns-admin-build.db flask assets build \
   && rm /opt/powerdns-admin/powerdnsadmin/static/node_modules \
   && mkdir -p /opt/powerdns-admin/powerdnsadmin/static/node_modules/@fortawesome/fontawesome-free \
   && cp -a \
