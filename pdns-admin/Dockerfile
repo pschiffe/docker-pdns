@@ -31,7 +31,7 @@ RUN npm install --global corepack@0.36.0 \
   && corepack enable
 
 RUN mkdir -p /data /opt/powerdns-admin \
-  && curl -fsSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v2026.08.1.tar.gz \
+  && curl -fsSL https://github.com/PowerDNS-Admin/PowerDNS-Admin/archive/refs/tags/v2026.11.1.tar.gz \
     | tar -xzf - -C /opt/powerdns-admin --strip 1 \
   && sed -i \
     -e '/cffi/d' \
