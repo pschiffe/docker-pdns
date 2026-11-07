@@ -171,6 +171,8 @@ Docker image with [PowerDNS Admin](https://github.com/PowerDNS-Admin/PowerDNS-Ad
 
 There is also an official image for the pdns-admin on [Docker Hub](https://hub.docker.com/r/powerdnsadmin/pda-legacy). That image contains only gunicorn process that handles both - static files and the python app. Image in this repo contains uWSGI server handling requests for python app and Caddy web server handling static files and optionally HTTPS with Let's Encrypt.
 
+The image build generates temporary `SECRET_KEY` and bcrypt `SALT` values only for `flask assets build`. These are not runtime defaults; startup still generates its own signing key and uses your configured `PDNS_ADMIN_SALT`.
+
 Env vars for mysql configuration:
 ```
 (name=default value)
@@ -185,9 +187,9 @@ If linked with official [mariadb](https://hub.docker.com/_/mariadb/) image with 
 
 Additional options for the MariaDB command-line client used during database initialization can be supplied with `MYSQL_CLIENT_EXTRA_PARAMS`. For example, set `MYSQL_CLIENT_EXTRA_PARAMS='--skip-ssl'` when connecting to an older MariaDB server that does not support the client's required TLS mode.
 
-Env vars for pgsql configuration:
+Env vars for pgsql configuration (the image explicitly uses its installed psycopg2 driver):
 ```
-PDNS_ADMIN_SQLA_DB_TYPE=postgres
+PDNS_ADMIN_SQLA_DB_TYPE=postgresql
 PDNS_ADMIN_SQLA_DB_HOST=pgsql
 PDNS_ADMIN_SQLA_DB_PORT=5432
 PDNS_ADMIN_SQLA_DB_USER=postgres
@@ -222,7 +224,7 @@ If this container is linked with pdns-mysql from this repo with alias `pdns`, it
 
 ### PowerDNS Admin API keys and SALT
 
-In order to be able to generate an API Key, you will need to specify the SALT via `PDNS_ADMIN_SALT` env var. This is a secret value, which can be generated via command:
+PowerDNS-Admin requires a valid bcrypt SALT at startup and for API keys. Set it via the `PDNS_ADMIN_SALT` env var. Keep the same value across upgrades so existing API keys remain valid. Generate a new value for a new deployment with:
 ```
 python3 -c 'import bcrypt; print(bcrypt.gensalt().decode("utf-8"));'
 ```
